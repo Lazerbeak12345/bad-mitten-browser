@@ -18,36 +18,54 @@
 									   [label "Bad-Mitten Browser"]
 									   [width 800] ; I just guessed these numbers. Works for gnome, works for me
 									   [height 600]
+									   [alignment '(center top)]
 									   )
 					  )
-					(define locationPanel (new horizontal-panel%
-											   [parent frame]
-											   [alignment '(left top)]
-											   )
+					(define locationPane (new horizontal-pane%
+											  ;TODO text align vert-center
+											  [parent frame]
+											  [alignment '(left center)]
+											  )
+					  )
+					(send locationPane stretchable-height #f)
+					(define locationReload (new button%
+												[parent locationPane]
+												[label "Reload"]
+												)
 					  )
 					; The location box. I would prefer if this were in the top bar instead.
 					(define locationBox (new text-field%
-											 [parent locationPanel]
+											 [parent locationPane]
 											 [label "URL:"]
 											 )
+					  )
+					(send locationBox stretchable-height #t)
+					(define last-tab-focused 0)
+					(define tab-elm (new tab-panel%
+										 [choices self-links]
+										 [parent frame]
+										 [callback (lambda (panel event)
+													 (print-info "Changing to tab number ")
+													 (define index (send tab-elm get-selection))
+													 (println index)
+													 (send (list-ref tabs last-tab-focused) unfocus)
+													 (send (list-ref tabs index) focus)
+													 (set! last-tab-focused index)
+													 )
+												   ]
+										 )
 					  )
 					(define tabs (for/list ([tab-link self-links])
 								   (new tab%
 										[url tab-link]
-										[parent frame]
 										[locationBox locationBox]
+										[tab-panel tab-elm]
 										)
 								   )
 					  )
 					(super-new)
 					(send (first tabs) focus)
 					(send frame show #t)
-					(define/public (get-locationBox)
-					  locationBox
-					  )
-					(define/public (get-tabs)
-					  tabs
-					  )
 					)
   )
 (provide bm-window%)
