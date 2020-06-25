@@ -14,8 +14,9 @@
 											 [(string? links) (list links)]
 										 )
 					  )
+					(define label "Bad-Mitten Browser")
 					(define frame (new frame%
-									   [label "Bad-Mitten Browser"]
+									   [label label]
 									   [width 800] ; I just guessed these numbers. Works for gnome, works for me
 									   [height 600]
 									   [alignment '(center top)]
@@ -66,6 +67,7 @@
 													 (send (list-ref tabs last-tab-focused) unfocus)
 													 (send (list-ref tabs index) focus)
 													 (set! last-tab-focused index)
+													 (set-title (send (getCurrentTab) get-title))
 													 )
 												   ]
 										 )
@@ -78,8 +80,12 @@
 										)
 								   )
 					  )
+					(define (set-title title)
+					  (send frame set-label (string-append title " - " label))
+					  )
 					(super-new)
 					(send (first tabs) focus)
+					(set-title (send (getCurrentTab) get-title))
 					(send frame show #t)
 					)
   )

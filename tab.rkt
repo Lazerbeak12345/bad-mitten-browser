@@ -6,6 +6,7 @@
 
 (define tab% (class object% (init url locationBox tab-panel)
 			   (define self-url url)
+			   (define self-title self-url) ; Default to the url
 			   (define self-locationBox locationBox)
 			   (define self-tab-panel tab-panel)
 			   (super-new)
@@ -39,6 +40,9 @@
 			   (define/public (reload)
 				 (print-info (string-append "Reloading '" self-url "'"))
 				 (print-error "Can't actually reload")
+				 )
+			   (define/public (get-title)
+				 self-title
 				 )
 			   (print-info (string-append "Opening tab '" self-url "'"))
 			   )
