@@ -1,17 +1,20 @@
 #lang racket
 (require racket/gui/base)
-; The main window
-
 ; NOTE: I am specifically targeting the GNOME desktop enviroment, and plan to
 ;       follow their official appearance guidelines in the future.
-
+(require net/url)
 (require "consoleFeedback.rkt")
-
 (require "tab.rkt")
 
+; The main window
 (define bm-window% (class object% (init links) ;TODO use signatures
-					(define self-links (cond [((listof string?) links) links]
-											 [(string? links) (list links)]
+					(define self-links (cond [(string? links) (list (string->url links))]
+											 [((listof string?) links) (for/list [(link links)]
+																		 (string->url link)
+																		 )
+																	   ]
+											 [((listof url?) links) links]
+											 [(url? links) (list links)]
 										 )
 					  )
 					(define label "Bad-Mitten Browser")
@@ -58,7 +61,7 @@
 					  (list-ref tabs (send tab-elm get-selection))
 					  )
 					(define tab-elm (new tab-panel%
-										 [choices self-links]
+										 [choices (for/list ([link self-links]) (url->string link))]
 										 [parent frame]
 										 [callback (lambda (panel event)
 													 (print-info "Changing to tab number ")
@@ -68,6 +71,7 @@
 													 (send (list-ref tabs index) focus)
 													 (set! last-tab-focused index)
 													 (set-title (send (getCurrentTab) get-title))
+													 ; TODO set tab name
 													 )
 												   ]
 										 )
@@ -86,6 +90,7 @@
 					(super-new)
 					(send (first tabs) focus)
 					(set-title (send (getCurrentTab) get-title))
+					; TODO set tab name
 					(send frame show #t)
 					)
   )
