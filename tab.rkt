@@ -4,14 +4,30 @@
 
 (require "consoleFeedback.rkt")
 
-(define/contract
-  (tab tab-link frame locationBox) (string?
-									 (is-a?/c frame%)
-									 (is-a?/c text-field%)
-									 . -> .
-									 void?
-									 )
-  ;TODO on focus, (send locationBox set-value tablink)
-  (print-info (string-append "Opening tab '" tab-link "'"))
+(define tab% (class object% (init url parent locationBox)
+			   (define self-url url)
+			   (define self-parent parent)
+			   (define self-locationBox locationBox)
+			   (super-new)
+			   (define/public (get-url) self-url)
+			   (define/public (set-url! new-url)
+				 (print-info (string-append "Changing '"
+											self-url
+											"' to '"
+											new-url
+											"'"
+											)
+							 )
+				 (set! self-url new-url)
+				 (print-error "Can't actually change url")
+				 )
+			   (define/public (focus)
+				 (print-info (string-append "Focusing '" self-url "'"))
+				 (send self-locationBox set-value self-url)
+				 (print-error "Can't actually change visibility")
+				 )
+			   (print-info (string-append "Opening tab '" self-url "'"))
+			   )
   )
-(provide tab)
+(provide tab%)
+

@@ -11,11 +11,11 @@
 
 (define/contract
   (bm-window tab-links) ((or/c (listof string?)
-						  string?
-						  )
-					. -> .
-					void?
-					)
+							   string?
+							   )
+						 . -> .
+						 void?
+						 )
   (define frame (new frame%
 					 [label "Bad-Mitten Browser"]
 					 [width 800] ; I just guessed these numbers. Works for gnome, works for me
@@ -33,16 +33,20 @@
 						   [label "URL:"]
 						   )
 	)
-  (define links (if (list? tab-links)
-				  tab-links
-				  (list tab-links)
-				  )
-	)
-  (define tabs (for/list ([tab-link links])
-				 (tab tab-link frame locationBox)
+  (define tabs (for/list ([tab-link (if (list? tab-links)
+									  tab-links
+									  (list tab-links)
+									  )
+									]
+						  )
+				 (new tab%
+					  [url tab-link]
+					  [parent frame]
+					  [locationBox locationBox]
+					  )
 				 )
 	)
-  (send locationBox set-value (first links))
+  (send (first tabs) focus)
   (send frame show #t)
   )
 (provide bm-window)
