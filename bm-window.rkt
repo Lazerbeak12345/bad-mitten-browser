@@ -21,6 +21,12 @@
 									   [alignment '(center top)]
 									   )
 					  )
+					(define (locationChanged pane event)
+					  (when (eq? (send event get-event-type) 'text-field-enter)
+						(print-info "Location changed!")
+						(send (getCurrentTab) locationChanged) ; They already have access to the url box
+						)
+					  )
 					(define locationPane (new horizontal-pane%
 											  ;TODO text align vert-center
 											  [parent frame]
@@ -31,16 +37,25 @@
 					(define locationReload (new button%
 												[parent locationPane]
 												[label "Reload"]
+												[callback (lambda (button event)
+															(send (getCurrentTab) reload)
+															)
+														  ]
+
 												)
 					  )
 					; The location box. I would prefer if this were in the top bar instead.
 					(define locationBox (new text-field%
 											 [parent locationPane]
 											 [label "URL:"]
+											 [callback locationChanged]
 											 )
 					  )
 					(send locationBox stretchable-height #t)
 					(define last-tab-focused 0)
+					(define (getCurrentTab)
+					  (list-ref tabs (send tab-elm get-selection))
+					  )
 					(define tab-elm (new tab-panel%
 										 [choices self-links]
 										 [parent frame]

@@ -10,16 +10,22 @@
 			   (define self-tab-panel tab-panel)
 			   (super-new)
 			   (define/public (get-url) self-url)
-			   (define/public (set-url! new-url)
-				 (print-info (string-append "Changing '"
-											self-url
-											"' to '"
-											new-url
-											"'"
-											)
-							 )
-				 (set! self-url new-url)
-				 (print-error "Can't actually change url")
+			   (define/public (locationChanged)
+				 (define new-url (send self-locationBox get-value))
+				 (if (equal? self-url new-url)
+				   (print-warning "Url value didn't change")
+				   (begin
+					 (print-info (string-append "Changing '"
+												self-url
+												"' to '"
+												new-url
+												"'"
+												)
+								 )
+					 (set! self-url new-url)
+					 (print-error "Can't actually change url")
+					 )
+				   )
 				 )
 			   (define/public (focus)
 				 (print-info (string-append "Focusing '" self-url "'"))
@@ -29,6 +35,10 @@
 			   (define/public (unfocus)
 				 (print-info (string-append "Unfocusing '" self-url "'"))
 				 (print-error "Can't actually change visibility")
+				 )
+			   (define/public (reload)
+				 (print-info (string-append "Reloading '" self-url "'"))
+				 (print-error "Can't actually reload")
 				 )
 			   (print-info (string-append "Opening tab '" self-url "'"))
 			   )
