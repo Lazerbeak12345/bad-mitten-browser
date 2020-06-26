@@ -8,9 +8,9 @@
 
 ; The main window
 (define bm-window% (class object% (init links) ;TODO use signatures
-					(define self-links (cond [(string? links) (list (string->url links))]
+					(define self-links (cond [(string? links) (list (netscape/string->url links))]
 											 [((listof string?) links) (for/list [(link links)]
-																		 (string->url link)
+																		 (netscape/string->url link)
 																		 )
 																	   ]
 											 [((listof url?) links) links]
@@ -64,14 +64,14 @@
 										 [choices (for/list ([link self-links]) (url->string link))]
 										 [parent frame]
 										 [callback (lambda (panel event)
-													 (print-info "Changing to tab number ")
-													 (define index (send tab-elm get-selection))
-													 (println index)
 													 (send (list-ref tabs last-tab-focused) unfocus)
-													 (send (list-ref tabs index) focus)
-													 (set! last-tab-focused index)
+													 (let ([index (send tab-elm get-selection)])
+													   (print-info "Changing to tab number ")
+													   (println index)
+													   (send (list-ref tabs index) focus)
+													   (set! last-tab-focused index)
+													   )
 													 (set-title (send (getCurrentTab) get-title))
-													 ; TODO set tab name
 													 )
 												   ]
 										 )
@@ -89,8 +89,10 @@
 					  )
 					(super-new)
 					(send (first tabs) focus)
-					(set-title (send (getCurrentTab) get-title))
-					; TODO set tab name
+					(let ([title (send (getCurrentTab) get-title)])
+					  (set-title title)
+					  (send tab-elm set-item-label 0 title)
+					  )
 					(send frame show #t)
 					)
   )
