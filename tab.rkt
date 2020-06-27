@@ -10,7 +10,7 @@
 				 ;(path/param-path (last (url-path self-url)))
 				 (url->string self-url)
 				 )
-			   (define self-title (url->readable self-url)) ; Default to the url
+			   (define self-title (url->readable self-url)) ; Default to the url TODO do this elsewhere
 			   (define self-locationBox locationBox)
 			   (define self-tab-panel tab-panel)
 			   (define (parse)
@@ -23,6 +23,12 @@
 				   )
 				 )
 			   (super-new)
+			   ;place for tab to be rendered upon
+			   (define thisPanel (new panel%
+									  [parent self-tab-panel]
+									  )
+				 )
+			   (send thisPanel show #f); Hide it right away without being displayed.
 			   (define/public (get-url) self-url)
 			   (define/public (locationChanged)
 				 (define new-url (netscape/string->url (send self-locationBox get-value)))
@@ -45,11 +51,15 @@
 			   (define/public (focus)
 				 (print-info (string-append "Focusing '" (url->string self-url)"'"))
 				 (send self-locationBox set-value (url->string self-url))
-				 (print-error "Can't actually change visibility")
+				 (send thisPanel show #t)
+				 ; TODO Speed up CSS and JS clocks
+				 (print-error "Can't actually change CSS and JS clocks")
 				 )
 			   (define/public (unfocus)
 				 (print-info (string-append "Unfocusing '" (url->string self-url)"'"))
-				 (print-error "Can't actually change visibility")
+				 (send thisPanel show #f)
+				 ; TODO Slow down CSS and JS clocks
+				 (print-error "Can't actually change CSS and JS clocks")
 				 )
 			   (define/public (reload)
 				 (print-info (string-append "Reloading '" (url->string self-url) "'"))
@@ -58,6 +68,7 @@
 			   (define/public (get-title)
 				 self-title
 				 )
+			   ; TODO use locationChanged to unify setting default status
 			   ;(print-info (string-append "Opening tab '" (url->string self-url) "'"))
 			   (parse)
 			   )

@@ -66,8 +66,6 @@
 										 [callback (lambda (panel event)
 													 (send (list-ref tabs last-tab-focused) unfocus)
 													 (let ([index (send tab-elm get-selection)])
-													   (print-info "Changing to tab number ")
-													   (println index)
 													   (send (list-ref tabs index) focus)
 													   (set! last-tab-focused index)
 													   )
@@ -76,6 +74,8 @@
 												   ]
 										 )
 					  )
+					(super-new)
+					(send frame show #t) ; Show frame before adding the tabs. It makes it a bit faster.
 					(define tabs (for/list ([tab-link self-links])
 								   (new tab%
 										[url tab-link]
@@ -87,13 +87,11 @@
 					(define (set-title title)
 					  (send frame set-label (string-append title " - " label))
 					  )
-					(super-new)
 					(send (first tabs) focus)
 					(let ([title (send (getCurrentTab) get-title)])
 					  (set-title title)
 					  (send tab-elm set-item-label 0 title)
 					  )
-					(send frame show #t)
 					)
   )
 (provide bm-window%)
