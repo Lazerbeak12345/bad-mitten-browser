@@ -57,6 +57,7 @@
 					  )
 					(send locationBox stretchable-height #t)
 					(define last-tab-focused 0)
+					(define tabs null)
 					(define (getCurrentTab)
 					  (list-ref tabs (send tab-elm get-selection))
 					  )
@@ -76,7 +77,7 @@
 					  )
 					(super-new)
 					(send frame show #t) ; Show frame before adding the tabs. It makes it a bit faster.
-					(define tabs (for/list ([tab-link self-links])
+					(set! tabs (for/list ([tab-link self-links])
 								   (new tab%
 										[url tab-link]
 										[locationBox locationBox]

@@ -15,20 +15,35 @@
 			   (define self-tab-panel tab-panel)
 			   (define (parse)
 				 (print-info (string-append "Parsing " (url->string self-url)))
-				 (case (url-scheme self-url)
-				   ; TODO check if it's a directory
-				   [("file") (println (html->xexp (open-input-file (url->path self-url))))]
-				   [(#f) (print-error (string-append "Can't handle a lack of a scheme"))]
-				   [else (print-error (string-append "Can't handle this scheme " (url-scheme self-url)))]
+				 (let ([tree (case (url-scheme self-url)
+							   ; TODO check if it's a directory
+							   [("file") (html->xexp (open-input-file (url->path self-url)))]
+							   [(#f) (print-error (string-append "Can't handle a lack of a scheme")) null]
+							   [else (print-error (string-append "Can't handle this scheme " (url-scheme self-url))) null]
+							   )
+							 ]
+					   )
+				   (new message%
+						[parent thisPanel]
+						[label (let ([str (~a tree)])
+								 (if (> (string-length str) 200)
+								   (string-append (substring str 0 (- 200 3))
+												  "..."
+												  )
+								   str
+								   )
+								 )
+							   ]
+						)
 				   )
 				 )
 			   (super-new)
 			   ;place for tab to be rendered upon
 			   (define thisPanel (new panel%
 									  [parent self-tab-panel]
+									  [style '(deleted)]
 									  )
 				 )
-			   (send thisPanel show #f); Hide it right away without being displayed.
 			   (define/public (get-url) self-url)
 			   (define/public (locationChanged)
 				 (define new-url (netscape/string->url (send self-locationBox get-value)))
@@ -44,20 +59,21 @@
 								 )
 					 (send self-locationBox set-value (url->string new-url))
 					 (set! self-url new-url)
+					 (set! self-title (url->readable self-url))
 					 (parse)
 					 )
-				   )
+				   ) 
 				 )
 			   (define/public (focus)
 				 (print-info (string-append "Focusing '" (url->string self-url)"'"))
 				 (send self-locationBox set-value (url->string self-url))
-				 (send thisPanel show #t)
+				 (send self-tab-panel add-child thisPanel)
 				 ; TODO Speed up CSS and JS clocks
 				 (print-error "Can't actually change CSS and JS clocks")
 				 )
 			   (define/public (unfocus)
 				 (print-info (string-append "Unfocusing '" (url->string self-url)"'"))
-				 (send thisPanel show #f)
+				 (send self-tab-panel delete-child thisPanel)
 				 ; TODO Slow down CSS and JS clocks
 				 (print-error "Can't actually change CSS and JS clocks")
 				 )
@@ -68,7 +84,6 @@
 			   (define/public (get-title)
 				 self-title
 				 )
-			   ; TODO use locationChanged to unify setting default status
 			   ;(print-info (string-append "Opening tab '" (url->string self-url) "'"))
 			   (parse)
 			   )
