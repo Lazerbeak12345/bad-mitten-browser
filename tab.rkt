@@ -1,8 +1,8 @@
 #lang racket
 (require racket/gui/base)
 (require net/url)
-(require html-parsing)
 (require "consoleFeedback.rkt")
+(require "networking.rkt")
 ; The code for a single tab (only)
 (define tab% (class object% (init url locationBox tab-panel)
 			   (define self-url url)
@@ -15,15 +15,8 @@
 			   (define self-tab-panel tab-panel)
 			   (define (parse)
 				 (print-info (string-append "Parsing " (url->string self-url)))
-				 (let ([tree (case (url-scheme self-url)
-							   ; TODO check if it's a directory
-							   [("file") (html->xexp (open-input-file (url->path self-url)))]
-							   [(#f) (print-error (string-append "Can't handle a lack of a scheme")) null]
-							   [else (print-error (string-append "Can't handle this scheme " (url-scheme self-url))) null]
-							   )
-							 ]
-					   )
-				   (new message%
+				 (let ([tree (htmlTreeFromUrl self-url)])
+				   (new message% ; TODO Temporary for debugging use.
 						[parent thisPanel]
 						[label (let ([str (~a tree)])
 								 (if (> (string-length str) 200)
@@ -44,6 +37,9 @@
 									  [style '(deleted)]
 									  )
 				 )
+			   (define (clean)
+				 (send thisPanel change-children (lambda (current) '()))
+				 )
 			   (define/public (get-url) self-url)
 			   (define/public (locationChanged)
 				 (define new-url (netscape/string->url (send self-locationBox get-value)))
@@ -60,6 +56,7 @@
 					 (send self-locationBox set-value (url->string new-url))
 					 (set! self-url new-url)
 					 (set! self-title (url->readable self-url))
+					 (clean)
 					 (parse)
 					 )
 				   ) 
@@ -79,7 +76,8 @@
 				 )
 			   (define/public (reload)
 				 (print-info (string-append "Reloading '" (url->string self-url) "'"))
-				 (parse); That's as simple as it gets, folks!
+				 (clean)
+				 (parse)
 				 )
 			   (define/public (get-title)
 				 self-title

@@ -25,12 +25,6 @@
 									   [alignment '(center top)]
 									   )
 					  )
-					(define (locationChanged pane event)
-					  (when (eq? (send event get-event-type) 'text-field-enter)
-						(print-info "Location changed!")
-						(send (getCurrentTab) locationChanged) ; They already have access to the url box
-						)
-					  )
 					(define locationPane (new horizontal-pane%
 											  ;TODO text align vert-center
 											  [parent frame]
@@ -38,6 +32,30 @@
 											  )
 					  )
 					(send locationPane stretchable-height #f)
+					(define (locationChanged pane event)
+					  (when (eq? (send event get-event-type) 'text-field-enter)
+						(print-info "Location changed!")
+						(send (getCurrentTab) locationChanged) ; They already have access to the url box
+						)
+					  )
+					(define locationBack (new button%
+												[parent locationPane]
+												[label "Back"]
+												[callback (lambda (button event)
+															(send (getCurrentTab) back)
+															)
+														  ]
+												)
+					  )
+					(define locationForward (new button%
+												[parent locationPane]
+												[label "Forward"]
+												[callback (lambda (button event)
+															(send (getCurrentTab) forward)
+															)
+														  ]
+												)
+					  )
 					(define locationReload (new button%
 												[parent locationPane]
 												[label "Reload"]
@@ -45,8 +63,13 @@
 															(send (getCurrentTab) reload)
 															)
 														  ]
-
 												)
+					  )
+					(let-values ([(width height) (send locationForward get-graphical-min-size)])
+					  ;(print-info (~a width))
+					  (send locationBack min-width width)
+					  (send locationForward min-width width)
+					  (send locationReload min-width width)
 					  )
 					; The location box. I would prefer if this were in the top bar instead.
 					(define locationBox (new text-field%
