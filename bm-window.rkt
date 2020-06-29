@@ -104,6 +104,8 @@
 								   (new tab%
 										[url tab-link]
 										[locationBox locationBox]
+										[locationBack locationBack]
+										[locationForward locationForward]
 										[tab-panel tab-elm]
 										)
 								   )
