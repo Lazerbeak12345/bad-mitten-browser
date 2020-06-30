@@ -14,7 +14,7 @@
 (define (makeErrorMessage e)
   `(*TOP* (body (@ (style "height:100%"))
 				(strong (@ (style "margin:auto;"))
-						,(exn-message e)
+						,e
 						)
 				)
 		  )
@@ -22,7 +22,7 @@
 (define (htmlTreeFromUrl theUrl)
   (case (url-scheme theUrl)
 	[("file")
-	 (with-handlers ([exn:fail:filesystem:errno? makeErrorMessage])
+	 (with-handlers ([exn:fail:filesystem:errno? (lambda (e) (makeErrorMessage (exn-message e)))])
 					(getTreeFromPortAndCloseIt (open-input-file (url->path theUrl)))
 					)
 	 ]
@@ -40,12 +40,15 @@
 					  )
 					)
 	 ]
-	[(#f) (print-error (string-append "Can't handle a lack of a scheme")) null]
-	[else (print-error (string-append "Can't handle this scheme "
-									  (url-scheme theUrl)
-									  )
-					   )
-		  null
+	[("bm")
+	 (print-info "bm url")
+	 (println theUrl)
+	 (makeErrorMessage "bm:// urls not handled for yet!")]
+	[(#f) (makeErrorMessage "Can't handle a lack of a scheme")] ; Should never reach here, but if it _does_ happen, this will handle for that.
+	[else (makeErrorMessage (string-append "Can't handle this scheme "
+										   (url-scheme theUrl)
+										   )
+							)
 		  ]
 	)
   )
