@@ -43,7 +43,8 @@
 	[("bm")
 	 (print-info "bm url")
 	 (println theUrl)
-	 (makeErrorMessage "bm:// urls not handled for yet!")]
+	 (makeErrorMessage "bm:// urls not handled for yet!")
+	 ]
 	[(#f) (makeErrorMessage "Can't handle a lack of a scheme")] ; Should never reach here, but if it _does_ happen, this will handle for that.
 	[else (makeErrorMessage (string-append "Can't handle this scheme "
 										   (url-scheme theUrl)
