@@ -46,10 +46,13 @@
 									  [style '(deleted)]
 									  )
 				 )
-			   (define (clean)
-				 (send thisPanel change-children (lambda (current) '()))
+			   (define (updateLocationButtons)
 				 (send self-locationBack enable (not (null? history)))
 				 (send self-locationForward enable (not (null? history-future)))
+				 )
+			   (define (clean)
+				 (send thisPanel change-children (lambda (current) '()))
+				 (updateLocationButtons)
 				 )
 			   (define/public (get-url) self-url)
 			   (define/public (locationChanged)
@@ -78,6 +81,7 @@
 				 (print-info (string-append "Focusing '" (url->string self-url)"'"))
 				 (send self-locationBox set-value (url->string self-url))
 				 (send self-tab-panel add-child thisPanel)
+				 (updateLocationButtons)
 				 ; TODO Speed up CSS and JS clocks
 				 (print-error "Can't actually change CSS and JS clocks")
 				 )

@@ -1,7 +1,9 @@
 #lang racket
-(require net/url)
-(require html-parsing)
-(require "consoleFeedback.rkt")
+(require net/url
+		 net/url-connect
+		 html-parsing
+		 "consoleFeedback.rkt")
+(current-https-protocol 'secure)
 (define (getTreeFromPortAndCloseIt port)
   (let ([tree (html->xexp port)])
 	(close-input-port port)

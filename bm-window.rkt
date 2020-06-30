@@ -65,12 +65,6 @@
 														  ]
 												)
 					  )
-					(let-values ([(width height) (send locationForward get-graphical-min-size)])
-					  ;(print-info (~a width))
-					  (send locationBack min-width width)
-					  (send locationForward min-width width)
-					  (send locationReload min-width width)
-					  )
 					; The location box. I would prefer if this were in the top bar instead.
 					(define locationBox (new text-field%
 											 [parent locationPane]
@@ -79,6 +73,39 @@
 											 )
 					  )
 					(send locationBox stretchable-height #t)
+					(define tabManagerPane (new horizontal-pane%
+											  ;TODO text align vert-center
+											  [parent frame]
+											  [alignment '(right center)]
+											  )
+					  )
+					(send tabManagerPane stretchable-height #f)
+					(define addTab (new button%
+										[parent tabManagerPane]
+										[label "Add Tab"]
+										[callback (lambda (button event)
+													(print-error "Can't add tab yet")
+													)
+												  ]
+										)
+					  )
+					(define closeTab (new button%
+										  [parent tabManagerPane]
+										  [label "Close Tab"]
+										  [callback (lambda (button event)
+													  (print-error "Can't remove tab yet")
+													  )
+													]
+										  )
+					  )
+					(let-values ([(width height) (send closeTab get-graphical-min-size)])
+					  ;(print-info (~a width))
+					  (send locationBack min-width width)
+					  (send locationForward min-width width)
+					  (send locationReload min-width width)
+					  (send addTab min-width width)
+					  (send closeTab min-width width)
+					  )
 					(define last-tab-focused 0)
 					(define tabs null)
 					(define (getCurrentTab)
