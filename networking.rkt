@@ -2,7 +2,9 @@
 (require net/url
 		 net/url-connect
 		 html-parsing
-		 "consoleFeedback.rkt")
+		 "consoleFeedback.rkt"
+		 "pages.rkt"
+		 )
 (current-https-protocol 'secure)
 (define (getTreeFromPortAndCloseIt port)
   (let ([tree (html->xexp port)])
@@ -11,14 +13,6 @@
 	)
   )
 (provide getTreeFromPortAndCloseIt)
-(define (makeErrorMessage e)
-  `(*TOP* (body (@ (style "height:100%"))
-				(strong (@ (style "margin:auto;"))
-						,e
-						)
-				)
-		  )
-  )
 (define (htmlTreeFromUrl theUrl)
   (case (url-scheme theUrl)
 	[("file")
@@ -40,11 +34,7 @@
 					  )
 					)
 	 ]
-	[("bm")
-	 (print-info "bm url")
-	 (println theUrl)
-	 (makeErrorMessage "bm:// urls not handled for yet!")
-	 ]
+	[("bm") (bmUrl theUrl)]
 	[(#f) (makeErrorMessage "Can't handle a lack of a scheme")] ; Should never reach here, but if it _does_ happen, this will handle for that.
 	[else (makeErrorMessage (string-append "Can't handle this scheme "
 										   (url-scheme theUrl)
