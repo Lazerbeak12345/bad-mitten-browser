@@ -125,6 +125,15 @@
 												   ]
 										 )
 					  )
+					(define (set-title title)
+					  (send frame set-label (string-append title " - " label))
+					  )
+					(define (update-title)
+					  (let ([title (send (getCurrentTab) get-title)])
+						(set-title title)
+						(send tab-elm set-item-label 0 title)
+						)
+					  )
 					(super-new)
 					(send frame show #t) ; Show frame before adding the tabs. It makes it a bit faster.
 					(set! tabs (for/list ([tab-link self-links])
@@ -134,17 +143,12 @@
 										[locationBack locationBack]
 										[locationForward locationForward]
 										[tab-panel tab-elm]
+										[update-title update-title]
 										)
 								   )
 					  )
-					(define (set-title title)
-					  (send frame set-label (string-append title " - " label))
-					  )
 					(send (first tabs) focus)
-					(let ([title (send (getCurrentTab) get-title)])
-					  (set-title title)
-					  (send tab-elm set-item-label 0 title)
-					  )
+					(update-title)
 					)
   )
 (provide bm-window%)

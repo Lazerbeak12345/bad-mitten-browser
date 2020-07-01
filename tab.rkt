@@ -9,6 +9,7 @@
 								  locationBack
 								  locationForward
 								  tab-panel
+								  update-title
 								  )
 			   (define self-url url)
 			   (define (url->readable self-url)
@@ -20,6 +21,7 @@
 			   (define self-locationBack locationBack)
 			   (define self-locationForward locationForward)
 			   (define self-tab-panel tab-panel)
+			   (define self-update-title update-title)
 			   (define history '())
 			   (define history-future '())
 			   (define (parse)
@@ -72,6 +74,7 @@
 					 (set! history-future '())
 					 (set! self-url new-url)
 					 (set! self-title (url->readable self-url))
+					 (self-update-title)
 					 (clean)
 					 (parse)
 					 )
@@ -104,6 +107,7 @@
 				   (set! history-future (cons self-url history-future))
 				   (set! self-url new-url)
 				   (set! self-title (url->readable self-url))
+				   (self-update-title)
 				   (clean)
 				   (parse)
 				   )
@@ -116,6 +120,7 @@
 				   (set! history-future (cdr history-future))
 				   (set! self-url new-url)
 				   (set! self-title (url->readable self-url))
+				   (self-update-title)
 				   (clean)
 				   (parse)
 				   )
