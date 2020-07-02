@@ -1,137 +1,165 @@
 #lang racket
-(require racket/gui/base)
-(require net/url)
-(require "consoleFeedback.rkt")
-(require "networking.rkt")
+(require racket/gui/base
+         net/url
+         "consoleFeedback.rkt"
+         "networking.rkt"
+         )
 ; The code for a single tab (only)
 (define tab% (class object% (init url
-								  locationBox
-								  locationBack
-								  locationForward
-								  tab-panel
-								  update-title
-								  )
-			   (define self-url url)
-			   (define (url->readable self-url)
-				 ;(path/param-path (last (url-path self-url)))
-				 (url->string self-url)
-				 )
-			   (define self-title (url->readable self-url)) ; Default to the url TODO do this elsewhere
-			   (define self-locationBox locationBox)
-			   (define self-locationBack locationBack)
-			   (define self-locationForward locationForward)
-			   (define self-tab-panel tab-panel)
-			   (define self-update-title update-title)
-			   (define history '())
-			   (define history-future '())
-			   (define (parse)
-				 (print-info (string-append "Parsing " (url->string self-url)))
-				 (let ([tree (htmlTreeFromUrl self-url)])
-				   (new message% ; TODO Temporary for debugging use.
-						[parent thisPanel]
-						[label (let ([str (~a tree)])
-								 (if (> (string-length str) 200)
-								   (string-append (substring str 0 (- 200 3))
-												  "..."
-												  )
-								   str
-								   )
-								 )
-							   ]
-						)
-				   )
-				 )
-			   (super-new)
-			   ;place for tab to be rendered upon
-			   (define thisPanel (new panel%
-									  [parent self-tab-panel]
-									  [style '(deleted)]
-									  )
-				 )
-			   (define (updateLocationButtons)
-				 (send self-locationBack enable (not (null? history)))
-				 (send self-locationForward enable (not (null? history-future)))
-				 )
-			   (define (clean)
-				 (send thisPanel change-children (lambda (current) '()))
-				 (updateLocationButtons)
-				 )
-			   (define/public (get-url) self-url)
-			   (define/public (locationChanged)
-				 (define new-url (netscape/string->url (send self-locationBox get-value)))
-				 (if (equal? self-url new-url)
-				   (print-warning "Url value didn't change")
-				   (begin
-					 (print-info (string-append "Changing '"
-												(url->string self-url)
-												"' to '"
-												(url->string new-url)
-												"'"
-												)
-								 )
-					 (send self-locationBox set-value (url->string new-url))
-					 (set! history (cons self-url history))
-					 (set! history-future '())
-					 (set! self-url new-url)
-					 (set! self-title (url->readable self-url))
-					 (self-update-title)
-					 (clean)
-					 (parse)
-					 )
-				   ) 
-				 )
-			   (define/public (focus)
-				 (print-info (string-append "Focusing '" (url->string self-url)"'"))
-				 (send self-locationBox set-value (url->string self-url))
-				 (send self-tab-panel add-child thisPanel)
-				 (updateLocationButtons)
-				 ; TODO Speed up CSS and JS clocks
-				 (print-error "Can't actually change CSS and JS clocks")
-				 )
-			   (define/public (unfocus)
-				 (print-info (string-append "Unfocusing '" (url->string self-url)"'"))
-				 (send self-tab-panel delete-child thisPanel)
-				 ; TODO Slow down CSS and JS clocks
-				 (print-error "Can't actually change CSS and JS clocks")
-				 )
-			   (define/public (reload)
-				 (print-info (string-append "Reloading '" (url->string self-url) "'"))
-				 (clean)
-				 (parse)
-				 )
-			   (define/public (back)
-				 (print-info (string-append "Going back on '" (url->string self-url) "'"))
-				 (let ([new-url (first history)])
-				   (send self-locationBox set-value (url->string new-url))
-				   (set! history (cdr history))
-				   (set! history-future (cons self-url history-future))
-				   (set! self-url new-url)
-				   (set! self-title (url->readable self-url))
-				   (self-update-title)
-				   (clean)
-				   (parse)
-				   )
-				 )
-			   (define/public (forward)
-				 (print-info (string-append "Going forward on '" (url->string self-url) "'"))
-				 (let ([new-url (first history-future)])
-				   (send self-locationBox set-value (url->string new-url))
-				   (set! history (cons self-url history))
-				   (set! history-future (cdr history-future))
-				   (set! self-url new-url)
-				   (set! self-title (url->readable self-url))
-				   (self-update-title)
-				   (clean)
-				   (parse)
-				   )
-				 )
-			   (define/public (get-title)
-				 self-title
-				 )
-			   ;(print-info (string-append "Opening tab '" (url->string self-url) "'"))
-			   (clean)
-			   (parse)
-			   )
+                                  locationBox
+                                  locationBack
+                                  locationForward
+                                  tab-panel
+                                  update-title
+                                  )
+               (define self-url url)
+               (define (url->readable self-url)
+                 (url->string self-url)
+                 )
+               (define self-title (url->readable self-url)) ; Default to the url TODO do this elsewhere
+               (define self-locationBox locationBox)
+               (define self-locationBack locationBack)
+               (define self-locationForward locationForward)
+               (define self-tab-panel tab-panel)
+               (define self-update-title update-title)
+               (define history '())
+               (define history-future '())
+               (define (parse)
+                 (print-info (string-append "Parsing " (url->string self-url)))
+                 (let ([tree (htmlTreeFromUrl self-url)])
+                   (new message% ; TODO Temporary for debugging use.
+                        [parent thisPanel]
+                        [label (let ([str (~a tree)])
+                                 (if (> (string-length str) 200)
+                                   (string-append (substring str 0 (- 200 3))
+                                                  "..."
+                                                  )
+                                   str
+                                   )
+                                 )
+                               ]
+                        )
+                   )
+                 )
+               (super-new)
+               ;place for tab to be rendered upon
+               (define thisPanel (new panel%
+                                      [parent self-tab-panel]
+                                      [style '(deleted)]
+                                      )
+                 )
+               (define (updateLocationButtons)
+                 (send self-locationBack enable (not (null? history)))
+                 (send self-locationForward enable
+                       (not (null? history-future))
+                       )
+                 )
+               (define (clean)
+                 (send thisPanel change-children (lambda (current) '()))
+                 (updateLocationButtons)
+                 )
+               (define/public (get-url) self-url)
+               (define/public (locationChanged)
+                 (define new-url
+                   (netscape/string->url (send self-locationBox get-value))
+                   )
+                 (if (equal? self-url new-url)
+                   (print-warning "Url value didn't change")
+                   (begin
+                     (print-info (string-append "Changing '"
+                                                (url->string self-url)
+                                                "' to '"
+                                                (url->string new-url)
+                                                "'"
+                                                )
+                                 )
+                     (send self-locationBox set-value (url->string new-url))
+                     (set! history (cons self-url history))
+                     (set! history-future '())
+                     (set! self-url new-url)
+                     (set! self-title (url->readable self-url))
+                     (self-update-title)
+                     (clean)
+                     (parse)
+                     )
+                   ) 
+                 )
+               (define/public (focus)
+                 (print-info (string-append "Focusing '"
+                                            (url->string self-url)
+                                            "'"
+                                            )
+                             )
+                 (send self-locationBox set-value (url->string self-url))
+                 (send self-tab-panel add-child thisPanel)
+                 (updateLocationButtons)
+                 ; TODO Speed up CSS and JS clocks
+                 (print-error "Can't actually change CSS and JS clocks")
+                 )
+               (define/public (unfocus)
+                 (print-info (string-append "Unfocusing '"
+                                            (url->string self-url)
+                                            "'"
+                                            )
+                             )
+                 (send self-tab-panel delete-child thisPanel)
+                 ; TODO Slow down CSS and JS clocks
+                 (print-error "Can't actually change CSS and JS clocks")
+                 )
+               (define/public (reload)
+                 (print-info (string-append "Reloading '"
+                                            (url->string self-url)
+                                            "'"
+                                            )
+                             )
+                 (clean)
+                 (parse)
+                 )
+               (define/public (back)
+                 (print-info (string-append "Going back on '"
+                                            (url->string self-url)
+                                            "'"
+                                            )
+                             )
+                 (let ([new-url (first history)])
+                   (send self-locationBox set-value (url->string new-url))
+                   (set! history (cdr history))
+                   (set! history-future (cons self-url history-future))
+                   (set! self-url new-url)
+                   (set! self-title (url->readable self-url))
+                   (self-update-title)
+                   (clean)
+                   (parse)
+                   )
+                 )
+               (define/public (forward)
+                 (print-info (string-append "Going forward on '"
+                                            (url->string self-url)
+                                            "'"
+                                            )
+                             )
+                 (let ([new-url (first history-future)])
+                   (send self-locationBox set-value (url->string new-url))
+                   (set! history (cons self-url history))
+                   (set! history-future (cdr history-future))
+                   (set! self-url new-url)
+                   (set! self-title (url->readable self-url))
+                   (self-update-title)
+                   (clean)
+                   (parse)
+                   )
+                 )
+               (define/public (get-title)
+                 self-title
+                 )
+               #|(print-info (string-append "Opening tab '"
+                                          (url->string self-url)
+                                          "'"
+                                          )
+                           )|#
+               (clean)
+               (parse)
+               )
   )
 (provide tab%)
 

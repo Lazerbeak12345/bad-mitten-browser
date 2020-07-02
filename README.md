@@ -6,10 +6,6 @@ A browser using the racket framework to be as small as possible.
 
 This is still very much at the design phase.
 
-Right now there's a bunch of files
-for parsing html5, but according to the docs on the library `html`, an html4
-parsing library, the library `html-parsing` might be the best possible option.
-
 ### Style Guide
 
 I come from the world of JavaScript and other C-based languages. Thus, I have
