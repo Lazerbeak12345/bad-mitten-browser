@@ -30,6 +30,7 @@
 								  ]
 								 )
 					  (print-info headers)
+					  (print-error "Doesn't check for a redirect"); TODO get location from header and redirect
 					  (getTreeFromPortAndCloseIt port)
 					  )
 					)
