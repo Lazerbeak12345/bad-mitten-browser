@@ -1,6 +1,7 @@
 #lang racket
 (require net/url
          net/url-connect
+         net/head
          html-parsing
          "consoleFeedback.rkt"
          "pages.rkt"
@@ -13,21 +14,18 @@
     )
   )
 (provide getTreeFromPortAndCloseIt)
-(define (htmlTreeFromUrl theUrl)
+(define (htmlTreeFromUrl theUrl doRedirect)
   (case (url-scheme theUrl)
     [("file")
-     (with-handlers ([exn:fail:filesystem:errno? (lambda (e)
-                                                   (makeErrorMessage
-                                                     (exn-message e)
-                                                     )
-                                                   )
-                                                 ]
+     (with-handlers ([exn:fail:filesystem:errno?
+                       (lambda (e)
+                         (makeErrorMessage (exn-message e))
+                         )
+                       ]
                      )
-                    (getTreeFromPortAndCloseIt (open-input-file (url->path 
-                                                                  theUrl
-                                                                  )
-                                                                )
-                                               )
+                    (getTreeFromPortAndCloseIt
+                      (open-input-file (url->path theUrl))
+                      )
                     )
      ]
     ;TODO is this the proper way to do https?
@@ -40,10 +38,15 @@
                                     )
                                   ]
                                  )
-                      (print-info headers)
-                      ; TODO get location from header and redirect
-                      (print-error "Doesn't check for a redirect")
-                      (getTreeFromPortAndCloseIt port)
+                      (let ([location (extract-field "location" headers)])
+                        (if location
+                          (begin 
+                            (doRedirect location)
+                            `(*TOP* "redirecting to " ,location)
+                            )
+                          (getTreeFromPortAndCloseIt port)
+                          )
+                        )
                       )
                     )
      ]

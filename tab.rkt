@@ -26,7 +26,16 @@
                (define history-future '())
                (define (parse)
                  (print-info (string-append "Parsing " (url->string self-url)))
-                 (let ([tree (htmlTreeFromUrl self-url)])
+                 (let ([tree (htmlTreeFromUrl
+                               self-url
+                               (lambda (newUrl)
+                                 (print-error
+                                   (string-append "Redirect to " newUrl)
+                                   )
+                                 )
+                               )
+                             ]
+                       )
                    (new message% ; TODO Temporary for debugging use.
                         [parent thisPanel]
                         [label (let ([str (~a tree)])
