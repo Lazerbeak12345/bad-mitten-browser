@@ -123,7 +123,7 @@
                      (define addTabBtn
                        (new button%
                             [parent tabManagerPane]
-                            [label "Add Tab"]
+                            [label "New Tab"]
                             [callback
                               (lambda (button event)
                                 (set! tabs
