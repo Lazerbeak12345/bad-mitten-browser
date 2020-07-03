@@ -16,7 +16,8 @@
                (define (url->readable self-url)
                  (url->string self-url)
                  )
-               (define self-title (url->readable self-url)) ; Default to the url TODO do this elsewhere
+               ; Default to the url TODO do this elsewhere
+               (define self-title (url->readable self-url))
                (define self-locationBox locationBox)
                (define self-locationBack locationBack)
                (define self-locationForward locationForward)
@@ -161,11 +162,6 @@
                (define/public (get-title)
                  self-title
                  )
-               #|(print-info (string-append "Opening tab '"
-                                          (url->string self-url)
-                                          "'"
-                                          )
-                           )|#
                (clean)
                (parse)
                )

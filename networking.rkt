@@ -7,12 +7,12 @@
          "pages.rkt"
          )
 (current-https-protocol 'secure)
-(define (getTreeFromPortAndCloseIt port)
-  (let ([tree (html->xexp port)])
-    (close-input-port port)
-    tree
-    )
-  )
+(define/contract (getTreeFromPortAndCloseIt port) (port? . -> . list?)
+                 (let ([tree (html->xexp port)])
+                   (close-input-port port)
+                   tree
+                   )
+                 )
 (provide getTreeFromPortAndCloseIt)
 (define (htmlTreeFromUrl theUrl doRedirect)
   (case (url-scheme theUrl)

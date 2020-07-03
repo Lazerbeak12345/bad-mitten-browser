@@ -105,17 +105,46 @@
                                                  )
                        )
                      (send tabManagerPane stretchable-height #f)
-                     (define addTab
+                     (define (makeTab tab-link)
+                       (new tab%
+                            [url tab-link]
+                            [locationBox locationBox]
+                            [locationBack locationBack]
+                            [locationForward locationForward]
+                            [tab-panel tab-elm]
+                            [update-title update-title]
+                            )
+                       )
+                     (define (get-tab-choices)
+                       (for/list ([tab tabs])
+                         (send tab get-title)
+                         )
+                       )
+                     (define addTabBtn
                        (new button%
                             [parent tabManagerPane]
                             [label "Add Tab"]
-                            [callback (lambda (button event)
-                                        (print-error "Can't add tab yet")
+                            [callback
+                              (lambda (button event)
+                                (set! tabs
+                                  (append
+                                    tabs
+                                    (list
+                                      (makeTab
+                                        (netscape/string->url "bm:newtab")
                                         )
-                                      ]
+                                      )
+                                    )
+                                  ) 
+                                (send tab-elm set (get-tab-choices))
+                                (send tab-elm set-selection
+                                      (- (length tabs) 1)
+                                      )
+                                )
+                              ]
                             )
                        )
-                     (define closeTab
+                     (define closeTabBtn
                        (new button%
                             [parent tabManagerPane]
                             [label "Close Tab"]
@@ -126,15 +155,15 @@
                             )
                        )
                      (let-values ([(width height)
-                                   (send closeTab get-graphical-min-size)
+                                   (send closeTabBtn get-graphical-min-size)
                                    ]
                                   )
                        ; (print-info (~a width))
                        (send locationBack min-width width)
                        (send locationForward min-width width)
                        (send locationReload min-width width)
-                       (send addTab min-width width)
-                       (send closeTab min-width width)
+                       (send addTabBtn min-width width)
+                       (send closeTabBtn min-width width)
                        )
                      (define last-tab-focused 0)
                      (define tabs null)
@@ -164,25 +193,19 @@
                        (send frame set-label (string-append title " - " label))
                        )
                      (define (update-title)
-                       (let ([title (send (getCurrentTab) get-title)])
+                       (let ([title (send (getCurrentTab) get-title)]
+                             [currentNum (send tab-elm get-selection)]
+                             )
                          (set-title title)
-                         (send tab-elm set-item-label 0 title)
+                         (send tab-elm set-item-label currentNum title)
                          )
                        )
                      (super-new)
                      ; Show frame before adding the tabs. It makes it a bit 
                      ; faster.
                      (send frame show #t) 
-                     (set! tabs (for/list ([tab-link self-links])
-                                  (new tab%
-                                       [url tab-link]
-                                       [locationBox locationBox]
-                                       [locationBack locationBack]
-                                       [locationForward locationForward]
-                                       [tab-panel tab-elm]
-                                       [update-title update-title]
-                                       )
-                                  )
+                     (set! tabs
+                       (for/list ([tab-link self-links]) (makeTab tab-link))
                        )
                      (send (first tabs) focus)
                      (update-title)
