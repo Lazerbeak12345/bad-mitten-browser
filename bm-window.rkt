@@ -120,38 +120,59 @@
                          (send tab get-title)
                          )
                        )
+                     (define (addTabBtnCallback)
+                       (set! tabs
+                         (append tabs
+                                 (list 
+                                   (makeTab (netscape/string->url "bm:newtab"))
+                                   )
+                                 )
+                         ) 
+                       (send tab-elm set (get-tab-choices))
+                       (send tab-elm set-selection (- (length tabs) 1))
+                       )
                      (define addTabBtn
                        (new button%
                             [parent tabManagerPane]
                             [label "New Tab"]
-                            [callback
-                              (lambda (button event)
-                                (set! tabs
-                                  (append
-                                    tabs
-                                    (list
-                                      (makeTab
-                                        (netscape/string->url "bm:newtab")
+                            [callback (lambda (button event)
+                                        (send (getCurrentTab) unfocus)
+                                        (addTabBtnCallback)
+                                        (do-focus)
                                         )
-                                      )
-                                    )
-                                  ) 
-                                (send tab-elm set (get-tab-choices))
-                                (send tab-elm set-selection
-                                      (- (length tabs) 1)
-                                      )
-                                )
-                              ]
+                                      ]
                             )
                        )
                      (define closeTabBtn
                        (new button%
                             [parent tabManagerPane]
                             [label "Close Tab"]
-                            [callback (lambda (button event)
-                                        (print-error "Can't remove tab yet")
-                                        )
-                                      ]
+                            [callback 
+                              (lambda (button event)
+                                (send (getCurrentTab) unfocus)
+                                (let ([counter -1]
+                                      [index (send tab-elm get-selection)])
+                                  (send (list-ref tabs index) close)
+                                  (set! tabs
+                                    (filter (lambda (item)
+                                              (set! counter (+ counter 1))
+                                              (not (= counter index))
+                                              )
+                                            tabs
+                                            )
+                                    )
+                                  (send tab-elm set (get-tab-choices))
+                                  (if (= 0 (length tabs))
+                                    (begin
+                                      (print-info "Closing browser!")
+                                      (exit 0)
+                                      )
+                                    (send tab-elm set-selection (- index 1))
+                                    )
+                                  (do-focus)
+                                  )
+                                )
+                              ]
                             )
                        )
                      (let-values ([(width height)
@@ -170,6 +191,12 @@
                      (define (getCurrentTab)
                        (list-ref tabs (send tab-elm get-selection))
                        )
+                     (define (do-focus)
+                       (let ([index (send tab-elm get-selection)])
+                         (send (list-ref tabs index) focus)
+                         (set! last-tab-focused index)
+                         )
+                       )
                      (define tab-elm
                        (new tab-panel%
                             [choices (for/list ([link self-links])
@@ -180,11 +207,8 @@
                             [callback 
                               (lambda (panel event)
                                 (send (list-ref tabs last-tab-focused) unfocus)
-                                (let ([index (send tab-elm get-selection)])
-                                  (send (list-ref tabs index) focus)
-                                  (set! last-tab-focused index)
-                                  )
-                                (set-title (send (getCurrentTab) get-title))
+                                (do-focus)
+                                (update-title)
                                 )
                               ]
                             )
@@ -207,7 +231,7 @@
                      (set! tabs
                        (for/list ([tab-link self-links]) (makeTab tab-link))
                        )
-                     (send (first tabs) focus)
+                     (send (getCurrentTab) focus)
                      (update-title)
                      )
   )

@@ -68,7 +68,11 @@
                  (send thisPanel change-children (lambda (current) '()))
                  (updateLocationButtons)
                  )
-               (define/public (get-url) self-url)
+               (define/public (close)
+                 (print-error 
+                   "Doesn't trigger JS events or any of that stuff"
+                   )
+                 )
                (define/public (locationChanged)
                  (define new-url
                    (netscape/string->url (send self-locationBox get-value))
@@ -159,9 +163,15 @@
                    (parse)
                    )
                  )
-               (define/public (get-title)
-                 self-title
+               (define/public (get-title) 
+                 (if ((string-length self-title) . > . 30)
+                   (string-append (substring self-title 0 (- 30 3))
+                                  "..."
+                                  )
+                   self-title
+                   )
                  )
+               (define/public (get-url) self-url)
                (clean)
                (parse)
                )
