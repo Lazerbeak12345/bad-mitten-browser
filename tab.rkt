@@ -1,13 +1,28 @@
 #lang racket
-(require racket/gui/base
-         net/url
-         "consoleFeedback.rkt"
-         "networking.rkt"
-         )
-; The code for a single tab (only)
+; The code for a single tab
+(require racket/gui/base net/url "consoleFeedback.rkt" "networking.rkt")
+(provide tab%)
 (define/contract
   tab%
-  (class/c )
+  (class/c
+    (init [url url?]
+          [locationBox (is-a?/c text-field%)]
+          [locationBack (is-a?/c button%)]
+          [locationForward (is-a?/c button%)]
+          [tab-panel (is-a?/c tab-panel%)]
+          [update-title (-> void?)]
+          )
+    [close (->m void?)]
+    [locationChanged (->m void?)]
+    [focus (->m void?)]
+    [unfocus (->m void?)]
+    [unfocus (->m void?)]
+    [reload (->m void?)]
+    [back (->m void?)]
+    [forward (->m void?)]
+    [get-title (->m string?)]
+    [get-url (->m url?)]
+    )
   (class object% (init url
                        locationBox
                        locationBack
@@ -17,8 +32,7 @@
                        )
     (define self-url url)
     (define (url->readable self-url) (url->string self-url))
-    ; Default to the url TODO do this elsewhere
-    (define self-title (url->readable self-url))
+    (define self-title (url->readable self-url)) ; Default to the URL
     (define self-locationBox locationBox)
     (define self-locationBack locationBack)
     (define self-locationForward locationForward)
@@ -46,14 +60,13 @@
                       )
                     ]
              )
+        (void)
         )
       )
     (super-new)
     ;place for tab to be rendered upon
-    (define thisPanel (new panel%
-                           [parent self-tab-panel]
-                           [style '(deleted)]
-                           )
+    (define thisPanel
+      (new panel% [parent self-tab-panel] [style '(deleted)])
       )
     (define (updateLocationButtons)
       (send self-locationBack enable (not (null? history)))
@@ -156,5 +169,4 @@
     (parse)
     )
   )
-(provide tab%)
 
