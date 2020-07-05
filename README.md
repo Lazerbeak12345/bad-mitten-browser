@@ -5,7 +5,7 @@ A browser using the racket framework to be as small as possible.
 ## Target platform(s)
 
 I plan on focusing all of my development on Linux. I don't see any reason why I
-woudn't want to support other \*nixes, such as Darwin (macos), BSDs, Minix, 
+woudn't support other \*nixes, such as Darwin (macos), BSDs, Minix, 
 Redox, and the like, so patches to make it work there will be likely to be
 given some degree of priority over feature functionality.
 
