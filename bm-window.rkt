@@ -121,6 +121,7 @@
                          )
                        )
                      (define (addTabBtnCallback)
+                       (print-info "Making new tab")
                        (set! tabs
                          (append tabs
                                  (list 
@@ -149,7 +150,14 @@
                             [label "Close Tab"]
                             [callback 
                               (lambda (button event)
-                                (send (getCurrentTab) unfocus)
+                                (let ([current (getCurrentTab)]) 
+                                  (print-info 
+                                    (string-append "Closing "
+                                                   (send current get-title)
+                                                   )
+                                    )
+                                  (send current unfocus)
+                                  )
                                 (let ([counter -1]
                                       [index (send tab-elm get-selection)])
                                   (send (list-ref tabs index) close)

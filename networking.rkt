@@ -14,10 +14,13 @@
                    )
                  )
 (provide getTreeFromPortAndCloseIt)
-(define (htmlTreeFromUrl theUrl doRedirect)
+(define/contract
+  (htmlTreeFromUrl theUrl doRedirect)
+  (-> url? (-> (or/c string?  bytes?) void?) list?)
   (case (url-scheme theUrl)
     [("file")
-     (with-handlers ([exn:fail:filesystem:errno?
+     ;TODO handle directories
+     (with-handlers ([exn:fail:filesystem?;exn:fail:filesystem:errno?
                        (lambda (e)
                          (makeErrorMessage (exn-message e))
                          )
@@ -35,6 +38,9 @@
                                   (get-pure-port/headers 
                                     theUrl
                                     #:connection (make-http-connection)
+                                    ; If we do this, we can't get the latest
+                                    ; url
+                                    ;#:redirections 100
                                     )
                                   ]
                                  )
