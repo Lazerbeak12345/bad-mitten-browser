@@ -1,13 +1,9 @@
 #lang racket
-(require racket/gui/base
-         ; NOTE: I am specifically targeting the GNOME desktop enviroment, and
-         ; plan to follow their official appearance guidelines in the future.
-         net/url
-         "consoleFeedback.rkt"
-         "tab.rkt"
-         )
-
 ; The main window TODO use signatures
+
+; NOTE: I am specifically targeting the GNOME desktop enviroment, and plan to
+; follow their official appearance guidelines in the future.
+(require racket/gui/base net/url "consoleFeedback.rkt" "tab.rkt") 
 (define bm-window% (class object% (init links)
                      (define self-links
                        (cond [(null? links)
@@ -23,10 +19,9 @@
                               ]
                              [((listof url?) links) links]
                              [(url? links) (list links)]
-                             [else (print-error (string-append "bad input" 
-                                                               (~a links)
-                                                               )
-                                                )
+                             [else (print-error
+                                     (format "bad input~a" (~a links))
+                                     )
                                    (list (netscape/string->url 
                                            "bm:newtab;startuperror"
                                            )
@@ -152,9 +147,9 @@
                               (lambda (button event)
                                 (let ([current (getCurrentTab)]) 
                                   (print-info 
-                                    (string-append "Closing "
-                                                   (send current get-title)
-                                                   )
+                                    (format "Closing ~a"
+                                            (send current get-title)
+                                            )
                                     )
                                   (send current unfocus)
                                   )
@@ -222,7 +217,7 @@
                             )
                        )
                      (define (set-title title)
-                       (send frame set-label (string-append title " - " label))
+                       (send frame set-label (format "~a - ~a" title label))
                        )
                      (define (update-title)
                        (let ([title (send (getCurrentTab) get-title)]

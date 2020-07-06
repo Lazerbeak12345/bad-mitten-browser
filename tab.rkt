@@ -41,12 +41,12 @@
     (define history '())
     (define history-future '())
     (define (parse)
-      (print-info (string-append "Parsing " (url->string self-url)))
+      (print-info (format "Parsing ~a" (url->string self-url)))
       (let ([tree
               (htmlTreeFromUrl
                 self-url
                 (lambda (newUrl)
-                  (print-error (string-append "Redirect to " newUrl))
+                  (print-error (format "Redirect to ~a" newUrl))
                   )
                 )
               ]
@@ -55,7 +55,7 @@
              [parent thisPanel]
              [label (let ([str (~a tree)])
                       (if (> (string-length str) 200)
-                        (string-append (substring str 0 (- 200 3)) "...")
+                        (format "~a..." (substring str 0 (- 200 3)))
                         str)
                       )
                     ]
@@ -86,14 +86,11 @@
       (if (equal? self-url new-url)
         (print-warning "Url value didn't change")
         (begin
-          (print-info
-            (string-append "Changing '"
-                           (url->string self-url)
-                           "' to '"
-                           (url->string new-url)
-                           "'"
-                           )
-            )
+          (print-info (format "Changing '~a' to '~a'"
+                              (url->string self-url)
+                              (url->string new-url)
+                              )
+                      )
           (send self-locationBox set-value (url->string new-url))
           (set! history (cons self-url history))
           (set! history-future '())
@@ -106,7 +103,7 @@
         )
       )
     (define/public (focus)
-      (print-info (string-append "Focusing '" (url->string self-url) "'"))
+      (print-info (format "Focusing '~a'" (url->string self-url)))
       (send self-locationBox set-value (url->string self-url))
       (send self-tab-panel add-child thisPanel)
       (updateLocationButtons)
@@ -114,24 +111,18 @@
       (print-error "Can't actually change CSS and JS clocks")
       )
     (define/public (unfocus)
-      (print-info
-        (string-append "Unfocusing '" (url->string self-url) "'")
-        )
+      (print-info (format "Unfocusing '~a'" (url->string self-url)))
       (send self-tab-panel delete-child thisPanel)
       ; TODO Slow down CSS and JS clocks
       (print-error "Can't actually change CSS and JS clocks")
       )
     (define/public (reload)
-      (print-info
-        (string-append "Reloading '" (url->string self-url) "'")
-        )
+      (print-info (format "Reloading '~a'" (url->string self-url)))
       (clean)
       (parse)
       )
     (define/public (back)
-      (print-info
-        (string-append "Going back on '" (url->string self-url) "'")
-        )
+      (print-info (format "Going back on '~a'" (url->string self-url)))
       (let ([new-url (first history)])
         (send self-locationBox set-value (url->string new-url))
         (set! history (cdr history))
@@ -144,9 +135,7 @@
         )
       )
     (define/public (forward)
-      (print-info
-        (string-append "Going forward on '" (url->string self-url) "'")
-        )
+      (print-info (format "Going forward on '~a'" (url->string self-url)))
       (let ([new-url (first history-future)])
         (send self-locationBox set-value (url->string new-url))
         (set! history (cons self-url history))
@@ -160,7 +149,7 @@
       )
     (define/public (get-title) 
       (if ((string-length self-title) . > . 30)
-        (string-append (substring self-title 0 (- 30 3)) "...")
+        (format "~a..." (substring self-title 0 (- 30 3)))
         self-title
         )
       )

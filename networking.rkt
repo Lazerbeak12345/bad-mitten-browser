@@ -60,9 +60,9 @@
     ; Should never reach here, but if it _does_ happen, this will handle for 
     ; that.
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
-    [else (makeErrorMessage (string-append "Can't handle this scheme "
-                                           (url-scheme theUrl)
-                                           )
+    [else (makeErrorMessage (format "Can't handle this scheme ~a"
+                                    (url-scheme theUrl)
+                                    )
                             )
           ]
     )

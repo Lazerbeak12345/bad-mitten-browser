@@ -39,7 +39,7 @@
   (print-info information)
   (string? . -> . void?)
   (when (eq? verbosity 'all)
-    (pretty-display (string-append "INFO:    " information))
+    (displayln (format "INFO:    ~a" information))
     )
   )
 
@@ -50,7 +50,7 @@
             (eq? verbosity 'warnings)
             (eq? verbosity 'errors-and-warnings)
             )
-    (pretty-display (string-append "WARNING: " information))
+    (displayln (format "WARNING: ~a" information))
     )
   )
 
@@ -61,7 +61,7 @@
             (eq? verbosity 'errors)
             (eq? verbosity 'errors-and-warnings)
             )
-    (pretty-display (string-append "ERROR:   " information))
+    (displayln (format "ERROR:   ~a" information))
     )
   )
 (print-info (format "Verbosity level is currently ~a" verbosity))
