@@ -170,7 +170,12 @@
                                       (print-info "Closing browser!")
                                       (exit 0)
                                       )
-                                    (send tab-elm set-selection (- index 1))
+                                    (send tab-elm set-selection
+                                          (if (= 0 index)
+                                            0
+                                            (- index 1)
+                                            )
+                                          )
                                     )
                                   (do-focus)
                                   )
