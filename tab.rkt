@@ -32,7 +32,8 @@
                        )
     (define self-url url)
     (define (url->readable self-url) (url->string self-url))
-    (define self-title (url->readable self-url)) ; Default to the URL
+    ;Default to the URL TODO migrate
+    (define self-title (url->readable self-url))
     (define self-locationBox locationBox)
     (define self-locationBack locationBack)
     (define self-locationForward locationForward)
@@ -40,13 +41,15 @@
     (define self-update-title update-title)
     (define history '())
     (define history-future '())
-    (define (parse)
+    (define (parse [redirectionMax 10])
       (print-info (format "Parsing ~a" (url->string self-url)))
+      (define changedUrl #f)
       (let ([tree
               (htmlTreeFromUrl
                 self-url
-                (lambda (newUrl)
-                  (print-error (format "Redirect to ~a" newUrl))
+                (lambda (newUrlStr)
+                  (print-info (format "Plan to redirect to ~a" newUrlStr))
+                  (set! changedUrl (combine-url/relative self-url newUrlStr))
                   )
                 )
               ]
@@ -60,7 +63,24 @@
                       )
                     ]
              )
-        (void)
+        (when changedUrl
+          (if (< 0 redirectionMax)
+            (begin
+              (print-info (format "Redirecting '~a' to '~a'"
+                                  (url->string self-url)
+                                  (url->string changedUrl)
+                                  )
+                          )
+              (send self-locationBox set-value (url->string changedUrl))
+              (set! self-url changedUrl)
+              (set! self-title (url->readable self-url))
+              (self-update-title)
+              (clean)
+              (parse (- redirectionMax 1))
+              )
+            (print-info "Hit max redirect!")
+            )
+          )
         )
       )
     (super-new)

@@ -16,7 +16,7 @@
 (provide getTreeFromPortAndCloseIt)
 (define/contract
   (htmlTreeFromUrl theUrl doRedirect)
-  (-> url? (-> (or/c string?  bytes?) void?) list?)
+  (-> url? (-> (or/c string? bytes?) void?) list?)
   (case (url-scheme theUrl)
     [("file")
      ;TODO handle directories
@@ -33,7 +33,12 @@
      ]
     ;TODO is this the proper way to do https?
     [("http" "https")
-     (with-handlers ([exn:fail:network:errno? makeErrorMessage])
+     (with-handlers ([exn:fail:network:errno?
+                       (lambda (e)
+                         (makeErrorMessage (exn-message e))
+                         )
+                       ]
+                     )
                     (let-values ([(port headers)
                                   (get-pure-port/headers 
                                     theUrl
@@ -45,14 +50,14 @@
                                   ]
                                  )
                       (let ([location (extract-field "location" headers)])
-                        (if location
-                          (begin 
-                            (doRedirect location)
-                            `(*TOP* "redirecting to " ,location)
-                            )
-                          (getTreeFromPortAndCloseIt port)
+                        (when location
+                          (doRedirect location)
                           )
                         )
+                      ; We always want to see what their server says about it,
+                      ; just in case. (keep in mind the new location may not
+                      ; resolve)
+                      (getTreeFromPortAndCloseIt port)
                       )
                     )
      ]
