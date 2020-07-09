@@ -4,7 +4,12 @@
 ; NOTE: I am specifically targeting the GNOME desktop enviroment, and plan to
 ; follow their official appearance guidelines in the future.
 (require racket/gui/base net/url "consoleFeedback.rkt" "tab.rkt") 
-(define bm-window% (class object% (init links)
+(define/contract
+  bm-window%
+  (class/c
+    (init [links (or/c null? string? (listof string?) url? (listof url?))])
+    )
+  (class object% (init links)
                      (define self-links
                        (cond [(null? links)
                               (list (netscape/string->url "bm:newtab"))
@@ -17,16 +22,8 @@
                                 (netscape/string->url link)
                                 )
                               ]
-                             [((listof url?) links) links]
                              [(url? links) (list links)]
-                             [else (print-error
-                                     (format "bad input~a" (~a links))
-                                     )
-                                   (list (netscape/string->url 
-                                           "bm:newtab;startuperror"
-                                           )
-                                         )
-                                   ]
+                             [((listof url?) links) links]
                              )
                        )
                      (define label "Bad-Mitten Browser")
@@ -46,7 +43,7 @@
                                                )
                        )
                      (send locationPane stretchable-height #f)
-                     (define (locationChanged pane event)
+                     (define/private (locationChanged pane event)
                        (when (eq? (send event get-event-type)
                                   'text-field-enter
                                   )
@@ -100,7 +97,7 @@
                                                  )
                        )
                      (send tabManagerPane stretchable-height #f)
-                     (define (makeTab tab-link)
+                     (define/private (makeTab tab-link)
                        (new tab%
                             [url tab-link]
                             [locationBox locationBox]
@@ -110,12 +107,12 @@
                             [update-title update-title]
                             )
                        )
-                     (define (get-tab-choices)
+                     (define/private (get-tab-choices)
                        (for/list ([tab tabs])
                          (send tab get-title)
                          )
                        )
-                     (define (addTabBtnCallback)
+                     (define/private (addTabBtnCallback)
                        (print-info "Making new tab")
                        (set! tabs
                          (append tabs
@@ -196,10 +193,10 @@
                        )
                      (define last-tab-focused 0)
                      (define tabs null)
-                     (define (getCurrentTab)
+                     (define/private (getCurrentTab)
                        (list-ref tabs (send tab-elm get-selection))
                        )
-                     (define (do-focus)
+                     (define/private (do-focus)
                        (let ([index (send tab-elm get-selection)])
                          (send (list-ref tabs index) focus)
                          (set! last-tab-focused index)
@@ -221,10 +218,10 @@
                               ]
                             )
                        )
-                     (define (set-title title)
+                     (define/private (set-title title)
                        (send frame set-label (format "~a - ~a" title label))
                        )
-                     (define (update-title)
+                     (define/private (update-title)
                        (let ([title (send (getCurrentTab) get-title)]
                              [currentNum (send tab-elm get-selection)]
                              )

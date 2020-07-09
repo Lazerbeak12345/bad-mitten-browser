@@ -31,7 +31,6 @@
                        update-title
                        )
     (define self-url url)
-    (define (url->readable self-url) (url->string self-url))
     ;Default to the URL TODO migrate
     (define self-title (url->readable self-url))
     (define self-locationBox locationBox)
@@ -41,7 +40,8 @@
     (define self-update-title update-title)
     (define history '())
     (define history-future '())
-    (define (parse [redirectionMax 10])
+    (define/private (url->readable self-url) (url->string self-url))
+    (define/private (parse [redirectionMax 10])
       (print-info (format "Parsing ~a" (url->string self-url)))
       (define changedUrl #f)
       (let ([tree
@@ -88,11 +88,11 @@
     (define thisPanel
       (new panel% [parent self-tab-panel] [style '(deleted)])
       )
-    (define (updateLocationButtons)
+    (define/private (updateLocationButtons)
       (send self-locationBack enable (not (null? history)))
       (send self-locationForward enable (not (null? history-future)))
       )
-    (define (clean) 
+    (define/private (clean)
       (send thisPanel change-children (lambda (current) '()))
       (updateLocationButtons)
       )
