@@ -43,7 +43,7 @@
                                                )
                        )
                      (send locationPane stretchable-height #f)
-                     (define/private (locationChanged pane event)
+                     (define (locationChanged pane event)
                        (when (eq? (send event get-event-type)
                                   'text-field-enter
                                   )
@@ -221,7 +221,7 @@
                      (define/private (set-title title)
                        (send frame set-label (format "~a - ~a" title label))
                        )
-                     (define/private (update-title)
+                     (define (update-title)
                        (let ([title (send (getCurrentTab) get-title)]
                              [currentNum (send tab-elm get-selection)]
                              )
