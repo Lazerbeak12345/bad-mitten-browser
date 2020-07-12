@@ -86,6 +86,7 @@
     (displayln (format "[~a] ERROR:   ~a"
                        (getDisplayTime)
                        information)
+               (current-error-port)
                )
     )
   )
