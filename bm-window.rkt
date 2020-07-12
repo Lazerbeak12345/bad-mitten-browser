@@ -194,6 +194,7 @@
                      (define last-tab-focused 0)
                      (define tabs null)
                      (define/private (getCurrentTab)
+                       (print-info "Getting current tab")
                        (list-ref tabs (send tab-elm get-selection))
                        )
                      (define/private (do-focus)
@@ -222,6 +223,7 @@
                        (send frame set-label (format "~a - ~a" title label))
                        )
                      (define (update-title)
+                       (print-info "Updating title")
                        (let ([title (send (getCurrentTab) get-title)]
                              [currentNum (send tab-elm get-selection)]
                              )
@@ -236,8 +238,7 @@
                      (set! tabs
                        (for/list ([tab-link self-links]) (makeTab tab-link))
                        )
-                     (send (getCurrentTab) focus)
-                     (update-title)
+                     (do-focus)
                      )
   )
 (provide bm-window%)

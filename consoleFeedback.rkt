@@ -1,4 +1,5 @@
 #lang racket
+(require racket/date)
 (provide print-info
          print-warning
          print-error
@@ -35,11 +36,29 @@
                    )
                  )
 
+(define (getDisplayTime)
+  (date-display-format 'iso-8601) 
+  (date->string (current-date) #t)
+  #|(let ([d (current-date)])
+    (format "D~aM~aY~aT~a:~a:~a"
+            (date-day d)
+            (date-month d)
+            (date-year d)
+            (date-hour d)
+            (date-minute d)
+            (date-second d)
+            )
+    );|#
+  )
+
 (define/contract 
   (print-info information)
   (string? . -> . void?)
   (when (eq? verbosity 'all)
-    (displayln (format "INFO:    ~a" information))
+    (displayln (format "[~a] INFO:    ~a"
+                       (getDisplayTime)
+                       information)
+               )
     )
   )
 
@@ -50,7 +69,10 @@
             (eq? verbosity 'warnings)
             (eq? verbosity 'errors-and-warnings)
             )
-    (displayln (format "WARNING: ~a" information))
+    (displayln (format "[~a] WARNING: ~a"
+                       (getDisplayTime)
+                       information)
+               )
     )
   )
 
@@ -61,7 +83,10 @@
             (eq? verbosity 'errors)
             (eq? verbosity 'errors-and-warnings)
             )
-    (displayln (format "ERROR:   ~a" information))
+    (displayln (format "[~a] ERROR:   ~a"
+                       (getDisplayTime)
+                       information)
+               )
     )
   )
 (print-info (format "Verbosity level is currently ~a" verbosity))
