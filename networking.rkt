@@ -1,19 +1,7 @@
 #lang racket
-(require net/url
-         net/url-connect
-         net/head
-         html-parsing
-         "consoleFeedback.rkt"
-         "pages.rkt"
-         )
+(require net/url net/url-connect net/head "pages.rkt")
+(provide htmlTreeFromUrl)
 (current-https-protocol 'secure)
-(define/contract (getTreeFromPortAndCloseIt port) (port? . -> . list?)
-                 (let ([tree (html->xexp port)])
-                   (close-input-port port)
-                   tree
-                   )
-                 )
-(provide getTreeFromPortAndCloseIt)
 (define/contract
   (htmlTreeFromUrl theUrl doRedirect)
   (-> url? (-> (or/c string? bytes?) void?) list?)
@@ -57,7 +45,6 @@
                       ; We always want to see what their server says about it,
                       ; just in case. (keep in mind the new location may not
                       ; resolve)
-                      (print-warning "What if it's not an html file?")
                       (getTreeFromPortAndCloseIt port)
                       )
                     )
@@ -73,4 +60,3 @@
           ]
     )
   )
-(provide htmlTreeFromUrl)

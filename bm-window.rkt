@@ -4,6 +4,7 @@
 ; NOTE: I am specifically targeting the GNOME desktop enviroment, and plan to
 ; follow their official appearance guidelines in the future.
 (require racket/gui/base net/url "consoleFeedback.rkt" "tab.rkt") 
+(provide bm-window%)
 (define/contract
   bm-window%
   (class/c
@@ -241,5 +242,4 @@
                      (do-focus)
                      )
   )
-(provide bm-window%)
 
