@@ -28,6 +28,38 @@
                      )
                    )
                  (case (first paths)
+                   [("about" "urls")
+                    `(*TOP* (*DECL* DOCTYPE html)
+                            (html (head (title "Bad Mitten URLS"))
+                                  (body (h1 "Bad Mitten" (i "Browser"))
+                                        #|(ul (li ,(linkFromUrl "bm:about"))
+                                            (li ,(linkFromUrl "bm:blank"))
+                                            (li ,(linkFromUrl "bm:newtab"))
+                                            (li ,(linkFromUrl "bm:urls"))
+                                            )|#
+                                        (ul ,(for/list ([theUrl (list
+                                                                  "bm:about"
+                                                                  "bm:blank"
+                                                                  "bm:newtab"
+                                                                  "bm:urls"
+                                                                  )
+                                                                ]
+                                                        )
+                                               (let
+                                                 ([url (url->string
+                                                         (string->url theUrl)
+                                                         )
+                                                       ]
+                                                  )
+                                                 `(li (a (@ (href ,url)),url))
+                                                 )
+                                               )
+                                            )
+                                        )
+                                  )
+                            )
+                    ]
+                   [("blank") '(*TOP*)]
                    [("newtab")
                     '(*TOP* (*DECL* DOCTYPE html)
                             (html (head (title "New Tab"))
@@ -35,7 +67,11 @@
                                   )
                             )
                     ]
-                   [else (makeErrorMessage "Page does not exist on 'bm:' url")]
+                   [else
+                     (makeErrorMessage
+                       (format "Page does not exist '~a'" (url->string theUrl))
+                       )
+                     ]
                    )
                  )
 

@@ -57,15 +57,16 @@
                       ; We always want to see what their server says about it,
                       ; just in case. (keep in mind the new location may not
                       ; resolve)
+                      (print-warning "What if it's not an html file?")
                       (getTreeFromPortAndCloseIt port)
                       )
                     )
      ]
-    [("bm") (bmUrl theUrl)]
+    [("bm" "about") (bmUrl theUrl)]
     ; Should never reach here, but if it _does_ happen, this will handle for 
     ; that.
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
-    [else (makeErrorMessage (format "Can't handle this scheme ~a"
+    [else (makeErrorMessage (format "Can't handle the scheme '~a'"
                                     (url-scheme theUrl)
                                     )
                             )
