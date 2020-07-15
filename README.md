@@ -27,13 +27,14 @@ where you would both pull from, and send a PR to.)
 
 ## Details about GUI
 
-Right now, the GUI (not the rendering engine) is basically done untill they
-make changes to improove what tabs can do (and what the top bar can do).
+Right now, the GUI (not the rendering engine) is basically done until they make
+changes to improove what tabs can do (and what the top bar can do).
 I would like the tabs to have these changes:
 
 - They need to try to be as wide as possible, but once they are too small, hide
   like it does already.
 - They need (x) buttons to close them.
+- If there is only one tab, don't show it.
 
 I would like the titlebar to have these changes:
 
@@ -63,7 +64,7 @@ This brings two benifits:
 2. **Better version control.** While tools such as Git work regardless of how
    we format our file, tools such as Git count any line touched as modified. 
    If one modifies a line, there is a chance that they introduce unintended
-   behavior in said line. This means less risk.
+   behavior in said line. Less important stuff in one line means less risk.
 
 ### Example
 
@@ -80,9 +81,10 @@ This brings two benifits:
 
 ## Tools used
 
-1. `html-parsing`. It's _really_ good at parsing html5 code. 
+1. `racket` Yes, I must give due credit there. It's pretty darn awesome.
+2. `html-parsing`. It's _really_ good at parsing html5 code. 
    It provides `html->xexp`. (yes, it even handles script tags right. The 
    script is just a string!)
-2. `net/url`, `net/url-connect` and, `net/head`. Tools for managing connections
+3. `net/url`, `net/url-connect` and, `net/head`. Tools for managing connections
    to servers.
 

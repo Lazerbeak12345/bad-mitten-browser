@@ -87,7 +87,8 @@
                      ; bar instead.
                      (define locationBox (new text-field%
                                               [parent locationPane]
-                                              [label "URL:"]
+                                              ;[label "URL:"]
+                                              [label ""]
                                               [callback locationChanged]
                                               )
                        )

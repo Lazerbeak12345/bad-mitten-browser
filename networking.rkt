@@ -1,10 +1,25 @@
 #lang racket
-(require net/url net/url-connect net/head "pages.rkt")
+(require net/url net/url-connect net/head "pages.rkt" "consoleFeedback.rkt")
 (provide htmlTreeFromUrl)
 (current-https-protocol 'secure)
 (define/contract
+  (makeUrlHaveHost theUrl) (-> url? url?)
+  (if (url-host theUrl)
+    theUrl
+    (url (url-scheme theUrl)
+         (url-user theUrl)
+         (path/param-path (car (url-path theUrl))) ; url-host
+         (url-port theUrl)
+         (url-path-absolute? theUrl)
+         (cdr (url-path theUrl)) ; url-path
+         (url-query theUrl)
+         (url-fragment theUrl)
+         )
+    )
+  )
+(define/contract
   (htmlTreeFromUrl theUrl doRedirect)
-  (-> url? (-> (or/c string? bytes?) void?) list?)
+  (-> url? (-> string? void?) list?)
   (case (url-scheme theUrl)
     [("file")
      ;TODO handle directories
@@ -27,25 +42,32 @@
                          )
                        ]
                      )
-                    (let-values ([(port headers)
-                                  (get-pure-port/headers 
-                                    theUrl
-                                    #:connection (make-http-connection)
-                                    ; If we do this, we can't get the latest
-                                    ; url
-                                    ;#:redirections 100
-                                    )
-                                  ]
-                                 )
-                      (let ([location (extract-field "location" headers)])
-                        (when location
-                          (doRedirect location)
-                          )
+                    (if (not (url-host theUrl))
+                      (begin
+                        (print-info "Adjusting to have host")
+                        (doRedirect (url->string (makeUrlHaveHost theUrl)))
+                        '(*TOP*)
                         )
-                      ; We always want to see what their server says about it,
-                      ; just in case. (keep in mind the new location may not
-                      ; resolve)
-                      (getTreeFromPortAndCloseIt port)
+                      (let-values
+                        ([(port headers)
+                          (get-pure-port/headers 
+                            theUrl
+                            #:connection (make-http-connection)
+                            ; If we do this, we can't get the latest url
+                            ;#:redirections 100
+                            )
+                          ]
+                         )
+                        (let ([location (extract-field "location" headers)])
+                          (when location
+                            (doRedirect location)
+                            )
+                          )
+                        ; We always want to see what their server says about
+                        ; it, just in case. (keep in mind the new location may
+                        ; not resolve)
+                        (getTreeFromPortAndCloseIt port)
+                        )
                       )
                     )
      ]
