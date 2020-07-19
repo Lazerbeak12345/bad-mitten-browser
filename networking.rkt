@@ -34,7 +34,6 @@
                       )
                     )
      ]
-    ;TODO is this the proper way to do https?
     [("http" "https")
      (with-handlers ([exn:fail:network:errno?
                        (lambda (e)

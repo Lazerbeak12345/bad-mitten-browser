@@ -180,4 +180,3 @@
     (define/public (get-url) self-url)
     )
   )
-

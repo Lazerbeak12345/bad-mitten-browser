@@ -8,7 +8,7 @@
                    tree
                    )
                  )
-(define/contract 
+(define/contract
   (makeErrorMessage e) (string? . -> . list?)
   `(*TOP* (*DECL* DOCTYPE html)
           (html (body (@ (style "height:100%"))

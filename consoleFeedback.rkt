@@ -39,16 +39,6 @@
 (define (getDisplayTime)
   (date-display-format 'iso-8601) 
   (date->string (current-date) #t)
-  #|(let ([d (current-date)])
-    (format "D~aM~aY~aT~a:~a:~a"
-            (date-day d)
-            (date-month d)
-            (date-year d)
-            (date-hour d)
-            (date-minute d)
-            (date-second d)
-            )
-    );|#
   )
 
 (define/contract 
@@ -91,4 +81,3 @@
     )
   )
 (print-info (format "Verbosity level is currently ~a" verbosity))
-

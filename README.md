@@ -87,4 +87,3 @@ This brings two benifits:
    script is just a string!)
 3. `net/url`, `net/url-connect` and, `net/head`. Tools for managing connections
    to servers.
-
