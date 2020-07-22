@@ -1,5 +1,11 @@
-#lang racket
-(require net/url net/url-connect net/head "pages.rkt" "consoleFeedback.rkt")
+#lang racket/base
+(require racket/contract
+         net/url
+         net/url-connect
+         net/head
+         "pages.rkt"
+         "consoleFeedback.rkt"
+         )
 (provide htmlTreeFromUrl)
 (current-https-protocol 'secure)
 (define/contract

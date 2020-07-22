@@ -1,5 +1,10 @@
-#lang racket
-(require net/url html-parsing "consoleFeedback.rkt")
+#lang racket/base
+(require racket/contract
+         racket/list
+         net/url
+         html-parsing
+         "consoleFeedback.rkt"
+         )
 (provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt)
 (define/contract (getTreeFromPortAndCloseIt port) (port? . -> . list?)
                  (print-warning "What if it's not an html file?")

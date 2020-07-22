@@ -1,6 +1,9 @@
-#lang racket
+#lang racket/base
 ; The code for a single tab
 (require racket/gui/base
+         racket/contract
+         racket/class
+         racket/list
          racket/place
          net/url
          "consoleFeedback.rkt"

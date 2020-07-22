@@ -1,5 +1,5 @@
-#lang racket
-(require racket/date)
+#lang racket/base
+(require racket/date racket/contract)
 (provide print-info
          print-warning
          print-error
