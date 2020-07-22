@@ -16,23 +16,26 @@
 (define/contract verbosity verbosity-level? 'all)
 (define/contract (get-verbosity) (-> verbosity-level?) verbosity)
 (define/contract (set-verbosity! new-verbosity) (-> verbosity-level? void?)
-                 (let ([info-before (format "Verbosity changing from ~a to ~a"
-                                            verbosity
-                                            new-verbosity
-                                            )
-                                    ]
-                       [info-after (format "Verbosity changed from ~a to ~a"
-                                           verbosity
-                                           new-verbosity
-                                           )
-                                   ]
-                       )
-                   ; NOTE I am printing it before and after so one can tell for
-                   ; certian when what change happened if it was to or from all
-                   ; mode.
-                   (print-warning info-before)
-                   (set! verbosity new-verbosity)
-                   (print-warning info-after)
+                 (unless (eq? verbosity new-verbosity)
+                   (let ([info-before
+                           (format "Verbosity changing from ~a to ~a"
+                                   verbosity
+                                   new-verbosity
+                                   )
+                           ]
+                         [info-after (format "Verbosity changed from ~a to ~a"
+                                             verbosity
+                                             new-verbosity
+                                             )
+                                     ]
+                         )
+                     ; NOTE I am printing it before and after so one can tell
+                     ; for certian when what change happened if it was to or
+                     ; from all mode.
+                     (print-warning info-before)
+                     (set! verbosity new-verbosity)
+                     (print-warning info-after)
+                     )
                    )
                  )
 
