@@ -7,10 +7,10 @@
          racket/place
          net/url
          "consoleFeedback.rkt"
-         "networking.rkt"
          "tab-place.rkt"
          )
 (provide tab%)
+(current-url-encode-mode 'unreserved)
 (define/contract
   tab%
   (class/c
@@ -45,59 +45,48 @@
     (define history-future '())
     (define hasBeenFocused #f) ; Has this tab been focused already?
     (define tab-place '())
-    (define tab-place-ch '())
-    (define tab-place-th '())
+    (define tab-place-event-th '())
     (define/private (url->readable self-url) (url->string self-url))
-    (define/private (initRenderer [redirectionMax 10])
+    (define/private (initRenderer)
       (print-info (format "Starting renderer on ~a" (url->string self-url)))
       (clean)
-      (unless (null? tab-place) (close))
+      (unless (null? tab-place)
+        (print-warning "Closing from within init")
+        (close)
+        )
       (set! tab-place (make-tab-place))
       ; Make sure the logging isn't too verbose
       (place-channel-put tab-place (get-verbosity))
       ; What URL?
       (place-channel-put tab-place (url->string self-url))
-      (define-values (ch th) (place-channel->async tab-place))
-      (set! tab-place-ch ch)
-      (set! tab-place-th th)
-      #|(define changedUrl #f)
-      (let ([tree
-              (htmlTreeFromUrl
-                self-url
-                (lambda (newUrlStr)
-                  (print-info (format "Plan to redirect to ~a" newUrlStr))
-                  (set! changedUrl (combine-url/relative self-url newUrlStr))
-                  )
-                )
-              ]
-            )
-        (print-info "Temporary debug render")
-        (new message% ; TODO Temporary for debugging use.
-             [parent thisPanel]
-             [label (let ([str (~a tree)])
-                      (if (> (string-length str) 200)
-                        (format "~a…" (substring str 0 (- 200 1)))
-                        str
+      (set! tab-place-event-th
+        (thread
+          (lambda ()
+            (let loop ()
+              (sync (handle-evt
+                      tab-place
+                      (lambda (v)
+                        (case (first v)
+                          [(redirect)
+                             (print-info
+                               (format "Redirect url '~a' to '~a'"
+                                       (url->string self-url)
+                                       (second v)
+                                       )
+                               )
+                             (send ext-locationBox set-value (second v))
+                             (set! self-url (string->url (second v)))
+                             ]
+                          [else (print-error (format "Unknown event ~a" v))]
+                          )
                         )
                       )
-                    ]
-             )
-        (when changedUrl
-          (if (< 0 redirectionMax)
-            (begin
-              (print-info (format "Redirecting '~a' to '~a'"
-                                  (url->string self-url)
-                                  (url->string changedUrl)
-                                  )
-                          )
-              (send ext-locationBox set-value (url->string changedUrl))
-              (set! self-url changedUrl)
-              (initRenderer (- redirectionMax 1))
+                    )
+              (loop)
               )
-            (print-info "Hit max redirect!")
             )
           )
-        )|#
+        )
       )
     ;place for tab to be rendered upon
     (define thisPanel
@@ -118,13 +107,8 @@
     (super-new)
     (define/public (close)
       (print-info (format "Closing ~a" (url->string self-url)))
-      (if (place-channel-put/get tab-place '(close))
-        (begin
-          (print-info "close true")
-          (place-kill tab-place)
-          )
-        (print-info "close false")
-        )
+      (place-kill tab-place)
+      (kill-thread tab-place-event-th)
       )
     (define/public (locationChanged)
       (let ([new-url (netscape/string->url (send ext-locationBox get-value))])

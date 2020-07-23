@@ -35,6 +35,7 @@
                          )
                        ]
                      )
+                    (print-warning "Check MIME type here")
                     (getTreeFromPortAndCloseIt
                       (open-input-file (url->path theUrl))
                       )
@@ -63,6 +64,8 @@
                             )
                           ]
                          )
+                        (print-warning "send better headers")
+                        (print-warning "Check MIME type here")
                         (let ([location (extract-field "location" headers)])
                           (when location
                             (doRedirect location)

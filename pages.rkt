@@ -7,7 +7,6 @@
          )
 (provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt)
 (define/contract (getTreeFromPortAndCloseIt port) (port? . -> . list?)
-                 (print-warning "What if it's not an html file?")
                  (let ([tree (html->xexp port)])
                    (close-input-port port)
                    tree

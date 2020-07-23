@@ -6,37 +6,9 @@
          racket/async-channel
          net/url
          "consoleFeedback.rkt"
+         "networking.rkt"
          )
-(provide make-tab-place blocking-loop->async place-channel->async)
-; This makes it so I don't have to block if there isn't a value yet.
-; NOTE: Sending something to the thread will be delayed until after f returns
-(define/contract
-  (blocking-loop->async f)
-  (-> (-> (or/c false? any/c) any/c) (values async-channel? thread?))
-  (let ([ch (make-async-channel)])
-    (values ch (thread (λ ()
-                          (let loop ()
-                            (async-channel-put ch (f (thread-try-receive)))
-                            (loop)
-                            )
-                          )
-                       )
-            )
-    )
-  )
-; Make a way of interacting with channel stuff without needing to wait for
-; anything
-; NOTE: Sending something to the thread will be delayed until after the place
-; sends something.
-(define/contract
-  (place-channel->async p) (-> place-channel? (values async-channel? thread?))
-  (blocking-loop->async (λ (v) (if v
-                                   (place-channel-put/get p v)
-                                   (place-channel-get p)
-                                   )
-                           )
-                        )
-  )
+(provide make-tab-place)
 (define/contract
   (make-tab-place) (-> place?)
   (place
@@ -49,25 +21,54 @@
                        )
         )
       )
-    (define/contract theUrl (or/c null? url?) '())
     (set-verbosity! (place-channel-get this-place))
+    (define/contract theUrl (or/c null? url?) '())
     (let ([rUrl (place-channel-get this-place)])
       (print-info (format "Recived URL: ~a" rUrl))
       (set! theUrl (string->url rUrl))
       )
-    (define-values (ch th) (place-channel->async this-place))
+    (define/contract
+      initTree list?
+      (let loop ([redirectionMax 10])
+        (define changedUrl #f)
+        (let ([tree
+                (htmlTreeFromUrl
+                  theUrl
+                  (lambda (newUrlStr)
+                    (print-info (format "Redirect to ~a" newUrlStr))
+                    (set! changedUrl (combine-url/relative theUrl newUrlStr))
+                    )
+                  )
+                ]
+              )
+          (when changedUrl
+            (if (< 0 redirectionMax)
+              (begin
+                (set! theUrl changedUrl)
+                (place-channel-put this-place
+                                   `(redirect ,(url->string changedUrl))
+                                   )
+                (loop (- redirectionMax 1))
+                )
+              (print-info "Hit max redirect!")
+              )
+            )
+          tree
+          )
+        )
+      )
+    (print-info (format "Tree: ~v" initTree))
     (let loop ()
       (sync ; This is behaving like a case over events
         (handle-evt
-          ch
+          this-place
           (lambda (v)
             (case (first v)
-              [(close)
-               (print-error "Doesn't trigger JS events or any of that stuff")
-               (place-channel-put this-place #t)
-               ]
               [(focus unfocus)
                (print-error "Can't actually change CSS and JS clocks")
+               ]
+              [(set-url)
+               (print-error "Not written yet!")
                ]
               [else (print-error (format "Invalid message to place: ~a" v))]
               )
