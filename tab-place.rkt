@@ -8,7 +8,13 @@
          "consoleFeedback.rkt"
          "networking.rkt"
          )
-(provide make-tab-place)
+(provide make-tab-place on-evt)
+(define (on-evt evt f)
+  (let loop () ; It's a little faster when you don't need to pass values
+    (f (sync evt))
+    (loop)
+    )
+  )
 (define/contract
   (make-tab-place) (-> place?)
   (place
@@ -58,27 +64,19 @@
         )
       )
     (print-info (format "Tree: ~v" initTree))
-    (let loop ()
-      (sync ; This is behaving like a case over events
-        (handle-evt
-          this-place
-          (lambda (v)
-            (case (first v)
-              [(focus unfocus)
-               (print-error "Can't actually change CSS and JS clocks")
-               ]
-              [(set-url)
-               (print-error "Not written yet!")
-               ]
-              [else (print-error (format "Invalid message to place: ~a" v))]
-              )
-            )
+    (on-evt
+      this-place
+      (lambda (v)
+        (case (first v)
+          [(focus unfocus)
+           (print-error "Can't actually change CSS and JS clocks")
+           ]
+          [(set-url)
+           (print-error "Not written yet!")
+           ]
+          [else (print-error (format "Invalid message to place: ~a" v))]
           )
         )
-      ; Eh, may as well just loop here. I don't want to think about the
-      ; possibliity of the loop forking. (the double-event firing alone would
-      ; be a beast)
-      (loop)
       )
     )
   )

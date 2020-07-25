@@ -60,38 +60,39 @@
       ; What URL?
       (place-channel-put tab-place (url->string self-url))
       (set! tab-place-event-th
-        (thread
-          (lambda ()
-            (let loop ()
-              (sync (handle-evt
-                      tab-place
-                      (lambda (v)
-                        (case (first v)
-                          [(redirect)
-                             (print-info
-                               (format "Redirect url '~a' to '~a'"
-                                       (url->string self-url)
-                                       (second v)
-                                       )
-                               )
-                             (send ext-locationBox set-value (second v))
-                             (set! self-url (string->url (second v)))
-                             ]
-                          [else (print-error (format "Unknown event ~a" v))]
+        (thread (lambda ()
+                  (on-evt tab-place
+                          (lambda (v)
+                            (case (first v)
+                              [(redirect)
+                               (print-info (format
+                                             "Redirect url '~a' to '~a'"
+                                             (url->string self-url)
+                                             (second v)
+                                             )
+                                           )
+                               (clean)
+                               (send ext-locationBox set-value (second v))
+                               (set! self-url (string->url (second v)))
+                               (ext-update-title)
+                               ]
+                              [(update-title)
+                               (set! title (second v))
+                               (ext-update-title)
+                               ]
+                              [else (print-error
+                                      (format "Unknown event ~a" v)
+                                      )
+                                    ]
+                              )
+                            )
                           )
-                        )
-                      )
-                    )
-              (loop)
-              )
-            )
-          )
+                  )
+                )
         )
       )
     ;place for tab to be rendered upon
-    (define thisPanel
-      (new panel% [parent ext-tab-panel] [style '(deleted)])
-      )
+    (define thisPanel (new panel% [parent ext-tab-panel] [style '(deleted)]))
     (define/private (updateLocationButtons)
       (print-info "Updating location buttons")
       (send ext-locationBack enable (not (null? history)))

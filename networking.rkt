@@ -1,5 +1,8 @@
 #lang racket/base
 (require racket/contract
+         racket/port
+         racket/list
+         racket/string
          net/url
          net/url-connect
          net/head
@@ -59,22 +62,40 @@
                           (get-pure-port/headers 
                             theUrl
                             #:connection (make-http-connection)
-                            ; If we do this, we can't get the latest url
-                            ;#:redirections 100
                             )
                           ]
                          )
                         (print-warning "send better headers")
-                        (print-warning "Check MIME type here")
                         (let ([location (extract-field "location" headers)])
-                          (when location
-                            (doRedirect location)
-                            )
+                          (when location (doRedirect location))
                           )
                         ; We always want to see what their server says about
                         ; it, just in case. (keep in mind the new location may
                         ; not resolve)
-                        (getTreeFromPortAndCloseIt port)
+                        (print-info (format "headers\n~a" headers))
+                        (define content-type
+                          (string-downcase
+                            (first (string-split
+                                     (extract-field "content-type" headers)
+                                     ";"
+                                     )
+                                   )
+                            )
+                          )
+                        (case content-type
+                          [("text/html")
+                           (getTreeFromPortAndCloseIt port)
+                           ]
+                          [("text/plain")
+                           `(*TOP* (code ,(port->string port)))
+                           ]
+                          [else (makeErrorMessage
+                                  (format "unsupported MIME type ~a"
+                                          content-type
+                                          )
+                                  )
+                                ]
+                          )
                         )
                       )
                     )
