@@ -43,7 +43,6 @@
     (define title null) ; When null get-title will default to the url
     (define history '())
     (define history-future '())
-    (define hasBeenFocused #f) ; Has this tab been focused already?
     (define tab-place '())
     (define tab-place-event-th '())
     (define/private (url->readable self-url) (url->string self-url))
@@ -65,11 +64,10 @@
                           (lambda (v)
                             (case (first v)
                               [(redirect)
-                               (print-info (format
-                                             "Redirect url '~a' to '~a'"
-                                             (url->string self-url)
-                                             (second v)
-                                             )
+                               (print-info (format "Redirect url '~a' to '~a'"
+                                                   (url->string self-url)
+                                                   (second v)
+                                                   )
                                            )
                                (clean)
                                (send ext-locationBox set-value (second v))
@@ -132,9 +130,8 @@
       )
     (define/public (focus)
       (print-info (format "Focusing '~a'" (url->string self-url)))
-      (unless hasBeenFocused
+      (when (null? tab-place)
         (initRenderer)
-        (set! hasBeenFocused #t)
         )
       (send ext-locationBox set-value (url->string self-url))
       (send ext-tab-panel add-child thisPanel)
