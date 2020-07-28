@@ -10,10 +10,14 @@
          )
 (provide make-tab-place on-evt)
 (define (on-evt evt f)
-  (let loop () ; It's a little faster when you don't need to pass values
-    (f (sync evt))
-    (loop)
-    )
+  (thread (λ ()
+             ; It's a little faster when you don't need to pass values
+             (let loop ()
+               (f (sync evt))
+               (loop)
+               )
+             )
+          )
   )
 (define/contract
   (make-tab-place) (-> place?)
@@ -34,7 +38,7 @@
       (set! theUrl (string->url rUrl))
       )
     (define/contract
-      initTree list?
+      (makeInitTree) (-> list?)
       (let loop ([redirectionMax 10])
         (define changedUrl #f)
         (let ([tree
@@ -63,18 +67,24 @@
           )
         )
       )
+    (define/contract initTree list? (makeInitTree))
     (print-info (format "Tree: ~v" initTree))
-    (on-evt
-      this-place
-      (lambda (v)
-        (case (first v)
-          [(focus unfocus)
-           (print-error "Can't actually change CSS and JS clocks")
-           ]
-          [(set-url)
-           (print-error "Not written yet!")
-           ]
-          [else (print-error (format "Invalid message to place: ~a" v))]
+    (thread-wait
+      (on-evt
+        this-place
+        (lambda (v)
+          (case (first v)
+            [(focus unfocus)
+             (print-error "Can't actually change CSS and JS clocks")
+             ]
+            [(set-url)
+             (set! theUrl (string->url (second v)))
+             (set! initTree (makeInitTree))
+             (print-info (format "New Tree: ~v" initTree))
+             (print-error "Can't actually refresh CSS and JS!")
+             ]
+            [else (print-error (format "Invalid message to place: ~a" v))]
+            )
           )
         )
       )

@@ -50,8 +50,10 @@
       (print-info (format "Starting renderer on ~a" (url->string self-url)))
       (clean)
       (unless (null? tab-place)
-        (print-warning "Closing from within init")
-        (close)
+        (error 'initRenderer (string-append "Can only be called once. "
+                                            "Use tab-place 'set-url instead."
+                                            )
+               )
         )
       (set! tab-place (make-tab-place))
       ; Make sure the logging isn't too verbose
@@ -59,35 +61,34 @@
       ; What URL?
       (place-channel-put tab-place (url->string self-url))
       (set! tab-place-event-th
-        (thread (lambda ()
-                  (on-evt tab-place
-                          (lambda (v)
-                            (case (first v)
-                              [(redirect)
-                               (print-info (format "Redirect url '~a' to '~a'"
-                                                   (url->string self-url)
-                                                   (second v)
-                                                   )
-                                           )
-                               (clean)
-                               (send ext-locationBox set-value (second v))
-                               (set! self-url (string->url (second v)))
-                               (ext-update-title)
-                               ]
-                              [(update-title)
-                               (set! title (second v))
-                               (ext-update-title)
-                               ]
-                              [else (print-error
-                                      (format "Unknown event ~a" v)
-                                      )
-                                    ]
-                              )
-                            )
-                          )
+        (on-evt tab-place
+                (lambda (v)
+                  (case (first v)
+                    [(redirect)
+                     (print-info (format "Redirect url '~a' to '~a'"
+                                         (url->string self-url)
+                                         (second v)
+                                         )
+                                 )
+                     (clean)
+                     (send ext-locationBox set-value (second v))
+                     (set! self-url (string->url (second v)))
+                     (ext-update-title)
+                     ]
+                    [(update-title)
+                     (set! title (second v))
+                     (ext-update-title)
+                     ]
+                    [else (print-error (format "Unknown event ~a" v))]
+                    )
                   )
                 )
         )
+      )
+    (define/private (navigate-to url-string)
+      (print-info (format "Navigating to '~a'" url-string))
+      (clean)
+      (place-channel-put tab-place `(set-url ,url-string))
       )
     ;place for tab to be rendered upon
     (define thisPanel (new panel% [parent ext-tab-panel] [style '(deleted)]))
@@ -113,17 +114,18 @@
       (let ([new-url (netscape/string->url (send ext-locationBox get-value))])
         (if (equal? self-url new-url)
           (print-warning "Url value didn't change")
-          (begin
+          (let ([self-url-string (url->string self-url)]
+                [new-url-string (url->string new-url)])
             (print-info (format "Changing '~a' to '~a'"
-                                (url->string self-url)
-                                (url->string new-url)
+                                self-url-string
+                                new-url-string
                                 )
                         )
-            (send ext-locationBox set-value (url->string new-url))
+            (send ext-locationBox set-value new-url-string)
             (set! history (cons self-url history))
             (set! history-future '())
             (set! self-url new-url)
-            (initRenderer)
+            (navigate-to new-url-string)
             )
           )
         )
@@ -145,26 +147,28 @@
       )
     (define/public (reload)
       (print-info (format "Reloading '~a'" (url->string self-url)))
-      (initRenderer)
+      (navigate-to (url->string self-url))
       )
     (define/public (back)
       (print-info (format "Going back on '~a'" (url->string self-url)))
-      (let ([new-url (first history)])
-        (send ext-locationBox set-value (url->string new-url))
+      (let* ([new-url (first history)]
+             [new-url-string (url->string new-url)])
+        (send ext-locationBox set-value new-url-string)
         (set! history (cdr history))
         (set! history-future (cons self-url history-future))
         (set! self-url new-url)
-        (initRenderer)
+        (navigate-to new-url-string)
         )
       )
     (define/public (forward)
       (print-info (format "Going forward on '~a'" (url->string self-url)))
-      (let ([new-url (first history-future)])
-        (send ext-locationBox set-value (url->string new-url))
+      (let* ([new-url (first history-future)]
+             [new-url-string (url->string new-url)])
+        (send ext-locationBox set-value new-url-string)
         (set! history (cons self-url history))
         (set! history-future (cdr history-future))
         (set! self-url new-url)
-        (initRenderer)
+        (navigate-to new-url-string)
         )
       )
     (define/public (get-title) 
