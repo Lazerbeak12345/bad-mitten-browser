@@ -41,12 +41,13 @@
           "newtab"
           (first paths)
           )
-    [("about" "urls")
+    [("about" "urls" "bm")
      `(*TOP* (*DECL* DOCTYPE html)
              (html (head (title "Bad Mitten URLS"))
                    (body (h1 "Bad Mitten" (i "Browser"))
                          (ul ,(for/list ([theUrl (list "bm:about"
                                                        "bm:blank"
+                                                       "bm:bm"
                                                        "bm:newtab"
                                                        "bm:urls"
                                                        )
@@ -64,7 +65,16 @@
     [("blank") '(*TOP*)]
     [("newtab") '(*TOP* (*DECL* DOCTYPE html)
                         (html (head (title "New Tab"))
-                              (body (h1 "Bad Mitten" (i "Browser")))
+                              (body (h1 "Bad Mitten" (i "Browser"))
+                                    (span
+                                      (@ (style "font-size:.5em; color:grey"))
+                                      "See the"
+                                      (& nbsp)
+                                      (a (@ (href "bm:urls"))
+                                         "built-in urls"
+                                         )
+                                      )
+                                    )
                               )
                         )
                 ]
