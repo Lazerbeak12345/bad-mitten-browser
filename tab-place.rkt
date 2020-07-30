@@ -32,11 +32,10 @@
         )
       )
     (set-verbosity! (place-channel-get this-place))
-    (define/contract theUrl (or/c null? url?) '())
-    (let ([rUrl (place-channel-get this-place)])
-      (print-info (format "Recived URL: ~a" rUrl))
-      (set! theUrl (string->url rUrl))
-      )
+    (define/contract theUrl url?
+                     (string->url (place-channel-get this-place))
+                     )
+    (print-info (format "Recived URL: ~a" (url->string theUrl)))
     (define/contract
       (makeInitTree) (-> list?)
       (let loop ([redirectionMax 10])
