@@ -8,7 +8,9 @@
          "consoleFeedback.rkt"
          "networking.rkt")
 (provide make-tab-place on-evt)
-(define (on-evt evt f)
+(define/contract
+  (on-evt evt f)
+  (-> evt? (-> any/c void?) thread?)
   (thread (λ ()
              ; It's a little faster when you don't need to pass values
              (let loop ()
