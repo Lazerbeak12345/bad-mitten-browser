@@ -7,8 +7,7 @@
          net/url-connect
          net/head
          "pages.rkt"
-         "consoleFeedback.rkt"
-         )
+         "consoleFeedback.rkt")
 (provide htmlTreeFromUrl)
 (current-https-protocol 'secure)
 (define/contract
@@ -22,10 +21,7 @@
          (url-path-absolute? theUrl)
          (cdr (url-path theUrl)) ; url-path
          (url-query theUrl)
-         (url-fragment theUrl)
-         )
-    )
-  )
+         (url-fragment theUrl))))
 (define/contract
   (htmlTreeFromUrl theUrl doRedirect)
   (-> url? (-> string? void?) list?)
@@ -34,41 +30,27 @@
      ;TODO handle directories
      (with-handlers ([exn:fail:filesystem?;exn:fail:filesystem:errno?
                        (lambda (e)
-                         (makeErrorMessage (exn-message e))
-                         )
-                       ]
-                     )
+                         (makeErrorMessage (exn-message e)))])
                     (print-warning "Check MIME type here")
                     (getTreeFromPortAndCloseIt
-                      (open-input-file (url->path theUrl))
-                      )
-                    )
-     ]
+                      (open-input-file (url->path theUrl))))]
     [("http" "https")
      (with-handlers ([exn:fail:network:errno?
                        (lambda (e)
-                         (makeErrorMessage (exn-message e))
-                         )
-                       ]
-                     )
+                         (makeErrorMessage (exn-message e)))])
                     (if (not (url-host theUrl))
                       (begin
                         (print-info "Adjusting to have host")
                         (doRedirect (url->string (makeUrlHaveHost theUrl)))
-                        '(*TOP*)
-                        )
+                        '(*TOP*))
                       (let-values
                         ([(port headers)
                           (get-pure-port/headers 
                             theUrl
-                            #:connection (make-http-connection)
-                            )
-                          ]
-                         )
+                            #:connection (make-http-connection))])
                         (print-warning "send better headers")
                         (let ([location (extract-field "location" headers)])
-                          (when location (doRedirect location))
-                          )
+                          (when location (doRedirect location)))
                         ; We always want to see what their server says about
                         ; it, just in case. (keep in mind the new location may
                         ; not resolve)
@@ -77,37 +59,18 @@
                           (string-downcase
                             (first (string-split
                                      (extract-field "content-type" headers)
-                                     ";"
-                                     )
-                                   )
-                            )
-                          )
+                                     ";"))))
                         (case content-type
                           [("text/html")
-                           (getTreeFromPortAndCloseIt port)
-                           ]
+                           (getTreeFromPortAndCloseIt port)]
                           [("text/plain")
-                           `(*TOP* (code ,(port->string port)))
-                           ]
+                           `(*TOP* (code ,(port->string port)))]
                           [else (makeErrorMessage
                                   (format "unsupported MIME type ~a"
-                                          content-type
-                                          )
-                                  )
-                                ]
-                          )
-                        )
-                      )
-                    )
-     ]
+                                          content-type))]))))]
     [("bm" "about") (bmUrl theUrl)]
     ; Should never reach here, but if it _does_ happen, this will handle for 
     ; that.
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
     [else (makeErrorMessage (format "Can't handle the scheme '~a'"
-                                    (url-scheme theUrl)
-                                    )
-                            )
-          ]
-    )
-  )
+                                    (url-scheme theUrl)))]))

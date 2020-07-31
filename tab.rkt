@@ -7,8 +7,7 @@
          racket/place
          net/url
          "consoleFeedback.rkt"
-         "tab-place.rkt"
-         )
+         "tab-place.rkt")
 (provide tab%)
 (current-url-encode-mode 'unreserved)
 (define/contract
@@ -19,8 +18,7 @@
           [locationBack (is-a?/c button%)]
           [locationForward (is-a?/c button%)]
           [tab-panel (is-a?/c tab-panel%)]
-          [update-title (-> void?)]
-          )
+          [update-title (-> void?)])
     [close (->m void?)]
     [locationChanged (->m void?)]
     [focus (->m void?)]
@@ -30,8 +28,7 @@
     [back (->m void?)]
     [forward (->m void?)]
     [get-title (->m string?)]
-    [get-url (->m url?)]
-    )
+    [get-url (->m url?)])
   (class object%
     (init url locationBox locationBack locationForward tab-panel update-title)
     (define self-url url)
@@ -51,10 +48,7 @@
       (clean)
       (unless (null? tab-place)
         (error 'initRenderer (string-append "Can only be called once. "
-                                            "Use tab-place 'set-url instead."
-                                            )
-               )
-        )
+                                            "Use tab-place 'set-url instead.")))
       (set! tab-place (make-tab-place))
       ; Make sure the logging isn't too verbose
       (place-channel-put tab-place (get-verbosity))
@@ -67,49 +61,36 @@
                     [(redirect)
                      (print-info (format "Redirect url '~a' to '~a'"
                                          (url->string self-url)
-                                         (second v)
-                                         )
-                                 )
+                                         (second v)))
                      (clean)
                      (send ext-locationBox set-value (second v))
                      (set! self-url (string->url (second v)))
-                     (ext-update-title)
-                     ]
+                     (ext-update-title)]
                     [(update-title)
                      (set! title (second v))
-                     (ext-update-title)
-                     ]
-                    [else (print-error (format "Unknown event ~a" v))]
-                    )
-                  )
-                )
-        )
-      )
+                     (ext-update-title)]
+                    [else (print-error (format "Unknown event ~a" v))])))))
     (define/private (navigate-to url-string)
       (print-info (format "Navigating to '~a'" url-string))
       (clean)
-      (place-channel-put tab-place `(set-url ,url-string))
-      )
+      (place-channel-put tab-place `(set-url ,url-string)))
     ;place for tab to be rendered upon
     (define thisPanel (new panel% [parent ext-tab-panel] [style '(deleted)]))
     (define/private (updateLocationButtons)
       (print-info "Updating location buttons")
       (send ext-locationBack enable (not (null? history)))
-      (send ext-locationForward enable (not (null? history-future)))
-      )
+      (send ext-locationForward enable (not (null? history-future))))
     (define/private (clean)
       (print-info "Cleaning…")
       (set! title null)
       (ext-update-title)
       (send thisPanel change-children (lambda (current) '()))
-      (updateLocationButtons)
-      )
+      (updateLocationButtons))
     (super-new)
     (define/public (close)
       (print-info (format "Closing ~a" (url->string self-url)))
       (place-kill tab-place)
-      (kill-thread tab-place-event-th)
-      )
+      (kill-thread tab-place-event-th))
     (define/public (locationChanged)
       (let ([new-url (netscape/string->url (send ext-locationBox get-value))])
         (if (equal? self-url new-url)
@@ -118,37 +99,27 @@
                 [new-url-string (url->string new-url)])
             (print-info (format "Changing '~a' to '~a'"
                                 self-url-string
-                                new-url-string
-                                )
-                        )
+                                new-url-string))
             (send ext-locationBox set-value new-url-string)
             (set! history (cons self-url history))
             (set! history-future '())
             (set! self-url new-url)
-            (navigate-to new-url-string)
-            )
-          )
-        )
-      )
+            (navigate-to new-url-string)))))
     (define/public (focus)
       (print-info (format "Focusing '~a'" (url->string self-url)))
       (when (null? tab-place)
-        (initRenderer)
-        )
+        (initRenderer))
       (send ext-locationBox set-value (url->string self-url))
       (send ext-tab-panel add-child thisPanel)
       (updateLocationButtons)
-      (place-channel-put tab-place '(focus))
-      )
+      (place-channel-put tab-place '(focus)))
     (define/public (unfocus)
       (print-info (format "Unfocusing '~a'" (url->string self-url)))
       (send ext-tab-panel delete-child thisPanel)
-      (place-channel-put tab-place '(unfocus))
-      )
+      (place-channel-put tab-place '(unfocus)))
     (define/public (reload)
       (print-info (format "Reloading '~a'" (url->string self-url)))
-      (navigate-to (url->string self-url))
-      )
+      (navigate-to (url->string self-url)))
     (define/public (back)
       (print-info (format "Going back on '~a'" (url->string self-url)))
       (let* ([new-url (first history)]
@@ -157,9 +128,7 @@
         (set! history (cdr history))
         (set! history-future (cons self-url history-future))
         (set! self-url new-url)
-        (navigate-to new-url-string)
-        )
-      )
+        (navigate-to new-url-string)))
     (define/public (forward)
       (print-info (format "Going forward on '~a'" (url->string self-url)))
       (let* ([new-url (first history-future)]
@@ -168,22 +137,12 @@
         (set! history (cons self-url history))
         (set! history-future (cdr history-future))
         (set! self-url new-url)
-        (navigate-to new-url-string)
-        )
-      )
+        (navigate-to new-url-string)))
     (define/public (get-title) 
       (let ([title (if (null? title)
                      (url->readable self-url)
-                     title
-                     )
-                   ]
-            )
+                     title)])
         (if (< 30 (string-length title))
           (format "~a…" (substring title 0 (- 30 1)))
-          title
-          )
-        )
-      )
-    (define/public (get-url) self-url)
-    )
-  )
+          title)))
+    (define/public (get-url) self-url)))

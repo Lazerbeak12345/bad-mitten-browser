@@ -3,44 +3,30 @@
          racket/list
          net/url
          html-parsing
-         "consoleFeedback.rkt"
-         )
+         "consoleFeedback.rkt")
 (provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt)
 (define/contract (getTreeFromPortAndCloseIt port) (port? . -> . list?)
                  (let ([tree (html->xexp port)])
                    (close-input-port port)
-                   tree
-                   )
-                 )
+                   tree))
 (define/contract
   (makeErrorMessage e) (string? . -> . list?)
   `(*TOP* (*DECL* DOCTYPE html)
           (html (body (@ (style "height:100%"))
                       (strong (@ (style "margin:auto;"))
-                              ,e
-                              )
-                      )
-                )
-          )
-  )
+                              ,e)))))
 (define/contract
   (bmUrl theUrl) (url? . -> . list?)
   (define/contract paths (listof (or/c string? 'up 'same))
                    (if (not (url-host theUrl))
                      (for/list [(path (url-path theUrl))]
-                       (path/param-path path)
-                       )
+                       (path/param-path path))
                      (cons (url-host theUrl)
                            (for/list [(path (url-path theUrl))]
-                             (path/param-path path)
-                             )
-                           )
-                     )
-                   )
+                             (path/param-path path)))))
   (case (if (null? paths)
           "newtab"
-          (first paths)
-          )
+          (first paths))
     [("about" "urls" "bm")
      `(*TOP* (*DECL* DOCTYPE html)
              (html (head (title "Bad Mitten URLS"))
@@ -49,19 +35,9 @@
                                                        "bm:blank"
                                                        "bm:bm"
                                                        "bm:newtab"
-                                                       "bm:urls"
-                                                       )
-                                                 ]
-                                         )
+                                                       "bm:urls")])
                                 (let ([url (url->string (string->url theUrl))])
-                                  `(li (a (@ (href ,url)),url))
-                                  )
-                                )
-                             )
-                         )
-                   )
-             )
-     ]
+                                  `(li (a (@ (href ,url)),url))))))))]
     [("blank") '(*TOP*)]
     [("newtab") '(*TOP* (*DECL* DOCTYPE html)
                         (html (head (title "New Tab"))
@@ -71,18 +47,6 @@
                                       "See the"
                                       (& nbsp)
                                       (a (@ (href "bm:urls"))
-                                         "built-in urls"
-                                         )
-                                      )
-                                    )
-                              )
-                        )
-                ]
+                                         "built-in urls")))))]
     [else (makeErrorMessage (format "Page does not exist '~a'"
-                                    (url->string theUrl)
-                                    )
-                            )
-          ]
-    )
-  )
-
+                                    (url->string theUrl)))])) 
