@@ -7,6 +7,7 @@
          racket/place
          net/url
          "consoleFeedback.rkt"
+         "on-evt.rkt"
          "tab-place.rkt")
 (provide tab%)
 (current-url-encode-mode 'unreserved)

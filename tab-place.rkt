@@ -2,19 +2,11 @@
 (require racket/contract
          racket/list
          racket/place
-         racket/async-channel
          net/url
          "consoleFeedback.rkt"
-         "networking.rkt")
-(provide make-tab-place on-evt)
-(define/contract
-  (on-evt evt f)
-  (-> evt? (-> any/c void?) thread?)
-  (thread (λ ()
-             ; It's a little faster when you don't need to pass values
-             (let loop ()
-               (f (sync evt))
-               (loop)))))
+         "networking.rkt"
+         "on-evt.rkt")
+(provide make-tab-place)
 (define/contract
   (make-tab-place) (-> place?)
   (place
