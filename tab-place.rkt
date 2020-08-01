@@ -1,6 +1,5 @@
 #lang racket/base
 (require racket/contract
-         racket/bool
          racket/list
          racket/place
          racket/async-channel
@@ -21,7 +20,7 @@
   (place
     this-place
     (print-info "Entering OS-Level Thread")
-    (when (not (place-enabled?))
+    (unless (place-enabled?)
       (print-error
         (string-append "Places aren't supported in this enviroment. Tabs will"
                        " NOT be run in parallel.")))
@@ -33,12 +32,13 @@
       (makeInitTree) (-> list?)
       (let loop ([redirectionMax 10])
         (define changedUrl #f)
-        (let ([tree
+        (define tree
                 (htmlTreeFromUrl
                   theUrl
                   (lambda (newUrlStr)
                     (print-info (format "Redirect to ~a" newUrlStr))
-                    (set! changedUrl (combine-url/relative theUrl newUrlStr))))])
+                    (set! changedUrl (combine-url/relative theUrl
+                                                           newUrlStr)))))
           (when changedUrl
             (if (< 0 redirectionMax)
               (begin
@@ -47,7 +47,7 @@
                                    `(redirect ,(url->string changedUrl)))
                 (loop (- redirectionMax 1)))
               (print-info "Hit max redirect!")))
-          tree)))
+          tree))
     (define/contract initTree list? (makeInitTree))
     (print-info (format "Tree: ~v" initTree))
     (thread-wait
@@ -62,4 +62,5 @@
              (set! initTree (makeInitTree))
              (print-info (format "New Tree: ~v" initTree))
              (print-error "Can't actually refresh CSS and JS!")]
-            [else (print-error (format "Invalid message to place: ~a" v))]))))))
+            [else (print-error (format "Invalid message to place: ~a"
+                                       v))]))))))
