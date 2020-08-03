@@ -110,7 +110,6 @@
                     [(update-title)
                      (set! title (second v))
                      (ext-update-title)]
-                    [(newImage) (set! sharedBytes (second v))]
                     ; TODO find a way that doesn't need this
                     [(drawImage) (send canvas refresh)]
                     [else (print-error (format "Unknown event ~a" v))])))))
