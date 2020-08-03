@@ -41,6 +41,8 @@
           tree))
     (define/contract initTree list? (makeInitTree))
     (define sharedImageBytes (make-shared-bytes 4))
+    (define imageW 1)
+    (define imageH 1)
     (print-info (format "Tree: ~v" initTree))
     (thread-wait
       (on-evt
@@ -55,10 +57,7 @@
              (print-info (format "New Tree: ~v" initTree))
              (print-error "Can't actually refresh CSS and JS!")]
             [(canvas-size)
-             (set! sharedImageBytes (make-shared-bytes (* (second v)
-                                                          (third v)
-                                                          4) 255))
-             (place-channel-put this-place `(newImage ,sharedImageBytes))
-             ;(place-channel-put this-place `(drawImage))
-             ]
+             (set! imageW (second v))
+             (set! imageH (third v))
+             (set! sharedImageBytes (fourth v))]
             [else (print-error (format "Invalid message to place: ~a"v))]))))))

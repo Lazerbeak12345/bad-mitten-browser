@@ -72,20 +72,22 @@
             (lambda (canvas dc)
               (print-info "painting")
               (define-values (w h) (send canvas get-scaled-client-size))
-              (when (or (not (= last-width w))
-                        (not (= last-height h)))
-                (place-channel-put tab-place `(canvas-size ,w ,h))
-                (set! sharedBytes (make-shared-bytes (* w h 4) #;255))
-                (set! bitmap-buffer (make-object bitmap% sharedBytes w h))
-                (set! last-width w)
-                (set! last-height h))
-              (send bitmap-buffer
-                    set-argb-pixels
-                    0
-                    0
-                    last-width
-                    last-height
-                    sharedBytes)
+              (if (or (not (= last-width w))
+                      (not (= last-height h)))
+                (begin
+                  (set! sharedBytes (make-shared-bytes (* w h 4) 255))
+                  (place-channel-put tab-place
+                                     `(canvas-size ,w ,h ,sharedBytes))
+                  (set! bitmap-buffer (make-object bitmap% sharedBytes w h))
+                  (set! last-width w)
+                  (set! last-height h))
+                (send bitmap-buffer
+                      set-argb-pixels
+                      0
+                      0
+                      last-width
+                      last-height
+                      sharedBytes))
               (send dc draw-bitmap bitmap-buffer 0 0)
               ; TODO make this loop _not_ be a busy loop, but still do 80fps
               (thread (lambda()
