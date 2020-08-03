@@ -17,8 +17,7 @@
         (string-append "Places aren't supported in this enviroment. Tabs will"
                        " NOT be run in parallel.")))
     (set-verbosity! (place-channel-get this-place))
-    (define/contract theUrl url?
-                     (string->url (place-channel-get this-place)))
+    (define/contract theUrl url? (string->url (place-channel-get this-place)))
     (print-info (format "Recived URL: ~a" (url->string theUrl)))
     (define/contract
       (makeInitTree) (-> list?)
@@ -41,6 +40,7 @@
               (print-info "Hit max redirect!")))
           tree))
     (define/contract initTree list? (makeInitTree))
+    (define sharedImageBytes (make-shared-bytes 4))
     (print-info (format "Tree: ~v" initTree))
     (thread-wait
       (on-evt
@@ -54,5 +54,11 @@
              (set! initTree (makeInitTree))
              (print-info (format "New Tree: ~v" initTree))
              (print-error "Can't actually refresh CSS and JS!")]
-            [else (print-error (format "Invalid message to place: ~a"
-                                       v))]))))))
+            [(canvas-size)
+             (set! sharedImageBytes (make-shared-bytes (* (second v)
+                                                          (third v)
+                                                          4) 255))
+             (place-channel-put this-place `(newImage ,sharedImageBytes))
+             ;(place-channel-put this-place `(drawImage))
+             ]
+            [else (print-error (format "Invalid message to place: ~a"v))]))))))

@@ -41,20 +41,58 @@
     (define title null) ; When null get-title will default to the url
     (define history '())
     (define history-future '())
-    (define tab-place '())
-    (define tab-place-event-th '())
+    (define tab-place null)
+    (define tab-place-event-th null)
+    ;place for tab to be rendered upon
+    (define thisPanel (new panel% [parent ext-tab-panel] [style '(deleted)]))
     (define/private (url->readable self-url) (url->string self-url))
     (define/private (initRenderer)
       (print-info (format "Starting renderer on ~a" (url->string self-url)))
       (clean)
       (unless (null? tab-place)
-        (error 'initRenderer (string-append "Can only be called once. "
-                                            "Use tab-place 'set-url instead.")))
+        (error 'initRenderer (string-append "Can only be called once. Use "
+                                            "tab-place 'set-url instead.")))
       (set! tab-place (make-tab-place))
       ; Make sure the logging isn't too verbose
       (place-channel-put tab-place (get-verbosity))
       ; What URL?
       (place-channel-put tab-place (url->string self-url))
+
+      ; Canvas stuff. TODO move
+      (define last-width 1)
+      (define last-height 1)
+      (define sharedBytes (make-shared-bytes 4))
+      (define bitmap-buffer (make-object bitmap% 1 1))
+      (define canvas
+        (new
+          canvas%
+          [parent thisPanel]
+          [style '(no-autoclear)]
+          [paint-callback
+            (lambda (canvas dc)
+              (print-info "painting")
+              (define-values (w h) (send canvas get-scaled-client-size))
+              (when (or (not (= last-width w))
+                        (not (= last-height h)))
+                (place-channel-put tab-place `(canvas-size ,w ,h))
+                (set! sharedBytes (make-shared-bytes (* w h 4) #;255))
+                (set! bitmap-buffer (make-object bitmap% sharedBytes w h))
+                (set! last-width w)
+                (set! last-height h))
+              (send bitmap-buffer
+                    set-argb-pixels
+                    0
+                    0
+                    last-width
+                    last-height
+                    sharedBytes)
+              (send dc draw-bitmap bitmap-buffer 0 0)
+              ; TODO make this loop _not_ be a busy loop, but still do 80fps
+              (thread (lambda()
+                        (sync (system-idle-evt))
+                        (sleep 1); TODO remove
+                        ; Blocks, apparently?
+                        (send canvas refresh))))]))
       (set! tab-place-event-th
         (on-evt tab-place
                 (lambda (v)
@@ -70,13 +108,14 @@
                     [(update-title)
                      (set! title (second v))
                      (ext-update-title)]
+                    [(newImage) (set! sharedBytes (second v))]
+                    ; TODO find a way that doesn't need this
+                    [(drawImage) (send canvas refresh)]
                     [else (print-error (format "Unknown event ~a" v))])))))
     (define/private (navigate-to url-string)
       (print-info (format "Navigating to '~a'" url-string))
       (clean)
       (place-channel-put tab-place `(set-url ,url-string)))
-    ;place for tab to be rendered upon
-    (define thisPanel (new panel% [parent ext-tab-panel] [style '(deleted)]))
     (define/private (updateLocationButtons)
       (print-info "Updating location buttons")
       (send ext-locationBack enable (not (null? history)))
