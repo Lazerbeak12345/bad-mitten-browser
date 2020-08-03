@@ -29,6 +29,9 @@ where you would both pull from, and send a PR to.)
 
 Right now, the GUI (not the rendering engine) is basically done until they make
 changes to improove what tabs can do (and what the top bar can do).
+
+### GUI things I can't do yet, but want to, once racket/gui gets better
+
 I would like the tabs to have these changes:
 
 - They need to try to be as wide as possible, but once they are too small, hide
