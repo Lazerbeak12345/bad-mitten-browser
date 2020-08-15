@@ -133,19 +133,19 @@
       (place-kill tab-place)
       (kill-thread tab-place-event-th))
     (define/public (locationChanged)
-      (let ([new-url (netscape/string->url (send ext-locationBox get-value))])
-        (if (equal? self-url new-url)
-          (print-warning "Url value didn't change")
-          (let ([self-url-string (url->string self-url)]
-                [new-url-string (url->string new-url)])
-            (print-info (format "Changing '~a' to '~a'"
-                                self-url-string
-                                new-url-string))
-            (send ext-locationBox set-value new-url-string)
-            (set! history (cons self-url history))
-            (set! history-future '())
-            (set! self-url new-url)
-            (navigate-to new-url-string)))))
+      (define new-url (netscape/string->url (send ext-locationBox get-value)))
+      (if (equal? self-url new-url)
+        (print-warning "Url value didn't change")
+        (let ([self-url-string (url->string self-url)]
+              [new-url-string (url->string new-url)])
+          (print-info (format "Changing '~a' to '~a'"
+                              self-url-string
+                              new-url-string))
+          (send ext-locationBox set-value new-url-string)
+          (set! history (cons self-url history))
+          (set! history-future '())
+          (set! self-url new-url)
+          (navigate-to new-url-string))))
     (define/public (focus)
       (print-info (format "Focusing '~a'" (url->string self-url)))
       (when (null? tab-place)
