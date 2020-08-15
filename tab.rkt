@@ -11,7 +11,7 @@
          "tab-place.rkt")
 (provide tab%)
 (current-url-encode-mode 'unreserved)
-(define (make-canvas parent get-tab-place)
+(define (make-canvas parent)
   (define last-width 1)
   (define last-height 1)
   (define sharedBytes (make-shared-bytes 4))
@@ -28,8 +28,8 @@
                 (not (= last-height h)))
           (begin
             (set! sharedBytes (make-shared-bytes (* w h 4) 255))
-            (place-channel-put (get-tab-place)
-                               `(canvas-size ,w ,h ,sharedBytes))
+            #|(place-channel-put (get-tab-place)
+                               `(canvas-size ,w ,h ,sharedBytes))|#
             (set! bitmap-buffer (make-object bitmap% sharedBytes w h))
             (set! last-width w)
             (set! last-height h))
@@ -77,6 +77,7 @@
     (define title null) ; When null get-title will default to the url
     (define history '())
     (define history-future '())
+    (define canvas null)
     (define tab-place null)
     (define tab-place-event-th null)
     ;place for tab to be rendered upon
@@ -85,18 +86,17 @@
     (define/private (initRenderer)
       (print-info (format "Starting renderer on ~a" (url->string self-url)))
       (clean)
-      (unless (null? tab-place)
-        (error 'initRenderer (string-append "Can only be called once. Use "
-                                            "tab-place 'set-url instead.")))
+      (unless (null? canvas)
+        (error 'initRenderer "Can only be called once."))
       (set! tab-place (make-tab-place))
       ; Make sure the logging isn't too verbose
-      (place-channel-put tab-place (get-verbosity))
+      ;(place-channel-put tab-place (get-verbosity))
       ; What URL?
-      (place-channel-put tab-place (url->string self-url))
+      ;(place-channel-put tab-place (url->string self-url))
 
-      (define canvas (make-canvas thisPanel (lambda () tab-place)))
+      (set! canvas (make-canvas thisPanel))
 
-      (set! tab-place-event-th
+      #|(set! tab-place-event-th
         (on-evt tab-place
                 (lambda (v)
                   (case (first v)
@@ -113,11 +113,13 @@
                      (ext-update-title)]
                     ; TODO find a way that doesn't need this
                     [(drawImage) (send canvas refresh)]
-                    [else (print-error (format "Unknown event ~a" v))])))))
+                    [else (print-error (format "Unknown event ~a" v))]))))|#
+      )
     (define/private (navigate-to url-string)
       (print-info (format "Navigating to '~a'" url-string))
       (clean)
-      (place-channel-put tab-place `(set-url ,url-string)))
+      ;(place-channel-put tab-place `(set-url ,url-string))
+      )
     (define/private (updateLocationButtons)
       (print-info "Updating location buttons")
       (send ext-locationBack enable (not (null? history)))
@@ -131,8 +133,9 @@
     (super-new)
     (define/public (close)
       (print-info (format "Closing ~a" (url->string self-url)))
-      (place-kill tab-place)
-      (kill-thread tab-place-event-th))
+      ;(place-kill tab-place)
+      ;(kill-thread tab-place-event-th)
+      )
     (define/public (locationChanged)
       (define new-url (netscape/string->url (send ext-locationBox get-value)))
       (if (equal? self-url new-url)
@@ -149,16 +152,18 @@
           (navigate-to new-url-string))))
     (define/public (focus)
       (print-info (format "Focusing '~a'" (url->string self-url)))
-      (when (null? tab-place)
+      (when (null? canvas)
         (initRenderer))
       (send ext-locationBox set-value (url->string self-url))
       (send ext-tab-panel add-child thisPanel)
       (updateLocationButtons)
-      (place-channel-put tab-place '(focus)))
+      ;(place-channel-put tab-place '(focus))
+      )
     (define/public (unfocus)
       (print-info (format "Unfocusing '~a'" (url->string self-url)))
       (send ext-tab-panel delete-child thisPanel)
-      (place-channel-put tab-place '(unfocus)))
+      ;(place-channel-put tab-place '(unfocus))
+      )
     (define/public (reload)
       (print-info (format "Reloading '~a'" (url->string self-url)))
       (navigate-to (url->string self-url)))
