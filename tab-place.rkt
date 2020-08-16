@@ -30,15 +30,15 @@
                     (print-info (format "Redirect to ~a" newUrlStr))
                     (set! changedUrl (combine-url/relative theUrl
                                                            newUrlStr)))))
-          (when changedUrl
-            (if (< 0 redirectionMax)
-              (begin
-                (set! theUrl changedUrl)
-                (place-channel-put this-place
-                                   `(redirect ,(url->string changedUrl)))
-                (loop (- redirectionMax 1)))
-              (print-info "Hit max redirect!")))
-          tree))
+        (when changedUrl
+          (if (< 0 redirectionMax)
+            (begin
+              (set! theUrl changedUrl)
+              (place-channel-put this-place
+                                 `(redirect ,(url->string changedUrl)))
+              (loop (- redirectionMax 1)))
+            (print-info "Hit max redirect!")))
+        tree))
     (define/contract initTree list? (makeInitTree))
     (define sharedImageBytes (make-shared-bytes 4))
     (define imageW 1)
