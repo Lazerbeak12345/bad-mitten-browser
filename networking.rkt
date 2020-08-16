@@ -10,6 +10,7 @@
          "consoleFeedback.rkt")
 (provide htmlTreeFromUrl makeInitTree)
 (current-https-protocol 'secure)
+(current-url-encode-mode 'unreserved)
 (define/contract
   (makeUrlHaveHost theUrl) (-> url? url?)
   (if (url-host theUrl)

@@ -11,7 +11,6 @@
          "tab-place.rkt"
          "renderer.rkt")
 (provide tab%)
-(current-url-encode-mode 'unreserved)
 (define/contract
   tab%
   (class/c
