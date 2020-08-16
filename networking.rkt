@@ -8,7 +8,7 @@
          net/head
          "pages.rkt"
          "consoleFeedback.rkt")
-(provide htmlTreeFromUrl)
+(provide htmlTreeFromUrl makeInitTree)
 (current-https-protocol 'secure)
 (define/contract
   (makeUrlHaveHost theUrl) (-> url? url?)
@@ -74,3 +74,24 @@
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
     [else (makeErrorMessage (format "Can't handle the scheme '~a'"
                                     (url-scheme theUrl)))]))
+(define/contract
+  (makeInitTree getTheUrl setTheUrl!) (-> url? (-> url? void?) list?)
+  (let loop ([redirectionMax 10] [theUrl (getTheUrl)])
+    (define changedUrl #f)
+    (define tree
+      (htmlTreeFromUrl
+        theUrl
+        (lambda (newUrlStr)
+          (print-info (format "Redirect to ~a" newUrlStr))
+          (set! changedUrl (combine-url/relative theUrl
+                                                 newUrlStr)))))
+    (when changedUrl
+      (if (< 0 redirectionMax)
+        (begin
+          (set! theUrl changedUrl)
+          #|(place-channel-put this-place
+                                 `(redirect ,(url->string changedUrl)))|#
+          (setTheUrl! theUrl)
+          (loop (- redirectionMax 1) theUrl))
+        (print-info "Hit max redirect!")))
+    tree))

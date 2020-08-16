@@ -7,6 +7,7 @@
          "networking.rkt"
          "on-evt.rkt")
 (provide make-tab-place)
+(define (makeInitTree) null); so it can compile
 (define/contract
   (make-tab-place) (-> place?)
   (place
@@ -19,26 +20,7 @@
     (set-verbosity! (place-channel-get this-place))
     (define/contract theUrl url? (string->url (place-channel-get this-place)))
     (print-info (format "Recived URL: ~a" (url->string theUrl)))
-    (define/contract
-      (makeInitTree) (-> list?)
-      (let loop ([redirectionMax 10])
-        (define changedUrl #f)
-        (define tree
-                (htmlTreeFromUrl
-                  theUrl
-                  (lambda (newUrlStr)
-                    (print-info (format "Redirect to ~a" newUrlStr))
-                    (set! changedUrl (combine-url/relative theUrl
-                                                           newUrlStr)))))
-        (when changedUrl
-          (if (< 0 redirectionMax)
-            (begin
-              (set! theUrl changedUrl)
-              (place-channel-put this-place
-                                 `(redirect ,(url->string changedUrl)))
-              (loop (- redirectionMax 1)))
-            (print-info "Hit max redirect!")))
-        tree))
+    ;Make init tree was once here before I started tearing this down
     (define/contract initTree list? (makeInitTree))
     (define sharedImageBytes (make-shared-bytes 4))
     (define imageW 1)
