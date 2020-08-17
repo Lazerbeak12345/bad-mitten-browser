@@ -1,29 +1,34 @@
-#lang racket/base
-(require racket/contract
-         racket/list
-         net/url
-         html-parsing
-         "consoleFeedback.rkt")
+#lang typed/racket/base
+(require typed/net/url "consoleFeedback.rkt")
+(define-type Xexp (Listof Any))
+(require/typed html-parsing [html->xexp (-> Input-Port Xexp)])
+(require/typed racket/list [first (-> (Listof Any) Any)])
 (provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt)
-(define/contract (getTreeFromPortAndCloseIt port) (port? . -> . list?)
-                 (let ([tree (html->xexp port)])
-                   (close-input-port port)
-                   tree))
-(define/contract
-  (makeErrorMessage e) (string? . -> . list?)
+
+(define-type Path/Param/List (Listof Path/Param))
+
+(: getTreeFromPortAndCloseIt (-> Input-Port Xexp))
+(define (getTreeFromPortAndCloseIt port)
+  (let ([tree (html->xexp port)])
+    (close-input-port port)
+    tree))
+(: makeErrorMessage (-> String Xexp))
+(define (makeErrorMessage e)
   `(*TOP* (*DECL* DOCTYPE html)
           (html (body (@ (style "height:100%"))
                       (strong (@ (style "margin:auto;"))
                               ,e)))))
-(define/contract
-  (bmUrl theUrl) (url? . -> . list?)
-  (define/contract paths (listof (or/c string? 'up 'same))
-                   (if (not (url-host theUrl))
-                     (for/list [(path (url-path theUrl))]
-                       (path/param-path path))
-                     (cons (url-host theUrl)
-                           (for/list [(path (url-path theUrl))]
-                             (path/param-path path)))))
+(: bmUrl (-> URL Xexp))
+(define (bmUrl theUrl)
+  (define-type String/Up/Same (Listof (U 'same 'up String)))
+  (: paths String/Up/Same)
+  (define paths
+    (let ([paths-before (for/list : String/Up/Same [(path (url-path theUrl))]
+                          (path/param-path path))]
+          [host (url-host theUrl)])
+      (if (not host)
+        paths-before
+        (cons host paths-before))))
   (case (if (null? paths)
           "newtab"
           (first paths))
@@ -31,11 +36,11 @@
      `(*TOP* (*DECL* DOCTYPE html)
              (html (head (title "Bad Mitten URLS"))
                    (body (h1 "Bad Mitten" (i "Browser"))
-                         (ul ,(for/list ([theUrl (list "bm:about"
-                                                       "bm:blank"
-                                                       "bm:bm"
-                                                       "bm:newtab"
-                                                       "bm:urls")])
+                         (ul ,(for/list : Xexp ([theUrl (list "bm:about"
+                                                              "bm:blank"
+                                                              "bm:bm"
+                                                              "bm:newtab"
+                                                              "bm:urls")])
                                 (let ([url (url->string (string->url theUrl))])
                                   `(li (a (@ (href ,url)),url))))))))]
     [("blank") '(*TOP*)]
