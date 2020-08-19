@@ -1,9 +1,10 @@
 #lang typed/racket/base
 (require typed/net/url "consoleFeedback.rkt")
 (define-type Xexp (Listof Any))
+(define-type String/Up/Same (Listof (U 'same 'up String)))
 (require/typed html-parsing [html->xexp (-> Input-Port Xexp)])
 (require/typed racket/list [first (-> (Listof Any) Any)])
-(provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt)
+(provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt Xexp String/Up/Same)
 
 (define-type Path/Param/List (Listof Path/Param))
 
@@ -20,7 +21,6 @@
                               ,e)))))
 (: bmUrl (-> URL Xexp))
 (define (bmUrl theUrl)
-  (define-type String/Up/Same (Listof (U 'same 'up String)))
   (: paths String/Up/Same)
   (define paths
     (let ([paths-before (for/list : String/Up/Same [(path (url-path theUrl))]

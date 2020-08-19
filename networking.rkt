@@ -1,43 +1,48 @@
-#lang racket/base
-(require racket/contract
-         racket/port
+#lang typed/racket/base
+(require racket/port
          racket/list
          racket/string
-         net/url
-         net/url-connect
-         net/head
+         typed/net/url
+         typed/net/url-connect
+         typed/net/head
          "pages.rkt"
          "consoleFeedback.rkt")
 (provide htmlTreeFromUrl makeInitTree)
-(current-https-protocol 'secure)
+;(current-https-protocol 'secure)
+(current-https-protocol 'auto)
 (current-url-encode-mode 'unreserved)
-(define/contract
-  (makeUrlHaveHost theUrl) (-> url? url?)
+; Attempt to use the path to infer what a host might be. If it's up or same,
+; it'll have to give up, though (removing the aforementioned up or same from
+; the path)
+(: makeUrlHaveHost (-> URL URL))
+(define (makeUrlHaveHost theUrl)
   (if (url-host theUrl)
     theUrl
-    (url (url-scheme theUrl)
-         (url-user theUrl)
-         (path/param-path (car (url-path theUrl))) ; url-host
-         (url-port theUrl)
-         (url-path-absolute? theUrl)
-         (cdr (url-path theUrl)) ; url-path
-         (url-query theUrl)
-         (url-fragment theUrl))))
-(define/contract
-  (htmlTreeFromUrl theUrl doRedirect)
-  (-> url? (-> string? void?) list?)
+    (struct-copy url theUrl
+                 [host (let ([path (car (url-path theUrl))])
+                         (if (string? path)
+                           path
+                           #f))]
+                 [path (cdr (url-path theUrl))])))
+(: htmlTreeFromUrl (-> URL (-> String Void) Xexp))
+(define (htmlTreeFromUrl theUrl doRedirect)
   (case (url-scheme theUrl)
     [("file")
      ;TODO handle directories
      (with-handlers ([exn:fail:filesystem?;exn:fail:filesystem:errno?
-                       (lambda (e)
+                       (lambda ({e : exn})
                          (makeErrorMessage (exn-message e)))])
                     (print-warning "Check MIME type here")
                     (getTreeFromPortAndCloseIt
-                      (open-input-file (url->path theUrl))))]
+                      (open-input-file
+                        (bytes->string/locale
+                          ; Apparently no way to get out of the
+                          ; Path-For-Some-System type aside from this...
+                          (path->bytes 
+                            (url->path theUrl))))))]
     [("http" "https")
      (with-handlers ([exn:fail:network:errno?
-                       (lambda (e)
+                       (lambda ({e : exn})
                          (makeErrorMessage (exn-message e)))])
                     (if (not (url-host theUrl))
                       (begin
@@ -50,17 +55,23 @@
                             theUrl
                             #:connection (make-http-connection))])
                         (print-warning "send better headers")
-                        (let ([location (extract-field "location" headers)])
-                          (when location (doRedirect location)))
+                        (let ([location (extract-field #"location" headers)])
+                          (when location
+                            (doRedirect (bytes->string/locale location))))
                         ; We always want to see what their server says about
                         ; it, just in case. (keep in mind the new location may
                         ; not resolve)
                         (print-info (format "headers\n~a" headers))
-                        (define content-type
-                          (string-downcase
-                            (first (string-split
-                                     (extract-field "content-type" headers)
-                                     ";"))))
+                        (define content-type : String
+                          (let ([raw-content-type 
+                                  (extract-field #"content-type" headers)])
+                            (if raw-content-type
+                              (string-downcase
+                                (first (string-split
+                                         (bytes->string/locale
+                                           raw-content-type)
+                                         ";")))
+                              "")))
                         (case content-type
                           [("text/html")
                            (getTreeFromPortAndCloseIt port)]
@@ -75,23 +86,21 @@
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
     [else (makeErrorMessage (format "Can't handle the scheme '~a'"
                                     (url-scheme theUrl)))]))
-(define/contract
-  (makeInitTree getTheUrl setTheUrl!) (-> url? (-> url? void?) list?)
+(: makeInitTree (-> (-> URL) (-> URL Void) Xexp))
+(define (makeInitTree getTheUrl setTheUrl!)
   (let loop ([redirectionMax 10] [theUrl (getTheUrl)])
-    (define changedUrl #f)
+    (define changedUrl : Boolean #f)
     (define tree
       (htmlTreeFromUrl
         theUrl
         (lambda (newUrlStr)
           (print-info (format "Redirect to ~a" newUrlStr))
-          (set! changedUrl (combine-url/relative theUrl
-                                                 newUrlStr)))))
+          (set! theUrl (combine-url/relative theUrl newUrlStr)))))
     (when changedUrl
       (if (< 0 redirectionMax)
         (begin
-          (set! theUrl changedUrl)
           #|(place-channel-put this-place
-                                 `(redirect ,(url->string changedUrl)))|#
+                                 `(redirect ,(url->string theUrl)))|#
           (setTheUrl! theUrl)
           (loop (- redirectionMax 1) theUrl))
         (print-info "Hit max redirect!")))
