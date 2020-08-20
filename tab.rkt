@@ -7,8 +7,6 @@
          racket/place
          net/url
          "consoleFeedback.rkt"
-         "on-evt.rkt"
-         "tab-place.rkt"
          "renderer.rkt")
 (provide tab%)
 (define/contract
@@ -42,8 +40,6 @@
     (define history '())
     (define history-future '())
     (define canvas null)
-    (define tab-place null)
-    (define tab-place-event-th null)
     ;place for tab to be rendered upon
     (define thisPanel (new panel% [parent ext-tab-panel] [style '(deleted)]))
     (define/private (url->readable self-url) (url->string self-url))
@@ -52,38 +48,10 @@
       (clean)
       (unless (null? canvas)
         (error 'initRenderer "Can only be called once."))
-      (set! tab-place (make-tab-place))
-      ; Make sure the logging isn't too verbose
-      ;(place-channel-put tab-place (get-verbosity))
-      ; What URL?
-      ;(place-channel-put tab-place (url->string self-url))
-
-      (set! canvas (make-canvas thisPanel))
-
-      #|(set! tab-place-event-th
-        (on-evt tab-place
-                (lambda (v)
-                  (case (first v)
-                    [(redirect)
-                     (print-info (format "Redirect url '~a' to '~a'"
-                                         (url->string self-url)
-                                         (second v)))
-                     (clean)
-                     (send ext-locationBox set-value (second v))
-                     (set! self-url (string->url (second v)))
-                     (ext-update-title)]
-                    [(update-title)
-                     (set! title (second v))
-                     (ext-update-title)]
-                    ; TODO find a way that doesn't need this
-                    [(drawImage) (send canvas refresh)]
-                    [else (print-error (format "Unknown event ~a" v))]))))|#
-      )
+      (set! canvas (make-canvas thisPanel)))
     (define/private (navigate-to url-string)
       (print-info (format "Navigating to '~a'" url-string))
-      (clean)
-      ;(place-channel-put tab-place `(set-url ,url-string))
-      )
+      (clean))
     (define/private (updateLocationButtons)
       (print-info "Updating location buttons")
       (send ext-locationBack enable (not (null? history)))
@@ -96,10 +64,7 @@
       (updateLocationButtons))
     (super-new)
     (define/public (close)
-      (print-info (format "Closing ~a" (url->string self-url)))
-      ;(place-kill tab-place)
-      ;(kill-thread tab-place-event-th)
-      )
+      (print-info (format "Closing ~a" (url->string self-url))))
     (define/public (locationChanged)
       (define new-url (netscape/string->url (send ext-locationBox get-value)))
       (if (equal? self-url new-url)
@@ -120,14 +85,10 @@
         (initRenderer))
       (send ext-locationBox set-value (url->string self-url))
       (send ext-tab-panel add-child thisPanel)
-      (updateLocationButtons)
-      ;(place-channel-put tab-place '(focus))
-      )
+      (updateLocationButtons))
     (define/public (unfocus)
       (print-info (format "Unfocusing '~a'" (url->string self-url)))
-      (send ext-tab-panel delete-child thisPanel)
-      ;(place-channel-put tab-place '(unfocus))
-      )
+      (send ext-tab-panel delete-child thisPanel))
     (define/public (reload)
       (print-info (format "Reloading '~a'" (url->string self-url)))
       (navigate-to (url->string self-url)))
