@@ -63,7 +63,8 @@ when using an editor with parenthasis highlighting support.
 
 ## Tools used
 
-1. `racket` Yes, I must give due credit there. It's pretty darn awesome.
+1. `racket` and `typed/racket` Yes, I must give due credit there. They're
+   pretty darn awesome.
 2. `html-parsing`. It's _really_ good at parsing html5 code. 
    It provides `html->xexp`. (yes, it even handles script tags right. The 
    script is just a string!)
