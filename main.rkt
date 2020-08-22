@@ -1,10 +1,8 @@
-#lang racket/base
+#lang typed/racket/base
 (module+ test
   ;(print-error "No tests written!?")
   #f)
 (module+ main
-  (require racket/class "consoleFeedback.rkt" "bm-window.rkt")
+  (require typed/racket/class "consoleFeedback.rkt" "bm-window.rkt")
   (print-info "Opening Bad-Mitten Browser…")
-  ; This is converting it into a list
-  (new bm-window% [links (for/list ([arg (current-command-line-arguments)])
-                           arg)]))
+  (new bm-window% [links (vector->list (current-command-line-arguments))]))
