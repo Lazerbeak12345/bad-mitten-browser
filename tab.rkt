@@ -6,8 +6,24 @@
          typed/net/url
          "consoleFeedback.rkt"
          "renderer.rkt")
-(provide tab%)
-(define tab%
+(provide tab% Tab%)
+(define-type Tab% 
+  (Class (init [url URL]
+               [locationBox (Instance Text-Field%)]
+               [locationBack (Instance Button%)]
+               [locationForward (Instance Button%)]
+               [tab-panel (Instance Tab-Panel%)]
+               [update-title (-> Void)])
+         [close (-> Void)]
+         [locationChanged (-> Void)]
+         [focus (-> Void)]
+         [unfocus (-> Void)]
+         [reload (-> Void)]
+         [back (-> Void)]
+         [forward (-> Void)]
+         [get-title (-> String)]
+         [get-url (-> URL)]))
+(define tab% : Tab%
   (class object%
     (init [url : URL]
           [locationBox : (Instance Text-Field%)]
@@ -57,7 +73,8 @@
     (super-new)
     (: close (-> Void))
     (define/public (close)
-      (print-info (format "Closing ~a" (url->string self-url))))
+      (print-info (format "Closing ~a" (url->string self-url)))
+      (print-error "tab.rkt tab close not written yet?"))
     (: locationChanged (-> Void))
     (define/public (locationChanged)
       (define new-url (netscape/string->url (send ext-locationBox get-value)))
