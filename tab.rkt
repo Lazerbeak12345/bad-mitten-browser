@@ -41,7 +41,7 @@
     (define title : String (url->string self-url))
     (define history : (Listof URL) '())
     (define history-future : (Listof URL) '())
-    (define canvas : (U Null (Instance Canvas%)) null)
+    (define renderer : (U Null (Instance Renderer%)) null)
     ;place for tab to be rendered upon
     (define thisPanel : (Instance Panel%)
       (new panel% [parent ext-tab-panel] [style '(deleted)]))
@@ -49,9 +49,20 @@
     (define/private (initRenderer)
       (print-info (format "Starting renderer on ~a" (url->string self-url)))
       (clean)
-      (unless (null? canvas)
+      (unless (null? renderer)
         (error 'initRenderer "Can only be called once."))
-      (set! canvas (make-canvas thisPanel)))
+      #|(set! canvas (make-canvas
+                     thisPanel
+                     (lambda()
+                       self-url)
+                     (lambda(newUrl)
+                       (set! self-url newUrl))))|#
+      (set! renderer (new renderer%
+                        [parent thisPanel]
+                        [getUrl (lambda() self-url)]
+                        [setUrl! (lambda(newUrl)
+                                   (set! self-url newUrl))]))
+      )
     (: navigate-to (-> URL Void))
     (define/private (navigate-to the-url)
       (set! title (url->string the-url))
@@ -92,7 +103,7 @@
     (: focus (-> Void))
     (define/public (focus)
       (print-info (format "Focusing '~a'" (url->string self-url)))
-      (when (null? canvas)
+      (when (null? renderer)
         (initRenderer))
       (send ext-locationBox set-value (url->string self-url))
       (send ext-tab-panel add-child thisPanel)
