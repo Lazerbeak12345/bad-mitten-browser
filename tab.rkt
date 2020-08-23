@@ -12,7 +12,7 @@
                [locationBox (Instance Text-Field%)]
                [locationBack (Instance Button%)]
                [locationForward (Instance Button%)]
-               [tab-panel (Instance Tab-Panel%)]
+               [tab-holder (Instance Panel%)]
                [update-title (-> Void)])
          [close (-> Void)]
          [locationChanged (-> Void)]
@@ -29,13 +29,13 @@
           [locationBox : (Instance Text-Field%)]
           [locationBack : (Instance Button%)]
           [locationForward : (Instance Button%)]
-          [tab-panel : (Instance Tab-Panel%)]
+          [tab-holder : (Instance Panel%)]
           [update-title : (-> Void)])
     (define self-url : URL url)
     (define ext-locationBox : (Instance Text-Field%) locationBox)
     (define ext-locationBack : (Instance Button%) locationBack)
     (define ext-locationForward : (Instance Button%) locationForward)
-    (define ext-tab-panel : (Instance Tab-Panel%) tab-panel)
+    (define ext-tab-holder : (Instance Panel%) tab-holder)
     (define ext-update-title : (-> Void) update-title)
     ; Should always be either the url as a string, or the html title
     (define title : String (url->string self-url))
@@ -44,7 +44,7 @@
     (define renderer : (U Null (Instance Renderer%)) null)
     ;place for tab to be rendered upon
     (define thisPanel : (Instance Panel%)
-      (new panel% [parent ext-tab-panel] [style '(deleted)]))
+      (new panel% [parent ext-tab-holder] [style '(deleted)]))
     (: initRenderer (-> Void))
     (define/private (initRenderer)
       (print-info (format "Starting renderer on ~a" (url->string self-url)))
@@ -106,12 +106,12 @@
       (when (null? renderer)
         (initRenderer))
       (send ext-locationBox set-value (url->string self-url))
-      (send ext-tab-panel add-child thisPanel)
+      (send ext-tab-holder add-child thisPanel)
       (updateLocationButtons))
     (: unfocus (-> Void))
     (define/public (unfocus)
       (print-info (format "Unfocusing '~a'" (url->string self-url)))
-      (send ext-tab-panel delete-child thisPanel))
+      (send ext-tab-holder delete-child thisPanel))
     (: reload (-> Void))
     (define/public (reload)
       (print-info (format "Reloading '~a'" (url->string self-url)))

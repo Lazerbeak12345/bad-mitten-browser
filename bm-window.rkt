@@ -40,6 +40,7 @@
            [width 800]
            [height 600]
            [alignment '(center top)]))
+    ; TODO set-icon
     (define locationPane : (Instance Horizontal-Pane%)
       (new horizontal-pane% 
            ; TODO text align vert-center
@@ -83,6 +84,19 @@
     (define tabManagerPane : (Instance Horizontal-Pane%)
       (new horizontal-pane% [parent frame] [alignment '(right center)]))
     (send tabManagerPane stretchable-height #f)
+    (define tab-elm : (Instance Tab-Panel%)
+      (new tab-panel%
+           [choices (for/list ([link self-links])
+                      (url->string link))]
+           [parent frame]
+           [style '(no-border)]
+           [callback (lambda (panel event)
+                       (send (list-ref tabs last-tab-focused) unfocus)
+                       (do-focus)
+                       (update-title))]))
+    (send tab-elm stretchable-height #f)
+    (define tab-holder : (Instance Panel%)
+      (new panel% [parent frame]))
     (: makeTab (-> URL (Instance Tab%)))
     (define/private (makeTab tab-link)
       (new tab%
@@ -90,17 +104,29 @@
            [locationBox locationBox]
            [locationBack locationBack]
            [locationForward locationForward]
-           [tab-panel tab-elm]
+           [tab-holder tab-holder]
            [update-title update-title]))
     (: get-tab-choices (-> (Listof String)))
     (define/private (get-tab-choices)
       (for/list ([tab tabs])
         (send tab get-title)))
+    ; Called to either hide or show the tab row
+    (: hideTabRow (-> Boolean Void))
+    (define/private (hideTabRow bool)
+      (print-info (format "hideTabRow ~a" bool))
+      (if bool
+        (send frame delete-child tab-elm)
+        (begin 
+          (send frame delete-child tab-holder)
+          (send frame add-child tab-elm)
+          (send frame add-child tab-holder))))
     (: addTabBtnCallback (-> Void))
     (define/private (addTabBtnCallback)
       (print-info "Making new tab")
-      (set! tabs (append tabs
-                         (list (makeTab (netscape/string->url "bm:newtab"))))) 
+      (when (= 1 (length tabs))
+        (hideTabRow #f))
+      (set! tabs
+        (append tabs (list (makeTab (netscape/string->url "bm:newtab"))))) 
       (send tab-elm set (get-tab-choices))
       (send tab-elm set-selection (- (length tabs) 1)))
     (define addTabBtn : (Instance Button%)
@@ -132,9 +158,12 @@
                          (begin
                            (print-info "Closing browser!")
                            (exit 0))
-                         (send tab-elm set-selection (if (= 0 index)
-                                                       0
-                                                       (- index 1))))
+                         (begin
+                           (send tab-elm set-selection (if (= 0 index)
+                                                         0
+                                                         (- index 1)))
+                           (when (= 1 (length tabs))
+                             (hideTabRow #t))))
                        (do-focus))]))
     (let-values ([(width height) (send closeTabBtn get-graphical-min-size)])
       ; (print-info (~a width))
@@ -154,15 +183,6 @@
       (let ([index : Integer ((send tab-elm get-selection) . or . 0)])
         (send (list-ref tabs index) focus)
         (set! last-tab-focused index)))
-    (define tab-elm : (Instance Tab-Panel%)
-      (new tab-panel%
-           [choices (for/list ([link self-links])
-                      (url->string link))]
-           [parent frame]
-           [callback (lambda (panel event)
-                       (send (list-ref tabs last-tab-focused) unfocus)
-                       (do-focus)
-                       (update-title))]))
     (: set-title (-> String Void))
     (define/private (set-title title)
       (send frame set-label (format "~a - ~a" title label)))
@@ -178,4 +198,6 @@
     (send frame show #t) 
     (set! tabs (for/list : (Listof (Instance Tab%)) ([tab-link self-links])
                  (makeTab tab-link)))
+    (when (= 1 (length tabs))
+      (hideTabRow #t))
     (do-focus)))

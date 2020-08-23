@@ -37,19 +37,19 @@ I would like the tabs to have these changes:
 - They need to try to be as wide as possible, but once they are too small, hide
   like it does already.
 - They need (x) buttons to close them.
-- If there is only one tab, don't show it.
 
 I would like the titlebar to have these changes:
 
 - It should have these widgets, in order:
   -  Add Tab
-  -  Back
-  -  Forward
+  -  Back and Forward joined (A "split-button" sort of thing)
   -  Reload
   -  The URL bar
+- I might want to make the additive actions on the right if the window action
+  buttons are on the left (default macOS behavior).
 
 And all of these buttons should have icons instead of text. Show the text when
-hovering.
+hovering. (System icons would be best here)
 
 ### Style Guide
 
