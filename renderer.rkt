@@ -2,14 +2,10 @@
 (require typed/net/url
          typed/racket/class
          typed/racket/gui/base
-         "pages.rkt" ; For the xexp type
          "consoleFeedback.rkt"
+         "bird-E/dom-root.rkt"
          "networking.rkt")
 (provide renderer% Renderer%)
-(: rendererCanvasCallback
-   (-> Xexp (-> (Instance Canvas%) (Instance DC<%>) Void)))
-(define ((rendererCanvasCallback tree) canvas dc)
-  (print-info "Paint!"))
 (define-type Renderer% (Class #:implements Canvas%
                               (init [getUrl (-> URL)]
                                     [setUrl! (-> URL Void)])))
@@ -18,5 +14,10 @@
     (init [getUrl : (-> URL)] [setUrl! : (-> URL Void)])
     (define self-getUrl : (-> URL) getUrl)
     (define self-setUrl! : (-> URL Void) setUrl!)
-    (define initial-tree : Xexp (makeInitTree self-getUrl self-setUrl!))
-    (super-new [paint-callback (rendererCanvasCallback initial-tree)])))
+    (define dom : (Instance Dom-Root-Node%)
+      (new dom-root-node%
+           [initial-tree (makeInitTree self-getUrl self-setUrl!)]))
+    (super-new
+      [paint-callback (lambda(canvas dc)
+                        ; contact the dom for the image and render it
+                        (print-info "Paint!"))])))

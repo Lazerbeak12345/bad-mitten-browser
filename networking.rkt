@@ -5,8 +5,9 @@
          typed/net/url
          typed/net/url-connect
          typed/net/head
+         "consoleFeedback.rkt"
          "pages.rkt"
-         "consoleFeedback.rkt")
+         "xexp-type.rkt")
 (provide htmlTreeFromUrl makeInitTree)
 ;(current-https-protocol 'secure)
 (current-https-protocol 'auto)

@@ -1,10 +1,9 @@
 #lang typed/racket/base
-(require typed/net/url "consoleFeedback.rkt")
-(define-type Xexp (Listof Any))
+(require typed/net/url "consoleFeedback.rkt" "xexp-type.rkt")
 (define-type String/Up/Same (Listof (U 'same 'up String)))
 (require/typed html-parsing [html->xexp (-> Input-Port Xexp)])
 (require/typed racket/list [first (-> (Listof Any) Any)])
-(provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt Xexp String/Up/Same)
+(provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt String/Up/Same)
 
 (define-type Path/Param/List (Listof Path/Param))
 
