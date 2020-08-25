@@ -51,24 +51,18 @@
       (clean)
       (unless (null? renderer)
         (error 'initRenderer "Can only be called once."))
-      #|(set! canvas (make-canvas
-                     thisPanel
-                     (lambda()
-                       self-url)
-                     (lambda(newUrl)
-                       (set! self-url newUrl))))|#
       (set! renderer (new renderer%
                         [parent thisPanel]
                         [getUrl (lambda() self-url)]
                         [setUrl! (lambda(newUrl)
-                                   (set! self-url newUrl))]))
-      )
+                                   (set! self-url newUrl)
+                                   (clean))])))
     (: navigate-to (-> URL Void))
     (define/private (navigate-to the-url)
-      (set! title (url->string the-url))
       (print-info (format "Navigating to '~a'" title))
       (set! self-url the-url)
-      (clean))
+      (clean)
+      (send (assert renderer object?) navigate-to the-url))
     (: updateLocationButtons (-> Void))
     (define/private (updateLocationButtons)
       (print-info "Updating location buttons")
@@ -79,13 +73,16 @@
       (print-info "Cleaning…")
       (set! title (url->string self-url))
       (ext-update-title)
-      (send thisPanel change-children (lambda (current) '()))
+      ; We don't actually need to empty this anymore.
+      ;(send thisPanel change-children (lambda (current) '()))
+      ; TODO wipe current canvas?
       (updateLocationButtons))
     (super-new)
     (: close (-> Void))
     (define/public (close)
       (print-info (format "Closing ~a" (url->string self-url)))
       (print-error "tab.rkt tab close not written yet?"))
+    ; usually called when the address box is modified
     (: locationChanged (-> Void))
     (define/public (locationChanged)
       (define new-url (netscape/string->url (send ext-locationBox get-value)))

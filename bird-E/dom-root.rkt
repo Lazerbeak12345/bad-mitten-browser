@@ -7,4 +7,5 @@
   (class node%
     (init [initial-tree : Xexp])
     (print-info "dom-root-node% initted!")
+    (println initial-tree)
     (super-new)))
