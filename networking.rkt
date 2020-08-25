@@ -87,9 +87,9 @@
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
     [else (makeErrorMessage (format "Can't handle the scheme '~a'"
                                     (url-scheme theUrl)))]))
-(: makeInitTree (-> (-> URL) (-> URL Void) Xexp))
-(define (makeInitTree getTheUrl setTheUrl!)
-  (let loop ([redirectionMax 10] [theUrl (getTheUrl)])
+(: makeInitTree (-> URL (-> URL Void) Xexp))
+(define (makeInitTree initialUrl setTheUrl!)
+  (let loop ([redirectionMax 10] [theUrl initialUrl])
     (define changedUrl : Boolean #f)
     (define tree
       (htmlTreeFromUrl

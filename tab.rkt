@@ -52,11 +52,11 @@
       (unless (null? renderer)
         (error 'initRenderer "Can only be called once."))
       (set! renderer (new renderer%
-                        [parent thisPanel]
-                        [getUrl (lambda() self-url)]
-                        [setUrl! (lambda(newUrl)
-                                   (set! self-url newUrl)
-                                   (clean))])))
+                          [parent thisPanel]
+                          [initial-URL self-url]
+                          [setUrl! (lambda(newUrl)
+                                     (set! self-url newUrl)
+                                     (clean))])))
     (: navigate-to (-> URL Void))
     (define/private (navigate-to the-url)
       (print-info (format "Navigating to '~a'" title))
