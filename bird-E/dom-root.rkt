@@ -1,5 +1,8 @@
 #lang typed/racket/base
-(require typed/racket/class "../consoleFeedback.rkt" "../xexp-type.rkt" "node.rkt")
+(require typed/racket/class
+         "../consoleFeedback.rkt"
+         "../xexp-type.rkt"
+         "node.rkt")
 (provide Dom-Root-Node% dom-root-node%)
 (define-type Dom-Root-Node% (Class #:implements Node%
                                    (init [initial-tree Xexp])))
