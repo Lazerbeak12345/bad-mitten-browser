@@ -35,11 +35,12 @@
      `(*TOP* (*DECL* DOCTYPE html)
              (html (head (title "Bad Mitten URLS"))
                    (body (h1 "Bad Mitten" (i "Browser"))
-                         (ul ,(for/list : Xexp ([theUrl (list "bm:about"
-                                                              "bm:blank"
-                                                              "bm:bm"
-                                                              "bm:newtab"
-                                                              "bm:urls")])
+                         (ul ,(for/list : (Listof Xexp)
+                                ([theUrl (list "bm:about"
+                                               "bm:blank"
+                                               "bm:bm"
+                                               "bm:newtab"
+                                               "bm:urls")])
                                 (let ([url (url->string (string->url theUrl))])
                                   `(li (a (@ (href ,url)),url))))))))]
     [("blank") '(*TOP*)]
