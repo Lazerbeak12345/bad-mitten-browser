@@ -10,7 +10,8 @@
 (provide Dom-Root-Node% dom-root-node%)
 (: determineTypeOfXexpRoot (-> Xexp (U 'html5 'unknown)))
 (define (determineTypeOfXexpRoot xexp)
-  (if (and (eq? '*TOP* (car xexp))
+  (if (and (list? xexp)
+           (eq? '*TOP* (car xexp))
            (list? (cdr xexp))
            (list? (second xexp))
            (eq? '*DECL* (first (assert (second xexp) list?)))
@@ -48,4 +49,6 @@
     (init [initial-tree : Xexp])
     (define dom : Element%/unknown
       (xexp->element%/unknown initial-tree))
-    (super-new)))
+    (super-new [children (if (not (void? dom))
+                           (list dom)
+                           null)])))

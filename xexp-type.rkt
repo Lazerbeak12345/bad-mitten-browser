@@ -1,3 +1,5 @@
 #lang typed/racket/base
 (provide Xexp)
-(define-type Xexp (Listof (U Xexp String Symbol Number)))
+(define-type Xexp (U (Pairof Symbol (Listof Xexp))
+                     String
+                     Symbol))
