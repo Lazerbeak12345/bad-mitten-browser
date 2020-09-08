@@ -3,9 +3,10 @@
 (provide Node% node%)
 ; TODO add getpict or something
 (define-type Node% (Class #:implements Event-Target%
-                          (init-field [children (Listof (Instance Node%))])))
+                          (init-field [children (Listof (Instance Node%))]
+                                      [text-content String #:optional])))
 (define node% : Node%
   (class event-target%
-    (init-field children)
+    (init-field children [text-content ""])
     (print-info "node% initted!")
     (super-new)))

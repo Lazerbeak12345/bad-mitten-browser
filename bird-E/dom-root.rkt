@@ -6,7 +6,8 @@
          "../xexp-type.rkt"
          "element.rkt"
          "html-element.rkt"
-         "node.rkt")
+         "node.rkt"
+         "text.rkt")
 (provide Dom-Root-Node% dom-root-node%)
 (: determineTypeOfXexpRoot (-> Xexp (U 'html5 'unknown)))
 (define (determineTypeOfXexpRoot xexp)
@@ -34,7 +35,9 @@
     'unknown))
 ; A union because this could be svg or something else aside from void (only on
 ; an error)
-(define-type Element%/unknown (U (Instance HTML-Element%) Void))
+(define-type Element%/unknown (U (Instance Text%)
+                                 (Instance HTML-Element%)
+                                 Void))
 (: xexp->element%/unknown (-> Xexp Element%/unknown))
 (define (xexp->element%/unknown xexp)
   (case (determineTypeOfXexpRoot xexp)
@@ -51,4 +54,5 @@
       (xexp->element%/unknown initial-tree))
     (super-new [children (if (not (void? dom))
                            (list dom)
-                           null)])))
+                           null)]
+               [text-content ""])))
