@@ -1,8 +1,13 @@
 #lang typed/racket/base
 (require racket/list)
 (provide Xexp xexp-decl? xexp-children)
-(define-type Xexp (U Xexp-decl Xexp-with-attrs Xexp-no-attrs String))
+(define-type Xexp (U Xexp-decl
+                     Xexp-short
+                     Xexp-with-attrs
+                     Xexp-no-attrs
+                     String))
 (define-type Xexp-decl (Pairof '*DECL* (Listof (U String Symbol))))
+(define-type Xexp-short (Pairof '& (Listof (U String Symbol))))
 (define-type Xexp-with-attrs (Pairof Symbol (Pairof Xexp-attrs (Listof Xexp))))
 (define-type Xexp-attrs (Pairof '@ (Listof (U (List Symbol)
                                               (List Symbol String)))))
@@ -15,6 +20,7 @@
 (define (xexp-children theXexp)
   (cond [(or (string? theXexp)
              (eq? '*DECL* (first theXexp))
+             (eq? '& (first theXexp))
              (null? (cdr theXexp)))
          null]
         [(let ([potential-attrs (second theXexp)])

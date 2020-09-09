@@ -18,12 +18,15 @@
   (print-info (format "xexp ~v" xexp))
   (cond
     [(list? xexp)
-     (if (eq? '*DECL* (car xexp))
-       (new html-element% ; TODO docstring
-            [tag-name-symbol '*DECL*]
-            [children (list (new text% [text-content (~a (cdr xexp))]))])
-       (new html-element%
-            [tag-name-symbol (car xexp)]
-            [children (for/list ([child-xexp (xexp-children xexp)])
-                        (xexp->html-element% child-xexp))]))]
+     (cond [(eq? '*DECL* (car xexp))
+            (new html-element% ; TODO docstring
+                 [tag-name-symbol '*DECL*]
+                 [children (list (new text% [text-content (~a (cdr xexp))]))])]
+           [(eq? '& (car xexp)) ; TODO things like `&nbsp;`
+            (new text% [text-content (~a xexp)])]
+           [else
+             (new html-element%
+                  [tag-name-symbol (car xexp)]
+                  [children (for/list ([child-xexp (xexp-children xexp)])
+                              (xexp->html-element% child-xexp))])])]
      [else (new text% [text-content xexp])]))
