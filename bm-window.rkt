@@ -6,8 +6,39 @@
 (require typed/racket/gui/base
          typed/racket/class
          typed/net/url
+         typed/pict
          "consoleFeedback.rkt"
          "tab.rkt") 
+(define-type ColorStr (U (Instance Color%) String))
+(define-type Normal-Icon-Func (#:color ColorStr
+                               [#:height Positive-Exact-Rational]
+                               [#:material Any] ; TODO fix?
+                               [#:backing-scale Positive-Exact-Rational]
+                               . -> .
+                               (Instance Bitmap%)))
+(require/typed images/icons/arrow [left-over-arrow-icon Normal-Icon-Func])
+(require/typed images/icons/control
+               [back-icon Normal-Icon-Func]
+               [play-icon Normal-Icon-Func])
+(require/typed images/icons/style [light-metal-icon-color ColorStr])
+(require/typed images/icons/symbol
+               [text-icon (String
+                            (Instance Font%) ; This should be mandatory
+                            [#:trim? Boolean]
+                            [#:color ColorStr]
+                            [#:height Positive-Exact-Rational]
+                            [#:material Any] ; TODO fix?
+                            [#:outline Positive-Exact-Rational]
+                            [#:backing-scale Positive-Exact-Rational]
+                            . -> .
+                            (Instance Bitmap%))]
+               [x-icon ([#:color ColorStr]
+                        [#:height Positive-Exact-Rational]
+                        [#:material Any] ; TODO fix?
+                        [#:thickness Positive-Exact-Rational] ; TODO fix?
+                        [#:backing-scale Positive-Exact-Rational]
+                        . -> .
+                        (Instance Bitmap%))])
 (provide bm-window%)
 (define bm-window%
   (class object% (init [links : (U Null
@@ -58,19 +89,23 @@
     (define locationBack : (Instance Button%)
       (new button%
            [parent locationPane]
-           [label "Back"]
+           ;[label "Back"]
+           [label (back-icon #:color light-metal-icon-color)]
            [callback (lambda (button event)
                        (send (getCurrentTab) back))]))
     (define locationForward : (Instance Button%)
       (new button%
            [parent locationPane]
-           [label "Forward"]
+           ;[label "Forward"]
+           [label (play-icon #:color light-metal-icon-color)]
            [callback (lambda (button event)
                        (send (getCurrentTab) forward))]))
     (define locationReload : (Instance Button%)
       (new button%
            [parent locationPane]
-           [label "Reload"]
+           ;[label "Reload"]
+           [label (pict->bitmap (bitmap (left-over-arrow-icon
+                            #:color light-metal-icon-color)))]
            [callback (lambda (button event)
                        (send (getCurrentTab) reload))]))
     ; The location box. I would prefer if this were in the top bar instead.
@@ -132,7 +167,12 @@
     (define addTabBtn : (Instance Button%)
       (new button%
            [parent tabManagerPane]
-           [label "New Tab"]
+           ;[label "New Tab"]
+           [label (text-icon "+"
+                             ; TODO fix upstream to allow 'heavy and numbers
+                             (make-font #:weight 'bold)
+                             #:color light-metal-icon-color
+                             #:trim? #t)]
            [callback (lambda (button event)
                        (send (getCurrentTab) unfocus)
                        (addTabBtnCallback)
@@ -140,7 +180,10 @@
     (define closeTabBtn : (Instance Button%)
       (new button%
            [parent tabManagerPane]
-           [label "Close Tab"]
+           ;[label "Close Tab"]
+           [label (x-icon #:color light-metal-icon-color
+                          #:thickness 6 ; TODO increase later
+                          )]
            [callback (lambda (button event)
                        (let ([current (getCurrentTab)]) 
                          (print-info
