@@ -86,14 +86,23 @@
            [parent frame]
            [alignment '(left center)]))
     (send locationPane stretchable-height #f)
-    (: locationChanged
-       (-> (Instance Text-Field%) (Instance Control-Event%) Void))
+    (: locationChanged ((Instance Text-Field%)
+                        (Instance Control-Event%)
+                        . -> .
+                        Void))
     (define (locationChanged pane event)
       (when (eq? (send event get-event-type)
                  'text-field-enter)
         (print-info "Location changed!")
         ; They already have access to the url box
         (send (getCurrentTab) locationChanged)))
+    (define addTabBtn : (Instance Button%)
+      (new button%
+           [parent locationPane]
+           ;[label "New Tab"]
+           [label (char->icon "+")]
+           [callback (lambda (button event)
+                       (addTabBtnCallback))]))
     (define locationBack : (Instance Button%)
       (new button%
            [parent locationPane]
@@ -123,14 +132,14 @@
            [label ""]
            [callback locationChanged]))
     (send locationBox stretchable-height #t)
-    (define tabManagerPane : (Instance Horizontal-Pane%)
-      (new horizontal-pane% [parent frame] [alignment '(right center)]))
-    (send tabManagerPane stretchable-height #f)
+    (define tabManagerPanel : (Instance Horizontal-Panel%)
+      (new horizontal-panel% [parent frame] [alignment '(right center)]))
+    (send tabManagerPanel stretchable-height #f)
     (define tab-elm : (Instance Tab-Panel%)
       (new tab-panel%
            [choices (for/list ([link self-links])
                       (url->string link))]
-           [parent frame]
+           [parent tabManagerPanel]
            [style '(no-border)]
            [callback (lambda (panel event)
                        (send (list-ref tabs last-tab-focused) unfocus)
@@ -157,60 +166,55 @@
     (define/private (hideTabRow bool)
       (print-info (format "hideTabRow ~a" bool))
       (if bool
-        (send frame delete-child tab-elm)
+        (send frame delete-child tabManagerPanel)
         (begin 
           (send frame delete-child tab-holder)
-          (send frame add-child tab-elm)
+          (send frame add-child tabManagerPanel)
           (send frame add-child tab-holder))))
     (: addTabBtnCallback (-> Void))
     (define/private (addTabBtnCallback)
       (print-info "Making new tab")
+      (send (getCurrentTab) unfocus)
       (when (= 1 (length tabs))
         (hideTabRow #f))
       (set! tabs
         (append tabs (list (makeTab (netscape/string->url "bm:newtab"))))) 
       (send tab-elm set (get-tab-choices))
-      (send tab-elm set-selection (- (length tabs) 1)))
-    (define addTabBtn : (Instance Button%)
-      (new button%
-           [parent tabManagerPane]
-           ;[label "New Tab"]
-           [label (char->icon "+")]
-           [callback (lambda (button event)
-                       (send (getCurrentTab) unfocus)
-                       (addTabBtnCallback)
-                       (do-focus))]))
+      (send tab-elm set-selection (- (length tabs) 1))
+      (do-focus))
+    (: closeCurrentTab (-> Void))
+    (define/private (closeCurrentTab)
+      (let ([current (getCurrentTab)]) 
+        (print-info (format "Closing ~a" (send current get-title)))
+        (send current unfocus))
+      (define counter -1)
+      (define index ((send tab-elm get-selection) . or . 0))
+      (send (list-ref tabs index) close)
+      (set! tabs (filter (lambda (item)
+                           (set! counter (+ counter 1))
+                           (not (= counter index)))
+                         tabs))
+      (send tab-elm set (get-tab-choices))
+      (if (= 0 (length tabs))
+        (begin
+          (print-info "Closing browser!")
+          (exit 0))
+        (begin
+          (send tab-elm set-selection (if (= 0 index)
+                                        0
+                                        (- index 1)))
+          (when (= 1 (length tabs))
+            (hideTabRow #t))))
+      (do-focus))
     (define closeTabBtn : (Instance Button%)
       (new button%
-           [parent tabManagerPane]
+           [parent tabManagerPanel]
            ;[label "Close Tab"]
            [label (x-icon #:color light-metal-icon-color
-                          #:thickness 6 ; TODO increase later
-                          )]
+                          ; TODO increase later
+                          #:thickness 6)]
            [callback (lambda (button event)
-                       (let ([current (getCurrentTab)]) 
-                         (print-info
-                           (format "Closing ~a" (send current get-title)))
-                         (send current unfocus))
-                       (define counter -1)
-                       (define index ((send tab-elm get-selection) . or . 0))
-                       (send (list-ref tabs index) close)
-                       (set! tabs (filter (lambda (item)
-                                            (set! counter (+ counter 1))
-                                            (not (= counter index)))
-                                          tabs))
-                       (send tab-elm set (get-tab-choices))
-                       (if (= 0 (length tabs))
-                         (begin
-                           (print-info "Closing browser!")
-                           (exit 0))
-                         (begin
-                           (send tab-elm set-selection (if (= 0 index)
-                                                         0
-                                                         (- index 1)))
-                           (when (= 1 (length tabs))
-                             (hideTabRow #t))))
-                       (do-focus))]))
+                       (closeCurrentTab))]))
     (let-values ([(width height) (send closeTabBtn get-graphical-min-size)])
       ; (print-info (~a width))
       (send locationBack min-width width)
