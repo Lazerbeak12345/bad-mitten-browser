@@ -16,7 +16,6 @@
                                [#:backing-scale Positive-Exact-Rational]
                                . -> .
                                (Instance Bitmap%)))
-(require/typed images/icons/arrow [left-over-arrow-icon Normal-Icon-Func])
 (require/typed images/icons/control
                [back-icon Normal-Icon-Func]
                [play-icon Normal-Icon-Func])
@@ -40,6 +39,15 @@
                         . -> .
                         (Instance Bitmap%))])
 (provide bm-window%)
+#| Use a unicode character as an icon |#
+(: char->icon (-> String (Instance Bitmap%)))
+(define (char->icon char)
+  (text-icon char
+             ; TODO fix upstream to allow 'heavy and numbers
+             (make-font #:weight 'bold)
+             #:color light-metal-icon-color
+             #:trim? #t))
+#| An instance of this browser's window |#
 (define bm-window%
   (class object% (init [links : (U Null
                                    String
@@ -104,8 +112,7 @@
       (new button%
            [parent locationPane]
            ;[label "Reload"]
-           [label (pict->bitmap (bitmap (left-over-arrow-icon
-                            #:color light-metal-icon-color)))]
+           [label (char->icon "⟳")]
            [callback (lambda (button event)
                        (send (getCurrentTab) reload))]))
     ; The location box. I would prefer if this were in the top bar instead.
@@ -168,11 +175,7 @@
       (new button%
            [parent tabManagerPane]
            ;[label "New Tab"]
-           [label (text-icon "+"
-                             ; TODO fix upstream to allow 'heavy and numbers
-                             (make-font #:weight 'bold)
-                             #:color light-metal-icon-color
-                             #:trim? #t)]
+           [label (char->icon "+")]
            [callback (lambda (button event)
                        (send (getCurrentTab) unfocus)
                        (addTabBtnCallback)
