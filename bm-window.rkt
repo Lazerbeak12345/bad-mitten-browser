@@ -19,7 +19,7 @@
 (require/typed images/icons/control
                [back-icon Normal-Icon-Func]
                [play-icon Normal-Icon-Func])
-(require/typed images/icons/style [light-metal-icon-color ColorStr])
+(require/typed images/icons/style [metal-icon-color ColorStr])
 (require/typed images/icons/symbol
                [text-icon (String
                             (Instance Font%) ; This should be mandatory
@@ -45,7 +45,7 @@
   (text-icon char
              ; TODO fix upstream to allow 'heavy and numbers
              (make-font #:weight 'bold)
-             #:color light-metal-icon-color
+             #:color metal-icon-color
              #:trim? #t))
 #| An instance of this browser's window |#
 (define bm-window%
@@ -107,14 +107,14 @@
       (new button%
            [parent locationPane]
            ;[label "Back"]
-           [label (back-icon #:color light-metal-icon-color)]
+           [label (back-icon #:color metal-icon-color)]
            [callback (lambda (button event)
                        (send (getCurrentTab) back))]))
     (define locationForward : (Instance Button%)
       (new button%
            [parent locationPane]
            ;[label "Forward"]
-           [label (play-icon #:color light-metal-icon-color)]
+           [label (play-icon #:color metal-icon-color)]
            [callback (lambda (button event)
                        (send (getCurrentTab) forward))]))
     (define locationReload : (Instance Button%)
@@ -210,7 +210,7 @@
       (new button%
            [parent tabManagerPanel]
            ;[label "Close Tab"]
-           [label (x-icon #:color light-metal-icon-color
+           [label (x-icon #:color metal-icon-color
                           ; TODO increase later
                           #:thickness 6)]
            [callback (lambda (button event)
