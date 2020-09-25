@@ -19,10 +19,12 @@
 (require/typed images/icons/control
                [back-icon Normal-Icon-Func]
                [play-icon Normal-Icon-Func])
-(require/typed images/icons/style [metal-icon-color ColorStr])
+(require/typed images/icons/style
+               [default-icon-height (-> Positive-Exact-Rational)]
+               [metal-icon-color ColorStr])
 (require/typed images/icons/symbol
                [text-icon (String
-                            (Instance Font%) ; This should be mandatory
+                            (Instance Font%) ; This should be optional
                             [#:trim? Boolean]
                             [#:color ColorStr]
                             [#:height Positive-Exact-Rational]
@@ -34,10 +36,18 @@
                [x-icon ([#:color ColorStr]
                         [#:height Positive-Exact-Rational]
                         [#:material Any] ; TODO fix?
-                        [#:thickness Positive-Exact-Rational] ; TODO fix?
+                        [#:thickness Positive-Exact-Rational]
                         [#:backing-scale Positive-Exact-Rational]
                         . -> .
                         (Instance Bitmap%))])
+(require/typed pict ; TODO push all of these type overrides upstream
+               [disk (Positive-Exact-Rational
+                       ;[#:draw-border Any]
+                       [#:color (U False ColorStr)]
+                       [#:border-color (U False ColorStr)]
+                       [#:border-width Real]
+                       . -> .
+                       pict)])
 (provide bm-window%)
 #| Use a unicode character as an icon |#
 (: char->icon (-> String (Instance Bitmap%)))
@@ -73,13 +83,49 @@
                (list (netscape/string->url _links))])))
     (define label : String "Bad-Mitten Browser")
     (define frame : (Instance Frame%)
-      (new frame%
-           [label label]
-           ; I just guessed these numbers. Works for gnome, works for me
-           [width 800]
-           [height 600]
-           [alignment '(center top)]))
-    ; TODO set-icon
+      (let-values ([(width height)
+                    (get-display-size)])
+        (new frame%
+             [label label]
+             ; I just guessed these numbers. Works for gnome, works for me
+             [width 800]
+             [height 600]
+             ; lol I guess I'll have to figure out this dyamic stuff later:
+             ; it won't compile for typing reasons
+             #|[width (if (number? width)
+                      (ceiling (width . * . .7))
+                      800)]
+             [height (if (number? height)
+                       (ceiling (height . / . 1.5))
+                       600)]|#
+             [alignment '(center top)])))
+    ; TODO set-icon (doesn't work on KDE Plasma 5.18.5 (wayland) or on GNOME
+    ; 3.16.5 (wayland), but does work on KDE (same version) (X11))
+    #|(send frame set-icon
+          (pict->bitmap
+            (disk ((default-icon-height) . * . (2 . / . 3))
+                  #:color "white"
+                  #:border-color "lightgrey"
+                  #:border-width ((default-icon-height) . / .  8))))|#
+    #|(send frame set-icon (let* ([h (* 10 (default-icon-height))]
+                                [dc (new bitmap-dc%
+                                         [bitmap (make-bitmap (ceiling h)
+                                                              (ceiling h))])]
+                               [pen-width (h . / . 8)])
+                           (send dc set-pen (new pen%
+                                                 [color "grey"]
+                                                 [width pen-width]))
+                           (send dc draw-line 0 h (h . * . .6) (h . * . .4))
+                           (send dc
+                                 draw-ellipse
+                                 (h . * . .25)
+                                 (h . * . .3)
+                                 (h . * . .5)
+                                 (h . * . .5))
+                           (or (send dc get-bitmap)
+                               (make-object bitmap%
+                                            (ceiling h)
+                                            (ceiling h)))))|#
     (define locationPane : (Instance Horizontal-Pane%)
       (new horizontal-pane% 
            ; TODO text align vert-center
