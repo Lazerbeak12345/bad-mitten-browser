@@ -5,7 +5,7 @@
          racket/list ; Require typed later?
          typed/net/url
          "consoleFeedback.rkt"
-         "renderer.rkt")
+         "bird-E/renderer.rkt")
 (provide tab% Tab%)
 (define-type Tab% 
   (Class (init [url URL]
