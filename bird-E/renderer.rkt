@@ -9,5 +9,5 @@
   (class object%
     (init initial-URL parent setUrl!)
     (define/public (navigate-to theUrl)
-      (print-info (format "navite-to ~a" theUrl)))
+      (print-info (format "navigate-to ~a" theUrl)))
     (super-new)))
