@@ -1,3 +1,4 @@
+#!/usr/bin/env racket
 #lang typed/racket/base
 (module+ test
   ;(print-error "No tests written!?")
