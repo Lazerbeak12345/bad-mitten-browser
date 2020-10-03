@@ -1,5 +1,8 @@
 # bird-E dom compositor
 
+> /!\ This is the **old** compositor using images cashing. The new one will
+> be using built-in tools for faster, more efficent rendering.
+
 This is an implementation of the HTML(5) DOM, in racket, made for the
 Bad-Mitten Browser
 
