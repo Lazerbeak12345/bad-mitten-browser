@@ -5,11 +5,9 @@
                                     [setUrl! (-> URL Void)])
                               [navigate-to (-> URL Void)]))
 (provide renderer% Renderer%)
-(define renderer%
+(define renderer% : Renderer%
   (class object%
-    (init [initial-URL : URL]
-          [setUrl! : (-> URL Void)]
-          [parent : Any])
+    (init initial-URL parent setUrl!)
     (define/public (navigate-to theUrl)
       (print-info (format "navite-to ~a" theUrl)))
     (super-new)))

@@ -40,15 +40,15 @@
                         [#:backing-scale Positive-Exact-Rational]
                         . -> .
                         (Instance Bitmap%))])
-(require/typed pict ; TODO push all of these type overrides upstream
+#|(require/typed pict ; TODO push all of these type overrides upstream
                [disk (Positive-Exact-Rational
                        ;[#:draw-border Any]
                        [#:color (U False ColorStr)]
                        [#:border-color (U False ColorStr)]
                        [#:border-width Real]
                        . -> .
-                       pict)])
-(provide bm-window%)
+                       pict)])|#
+(provide bm-window% Bm-window%)
 #| Use a unicode character as an icon |#
 (: char->icon (-> String (Instance Bitmap%)))
 (define (char->icon char)
@@ -57,13 +57,15 @@
              (make-font #:weight 'bold)
              #:color metal-icon-color
              #:trim? #t))
+(define-type Bm-window%
+             (Class (init [links (U Null
+                                    String
+                                    (Listof String)
+                                    URL
+                                    (Listof URL))])))
 #| An instance of this browser's window |#
-(define bm-window%
-  (class object% (init [links : (U Null
-                                   String
-                                   (Listof String)
-                                   URL
-                                   (Listof URL))])
+(define bm-window% : Bm-window%
+  (class object% (init links)
     (define self-links : (Listof URL)
       (let ([_links links]) ; Only initialize links once
         (cond [(null? _links)

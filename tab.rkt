@@ -25,12 +25,7 @@
          [get-url (-> URL)]))
 (define tab% : Tab%
   (class object%
-    (init [url : URL]
-          [locationBox : (Instance Text-Field%)]
-          [locationBack : (Instance Button%)]
-          [locationForward : (Instance Button%)]
-          [tab-holder : (Instance Panel%)]
-          [update-title : (-> Void)])
+    (init url locationBox locationBack locationForward tab-holder update-title)
     (define self-url : URL url)
     (define ext-locationBox : (Instance Text-Field%) locationBox)
     (define ext-locationBack : (Instance Button%) locationBack)
