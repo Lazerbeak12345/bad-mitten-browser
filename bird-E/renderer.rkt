@@ -2,7 +2,9 @@
 (require typed/net/url
          typed/racket/class
          typed/racket/gui/base
-         "../consoleFeedback.rkt")
+         "../consoleFeedback.rkt"
+         "../networking.rkt"
+         "xexp-to-dom.rkt")
 (provide renderer% Renderer%)
 (define-type Renderer% (Class (init [initial-URL URL]
                                     [setUrl! (-> URL Void)]
@@ -21,7 +23,14 @@
            [parent init-parent]
            [editor pasteboard-instance]
            [style '(auto-vscroll auto-hscroll)]))
+    (define domTree : Any null) ; TODO better type
     (super-new)
-    (define/public (navigate-to theUrl)
-      (print-info (format "navigate-to ~a" theUrl))))) 
+    (define/public (navigate-to newUrl)
+      (print-info (format "navigate-to ~a" newUrl))
+      ; TODO kill old tree
+      ; TODO not all URL changes require fetching from the server
+      (set! theUrl newUrl)
+      ; TODO is a single-item list used like this a code smell?
+      (set! domTree (xexp->dom (list (makeInitTree theUrl init-setUrl!)))))
+    (navigate-to theUrl))) 
 

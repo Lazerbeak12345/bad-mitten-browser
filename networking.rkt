@@ -49,7 +49,7 @@
                       (begin
                         (print-info "Adjusting to have host")
                         (doRedirect (url->string (makeUrlHaveHost theUrl)))
-                        '(*TOP*))
+                        (assert '(*TOP*) xexp?))
                       (let-values
                         ([(port headers)
                           (get-pure-port/headers 
@@ -77,7 +77,7 @@
                           [("text/html")
                            (getTreeFromPortAndCloseIt port)]
                           [("text/plain")
-                           `(*TOP* (code ,(port->string port)))]
+                           (assert `(*TOP* (code ,(port->string port))) xexp?)]
                           [else (makeErrorMessage
                                   (format "unsupported MIME type ~a"
                                           content-type))]))))]
