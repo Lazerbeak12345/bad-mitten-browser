@@ -7,8 +7,8 @@
 (provide xexp->dom)
 (: html-br? (-> Any Boolean))
 (define (html-br? theXexp)
-  (print-error "html-br not written yet")
-  #t)
+  (and (xexp? theXexp)
+	   (eq? 'br (xexp-name theXexp))))
 (: xexp->dom (-> (Listof Xexp) (Listof Any))) ; TODO narrow return type
 (define (xexp->dom xexp)
   (define last-string : String "")
@@ -22,7 +22,7 @@
       [(xexp-short? elm)
        (set! cleaned-elms (append cleaned-elms (list (assert last-string xexp?) elm)))
        (set! last-string "")]))
-  (define doctype `html5)
+  (define doctype 'html5)
   (for/list ([elm cleaned-elms])
     (cond
       [(string? elm)
