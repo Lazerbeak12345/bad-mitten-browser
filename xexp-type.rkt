@@ -1,5 +1,8 @@
 #lang typed/racket/base
 (module xexp-contracts racket/base
+  #| This module is only here because I coudln't figure out a better way to
+  allow for types that can be used as contracts in runtime and in
+  compile-time |#
   (require racket/contract)
   (define/contract xexp-decl? contract?
 				   (cons/c '*DECL* (listof (or/c string? symbol?))))
