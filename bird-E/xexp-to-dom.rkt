@@ -20,6 +20,8 @@
       [(html-br? elm)
        (set! last-string (string-append last-string "\n"))]
       [(xexp-short? elm)
+	   (set! last-string (string-append (string (xexp-short->char elm))))]
+	  [else
        (set! cleaned-elms (append cleaned-elms (list (assert last-string xexp?) elm)))
        (set! last-string "")]))
   (define doctype 'html5)

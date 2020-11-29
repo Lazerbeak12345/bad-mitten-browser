@@ -44,7 +44,7 @@
 					   [#:opaque Xexp xexp?]
 					   [xexp-name (-> Xexp Symbol)])
 (require "consoleFeedback.rkt")
-(provide xexp-attrs xexp-children xexp-name)
+(provide xexp-attrs xexp-children xexp-name xexp-short->char)
 (: xexp-children (-> Xexp (Listof Xexp)))
 (define (xexp-children theXexp)
   (print-error "xexp-children needs a refresh")
@@ -69,4 +69,8 @@
 (define (xexp-attrs theXexp)
   (print-error "xexp-name not written yet")
   null)
+(: xexp-short->char (-> Xexp-short Char))
+(define (xexp-short->char theXexp)
+  (print-error "xexp-short->char not written yet")
+  #\?)
 
