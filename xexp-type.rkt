@@ -23,19 +23,23 @@
 				   ;(flat-contract-predicate
 					 (cons/c symbol? (cons/c xexp-attrs? (listof xexp?))));)
   (define/contract xexp-no-attrs? contract? (cons/c symbol? (listof xexp?)))
+  (define/contract (xexp-name theXexp) (-> xexp? symbol?)
+				   (car theXexp))
   (provide xexp-decl?
 		   xexp-short?
 		   ;xexp-attrs?
 		   xexp-with-attrs?
 		   xexp-no-attrs?
-		   xexp?))
+		   xexp?
+		   xexp-name))
 (require/typed/provide 'xexp-contracts
 					   [#:opaque Xexp-decl xexp-decl?]
 					   [#:opaque Xexp-short xexp-short?]
 					   ;[#:opaque Xexp-attrs xexp-attrs?]
 					   [#:opaque Xexp-with-attrs xexp-with-attrs?]
 					   [#:opaque Xexp-no-attrs xexp-no-attrs?]
-					   [#:opaque Xexp xexp?])
+					   [#:opaque Xexp xexp?]
+					   [xexp-name (-> Xexp Symbol)])
 (require "consoleFeedback.rkt")
 (provide xexp-attrs xexp-children xexp-name)
 (: xexp-children (-> Xexp (Listof Xexp)))
@@ -57,10 +61,6 @@
          (cdr (ann theXexp Xexp-no-attrs))|#
          (cddr theXexp)] ; TODO get more strict once the typing is better
         [else (cdr theXexp)]))|#
-(: xexp-name (-> Xexp Symbol))
-(define (xexp-name theXexp)
-  (print-error "xexp-name not written yet")
-  'todo)
 (: xexp-attrs (-> Xexp (Listof (U (List Symbol)
                                   (List Symbol String)))))
 (define (xexp-attrs theXexp)
