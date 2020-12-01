@@ -1,9 +1,9 @@
 #lang typed/racket/base
 (require typed/racket/class
+		 typed/racket/snip
          "../consoleFeedback.rkt"
          "../xexp-type.rkt"
-         "dom-elm.rkt"
-         "text-node.rkt")
+         "dom-elm.rkt")
 (provide xexp->dom)
 (: html-br? (-> Any Boolean))
 (define (html-br? theXexp)
@@ -28,7 +28,8 @@
   (for/list ([elm cleaned-elms])
     (cond
       [(string? elm)
-       (new text-node% [text elm])]
+	   ; As it turns out, this built-in does everything I need.
+	   (make-object string-snip% elm)]
       #|[(xexp-comment? elm)
        (new comment-node% [xexp elm])]|#
       [(xexp? elm)
