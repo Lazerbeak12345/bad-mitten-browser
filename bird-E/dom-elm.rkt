@@ -1,13 +1,22 @@
 #lang typed/racket/base
-; TODO this is a stub
-(require typed/racket/class "../consoleFeedback.rkt" "../xexp-type.rkt")
+(require typed/racket/class
+		 typed/racket/gui/base
+		 "../consoleFeedback.rkt"
+		 "../xexp-type.rkt")
 (provide dom-elm% Dom-Elm%)
-(define-type Dom-Elm% (Class (init [name (U Symbol String)]
-                                   [attrs (Listof (U (List Symbol)
-                                                     (List Symbol String)))]
-                                   [children (Listof Any)]))) ; TODO fix
+(define-type Dom-Elm% (Class
+						#:implements/inits Editor-Snip%
+						(init [name (U Symbol String)]
+							  [attrs (Listof (U (List Symbol)
+												(List Symbol String)))]
+							  [children (Listof Any)]))) ; TODO fix
 (define dom-elm% : Dom-Elm%
-  (class object%
+  (class editor-snip%
     (init name attrs children)
     (super-new)
-    (print-warning "dom-elm% not written yet")))
+	(define init-name : (U Symbol String) name)
+	(define init-attrs : (Listof (U (List Symbol)
+									(List Symbol String))) attrs)
+	(define init-children : (Listof Any) children)
+	(print-info (format "children: ~a" init-children))))
+
