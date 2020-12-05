@@ -18,5 +18,8 @@
 	(define init-attrs : (Listof (U (List Symbol)
 									(List Symbol String))) attrs)
 	(define init-children : (Listof Any) children)
-	(print-info (format "children: ~a" init-children))))
+	(print-info (format "name: ~a" init-name))
+	(print-info (format "attrs: ~a" init-attrs))
+	(print-info (format "children: ~a" init-children))
+	))
 

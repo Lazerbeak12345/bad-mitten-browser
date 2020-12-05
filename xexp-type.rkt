@@ -28,13 +28,19 @@
   (define/contract xexp-no-attrs? contract? (cons/c symbol? (listof xexp?)))
   (define/contract (xexp-name theXexp) (-> xexp? symbol?)
 				   (car theXexp))
+  (define (xexp-attrs theXexp) (-> xexp? (listof (or/c (list/c symbol?)
+													   (list/c symbol? string?))))
+	(if (xexp-with-attrs? theXexp)
+	  (cdadr theXexp)
+	  null))
   (provide xexp-decl?
 		   xexp-short?
 		   ;xexp-attrs?
 		   xexp-with-attrs?
 		   xexp-no-attrs?
 		   xexp?
-		   xexp-name))
+		   xexp-name
+		   xexp-attrs))
 (require/typed/provide 'xexp-contracts
 					   [#:opaque Xexp-decl xexp-decl?]
 					   [#:opaque Xexp-short xexp-short?]
@@ -42,9 +48,11 @@
 					   [#:opaque Xexp-with-attrs xexp-with-attrs?]
 					   [#:opaque Xexp-no-attrs xexp-no-attrs?]
 					   [#:opaque Xexp xexp?]
-					   [xexp-name (-> Xexp Symbol)])
+					   [xexp-name (-> Xexp Symbol)]
+					   [xexp-attrs (-> Xexp (Listof (U (List Symbol)
+													   (List Symbol String))))])
 (require "consoleFeedback.rkt")
-(provide xexp-attrs xexp-children xexp-name xexp-short->char)
+(provide xexp-children xexp-name xexp-short->char)
 (: xexp-children (-> Xexp (Listof Xexp)))
 (define (xexp-children theXexp)
   (print-error "xexp-children needs a refresh")
@@ -64,11 +72,6 @@
          (cdr (ann theXexp Xexp-no-attrs))|#
          (cddr theXexp)] ; TODO get more strict once the typing is better
         [else (cdr theXexp)]))|#
-(: xexp-attrs (-> Xexp (Listof (U (List Symbol)
-                                  (List Symbol String)))))
-(define (xexp-attrs theXexp)
-  (print-error "xexp-name not written yet")
-  null)
 (: xexp-short->char (-> Xexp-short Char))
 (define (xexp-short->char theXexp)
   (print-error "xexp-short->char not written yet")
