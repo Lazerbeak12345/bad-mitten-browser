@@ -18,21 +18,21 @@
 												   xexp-short?
 												   xexp-with-attrs?
 												   xexp-no-attrs?)) e))
-  #|(define/contract xexp-with-attrs?
-				   contract?
-				   (flat-contract-predicate (*list/c symbol? xexp-attrs? xexp?)))|#
   (define/contract xexp-with-attrs?
 				   contract?
-				   ;(flat-contract-predicate
-					 (cons/c symbol? (cons/c xexp-attrs? (listof xexp?))));)
+					 (cons/c symbol? (cons/c xexp-attrs? (listof xexp?))))
   (define/contract xexp-no-attrs? contract? (cons/c symbol? (listof xexp?)))
   (define/contract (xexp-name theXexp) (-> xexp? symbol?)
 				   (car theXexp))
-  (define (xexp-attrs theXexp) (-> xexp? (listof (or/c (list/c symbol?)
-													   (list/c symbol? string?))))
-	(if (xexp-with-attrs? theXexp)
-	  (cdadr theXexp)
-	  null))
+  (define/contract (xexp-attrs theXexp) (-> xexp? (listof (or/c (list/c symbol?)
+																(list/c symbol? string?))))
+				   (if (xexp-with-attrs? theXexp)
+					 (cdadr theXexp)
+					 null))
+  (define/contract (xexp-children theXexp) (-> xexp? (listof xexp?))
+				   (if (xexp-with-attrs? theXexp)
+					 (cddr theXexp)
+					 (cdr theXexp)))
   (provide xexp-decl?
 		   xexp-short?
 		   ;xexp-attrs?
@@ -40,7 +40,8 @@
 		   xexp-no-attrs?
 		   xexp?
 		   xexp-name
-		   xexp-attrs))
+		   xexp-attrs
+		   xexp-children))
 (require/typed/provide 'xexp-contracts
 					   [#:opaque Xexp-decl xexp-decl?]
 					   [#:opaque Xexp-short xexp-short?]
@@ -50,28 +51,10 @@
 					   [#:opaque Xexp xexp?]
 					   [xexp-name (-> Xexp Symbol)]
 					   [xexp-attrs (-> Xexp (Listof (U (List Symbol)
-													   (List Symbol String))))])
+													   (List Symbol String))))]
+					   [xexp-children (-> Xexp (Listof Xexp))])
 (require "consoleFeedback.rkt")
-(provide xexp-children xexp-name xexp-short->char)
-(: xexp-children (-> Xexp (Listof Xexp)))
-(define (xexp-children theXexp)
-  (print-error "xexp-children needs a refresh")
-  null)
-#|(define (xexp-children theXexp)
-  (cond [(or (string? theXexp)
-             (eq? '*DECL* (first theXexp))
-             (eq? '& (first theXexp))
-             (null? (cdr theXexp)))
-         null]
-        [(let ([potential-attrs (second theXexp)])
-           (and (list? potential-attrs)
-                (eq? '@ (first potential-attrs))
-                #|(list? (second potential-attrs))
-                (list? (first (second potential-attrs)))|#))
-         #|(cddr (ann theXexp Xexp-with-attrs))
-         (cdr (ann theXexp Xexp-no-attrs))|#
-         (cddr theXexp)] ; TODO get more strict once the typing is better
-        [else (cdr theXexp)]))|#
+(provide xexp-short->char)
 (: xexp-short->char (-> Xexp-short Char))
 (define (xexp-short->char theXexp)
   (print-error "xexp-short->char not written yet")
