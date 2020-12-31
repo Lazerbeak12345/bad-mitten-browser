@@ -1,6 +1,7 @@
 #lang typed/racket/base
 (require typed/racket/class
 		 typed/racket/snip
+		 racket/string
          "../consoleFeedback.rkt"
          "../xexp-type.rkt"
          "dom-elm.rkt")
@@ -9,36 +10,45 @@
 (define (html-br? theXexp)
   (and (xexp? theXexp)
 	   (eq? 'br (xexp-name theXexp))))
+;(define-type Doctype (U 'html5 'quirks))
+(define-type Doctype Symbol)
+(print-warning "TODO: fix Doctype type in xexp-to-dom.rkt")
+(: get-decl-doctype (-> Xexp-decl Doctype))
+(define (get-decl-doctype theDecl)
+  (print-error "get-decl-doctype not written yet")
+  'quirks)
 ; NOTE: changes to #:doctype are not propigated upwards through the dom
-(: xexp->dom (-> (Listof Xexp) [#:doctype (U 'html5 'quirks)] (Listof Any))) ; TODO narrow return type
-(define (xexp->dom xexp #:doctype [doctype 'html5])
+(: xexp->dom (-> (Listof Xexp) [#:doctype Doctype] (Listof Any))) ; TODO narrow return type
+(define (xexp->dom xexp #:doctype [doctype 'quirks])
+  ;(print-info (format "before: ~v" xexp))
   (define last-string : String "")
   (define cleaned-elms : (Listof Xexp) null)
+  (define (append/last-string!)
+	(let ([norm/str (string-normalize-spaces last-string)])
+	  (unless (equal? norm/str "")
+		(set! cleaned-elms (append cleaned-elms (list (assert norm/str xexp?))))
+		(set! last-string ""))))
+  ; First reduce the amount of strings we will need to keep in memory later
   (for ([elm xexp])
     (cond
       [(string? elm)
-       (set! last-string (string-append last-string elm))]
-      [(html-br? elm)
-       (set! last-string (string-append last-string "\n"))]
+		(set! last-string (string-append last-string elm))]
       [(xexp-short? elm)
-	   (set! last-string (string-append (string (xexp-short->char elm))))]
-	  [else
-		(set! cleaned-elms (append cleaned-elms
-								   (if (not (eq? last-string ""))
-									 (list (assert last-string xexp?) elm)
-									 (list elm))))
-		(set! last-string "")]))
+	   (set! last-string (string-append last-string
+										(string (xexp-short->char elm))))]
+	  [else (append/last-string!)
+			(set! cleaned-elms (append cleaned-elms (list elm)))]))
+  (append/last-string!)
+  ;(print-info (format "after: ~v" cleaned-elms))
+  ; Then go through and initialize the objects
   (for/list ([elm cleaned-elms]
-			 #:when (if (xexp-decl? elm)
-					  (begin (print-error "Needs to update doctype")
-							 #f)
-					  #t))
+			 #:when (let ([d (xexp-decl? elm)])
+					  (when d (set! doctype (get-decl-doctype elm)))
+					  (not d)))
     (cond
+	  ; TODO handle style and script tag content
       [(string? elm)
-	   ; As it turns out, this built-in does everything I need.
 	   (make-object string-snip% elm)]
-      #|[(xexp-comment? elm)
-       (new comment-node% [xexp elm])]|#
       [(xexp? elm)
 	   (new dom-elm%
 			[name (xexp-name (ann elm Xexp))]

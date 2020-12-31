@@ -3,7 +3,7 @@
   #| This module is only here because I coudln't figure out a better way to
   allow for types that can be used as contracts in runtime and in
   compile-time |#
-  (require racket/contract)
+  (require racket/contract "consoleFeedback.rkt")
   (define/contract xexp-decl? contract?
 				   (cons/c '*DECL* (listof (or/c string? symbol?))))
   (define/contract xexp-short? contract?
@@ -33,6 +33,41 @@
 				   (if (xexp-with-attrs? theXexp)
 					 (cddr theXexp)
 					 (cdr theXexp)))
+  ; &#0192; (not hex)
+  ;
+  ; &nbsp;	&#160;	 
+  ; &lt;	&#60;	<
+  ; &gt;	&#62;	>
+  ; &amp;	&#38;	&
+  ; &quot;	&#34;	"
+  ; &apos;	&#39;	'
+  ; &cent;	&#162;	¢
+  ; &pound;	&#163;	£
+  ; &yen;	&#165;	¥
+  ; &euro;	&#8364;	€
+  ; &copy;	&#169;	©
+  ; &reg;	&#174;	®
+  (define/contract (xexp-short->char theXexp) (-> xexp-short? char?)
+	(case (cadr theXexp)
+	  [(nbsp) #\ ] ; yes, there is a unicode nbsp right there
+
+	  ; These 5 ones are handled by html-parsing already
+	  ;[(lt) #\<]
+	  ;[(gt) #\>]
+	  ;[(amp) #\&]
+	  ;[(quot) #\"]
+	  ;[(apos) #\']
+
+	  [(cent) #\¢]
+	  [(pound) #\£]
+	  [(yen) #\¥]
+	  [(euro) #\€]
+	  [(copy) #\©]
+	  [(reg) #\®]
+	  ; The &#160; form is already handled by html-parsing, but here's where it
+	  ; would go
+	  [else (print-error (format "Unknown html escape: ~a" (cadr theXexp)))
+			#\uFFFD]))
   (provide xexp-decl?
 		   xexp-short?
 		   ;xexp-attrs?
@@ -41,7 +76,8 @@
 		   xexp?
 		   xexp-name
 		   xexp-attrs
-		   xexp-children))
+		   xexp-children
+		   xexp-short->char))
 (require/typed/provide 'xexp-contracts
 					   [#:opaque Xexp-decl xexp-decl?]
 					   [#:opaque Xexp-short xexp-short?]
@@ -52,11 +88,6 @@
 					   [xexp-name (-> Xexp Symbol)]
 					   [xexp-attrs (-> Xexp (Listof (U (List Symbol)
 													   (List Symbol String))))]
-					   [xexp-children (-> Xexp (Listof Xexp))])
-(require "consoleFeedback.rkt")
-(provide xexp-short->char)
-(: xexp-short->char (-> Xexp-short Char))
-(define (xexp-short->char theXexp)
-  (print-error "xexp-short->char not written yet")
-  #\?)
+					   [xexp-children (-> Xexp (Listof Xexp))]
+					   [xexp-short->char (-> Xexp-short Char)])
 
