@@ -18,7 +18,11 @@
   (print-error "get-decl-doctype not written yet")
   'quirks)
 ; NOTE: changes to #:doctype are not propigated upwards through the dom
-(: xexp->dom (-> (Listof Xexp) [#:doctype Doctype] (Listof Any))) ; TODO narrow return type
+(: xexp->dom ((Listof Xexp)
+              [#:doctype Doctype]
+              . -> .
+              (Listof (U (Instance Dom-Elm%)
+                         (Instance String-Snip%)))))
 (define (xexp->dom xexp #:doctype [doctype 'quirks])
   ;(print-info (format "before: ~v" xexp))
   (define last-string : String "")

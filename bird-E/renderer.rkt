@@ -23,14 +23,19 @@
            [parent init-parent]
            [editor pasteboard-instance]
            [style '(auto-vscroll auto-hscroll)]))
-    (define domTree : Any null) ; TODO better type
+    (define domTree : (Listof (Instance Snip%)) null)
     (super-new)
     (define/public (navigate-to newUrl)
       (print-info (format "navigate-to ~a" newUrl))
+      (send pasteboard-instance select-all)
+      (send pasteboard-instance delete)
       ; TODO kill old tree
       ; TODO not all URL changes require fetching from the server
       (set! theUrl newUrl)
-      ; TODO is a single-item list used like this a code smell?
-      (set! domTree (xexp->dom (list (makeInitTree theUrl init-setUrl!)))))
-    (navigate-to theUrl))) 
+      (set! domTree (xexp->dom (list (makeInitTree theUrl init-setUrl!))))
+      ; TODO make this generic and use it in dom-elm as well
+      (for ([element domTree])
+        (print-info (format "element: ~a" element))
+        (send pasteboard-instance insert element)))
+    (navigate-to theUrl)))
 
