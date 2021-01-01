@@ -31,3 +31,4 @@
       [paint-callback (lambda (canvas dc)
                         ; contact the dom for the image and render it
                         (print-info "Paint!"))])))
+

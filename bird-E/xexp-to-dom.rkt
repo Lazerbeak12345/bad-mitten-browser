@@ -9,7 +9,8 @@
 (: html-br? (-> Any Boolean))
 (define (html-br? theXexp)
   (and (xexp? theXexp)
-	   (eq? 'br (xexp-name theXexp))))
+       (not (string? theXexp))
+       (eq? 'br (xexp-name theXexp))))
 ;(define-type Doctype (U 'html5 'quirks))
 (define-type Doctype Symbol)
 (print-warning "TODO: fix Doctype type in xexp-to-dom.rkt")
@@ -36,12 +37,12 @@
   (for ([elm xexp])
     (cond
       [(string? elm)
-		(set! last-string (string-append last-string elm))]
+       (set! last-string (string-append last-string elm))]
       [(xexp-short? elm)
-	   (set! last-string (string-append last-string
-										(string (xexp-short->char elm))))]
-	  [else (append/last-string!)
-			(set! cleaned-elms (append cleaned-elms (list elm)))]))
+       (set! last-string (string-append last-string
+                                        (string (xexp-short->char elm))))]
+      [else (append/last-string!)
+            (set! cleaned-elms (append cleaned-elms (list elm)))]))
   (append/last-string!)
   ;(print-info (format "after: ~v" cleaned-elms))
   ; Then go through and initialize the objects
@@ -52,10 +53,13 @@
     (cond
 	  ; TODO handle style and script tag content
       [(string? elm)
-	   (make-object string-snip% elm)]
-      [(xexp? elm)
-	   (new dom-elm%
-			[name (xexp-name (ann elm Xexp))]
-			[attrs (xexp-attrs elm)]
-			[children (xexp->dom (xexp-children elm) #:doctype doctype)])])))
+       (make-object string-snip% elm)]
+      [(or (xexp-with-attrs? elm)
+           (xexp-no-attrs? elm))
+       (new dom-elm%
+            [name (xexp-name elm)]
+            [attrs (xexp-attrs elm)]
+            [children (xexp->dom (xexp-children elm)
+                                 #:doctype doctype)])]
+      [else (error "You've disloged a forign object in my parse expander!")])))
 

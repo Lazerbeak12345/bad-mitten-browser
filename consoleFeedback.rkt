@@ -28,8 +28,7 @@
       ; what change happened if it was to or from all mode.
       (print-warning info-before)
       (set! verbosity new-verbosity)
-      (print-warning info-after)
-      )))
+      (print-warning info-after))))
 
 (define (getDisplayTime)
   (date-display-format 'iso-8601) 
@@ -57,3 +56,4 @@
     (displayln (format "[~a] ERROR:   ~a" (getDisplayTime) information)
                (current-error-port))))
 (print-info (format "Verbosity level is currently ~a" verbosity))
+

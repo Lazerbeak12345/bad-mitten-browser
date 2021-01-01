@@ -14,10 +14,10 @@
     tree))
 (: makeErrorMessage (-> String Xexp))
 (define (makeErrorMessage e)
-  (assert `(*TOP* (*DECL* DOCTYPE html)
-				  (html (body (@ (style "height:100%"))
-							  (strong (@ (style "margin:auto;"))
-									  ,e)))) xexp?))
+  `(*TOP* (*DECL* DOCTYPE html)
+          (html (body (@ (style "height:100%"))
+                      (strong (@ (style "margin:auto;"))
+                              ,e)))))
 (: bmUrl (-> URL Xexp))
 (define (bmUrl theUrl)
   (: paths String/Up/Same)
@@ -32,28 +32,27 @@
           "newtab"
           (first paths))
     [("about" "urls" "bm")
-     (assert `(*TOP* (*DECL* DOCTYPE html)
-					 (html (head (title "Bad Mitten URLS"))
-						   (body (h1 "Bad Mitten" (i "Browser"))
-								 (ul . ,(for/list : (Listof Xexp)
-										  ([theUrl : String '("bm:about"
-															  "bm:blank"
-															  "bm:bm" 
-															  "bm:newtab"
-															  "bm:urls")])
-										  (assert `(li (a (@ (href ,theUrl)),theUrl))
-												  xexp?))))))
-			 xexp?)]
-    [("blank") (assert '(*TOP*) xexp?)]
-    [("newtab") (assert '(*TOP* (*DECL* DOCTYPE html)
-								(html (head (title "New Tab"))
-									  (body (h1 "Bad Mitten" (i "Browser"))
-											(span
-											  (@ (style "font-size:.5em; color:grey"))
-											  "See the"
-											  (& nbsp)
-											  (a (@ (href "bm:urls"))
-												 "built-in urls")))))
-						xexp?)]
+     `(*TOP* (*DECL* DOCTYPE html)
+             (html (head (title "Bad Mitten URLS"))
+                   (body (h1 "Bad Mitten" (i "Browser"))
+                         (ul . ,(for/list : (Listof Xexp)
+                                  ([theUrl : String '("bm:about"
+                                                      "bm:blank"
+                                                      "bm:bm" 
+                                                      "bm:newtab"
+                                                      "bm:urls")])
+                                  `(li (a (@ (href ,theUrl))
+                                          ,theUrl)))))))]
+    [("blank") '(*TOP*)]
+    [("newtab") '(*TOP* (*DECL* DOCTYPE html)
+                        (html (head (title "New Tab"))
+                              (body (h1 "Bad Mitten" (i "Browser"))
+                                    (span
+                                      (@ (style "font-size:.5em; color:grey"))
+                                      "See the"
+                                      (& nbsp)
+                                      (a (@ (href "bm:urls"))
+                                         "built-in urls")))))]
     [else (makeErrorMessage (format "Page does not exist '~a'"
                                     (url->string theUrl)))])) 
+

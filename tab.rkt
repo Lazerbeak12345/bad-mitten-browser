@@ -130,3 +130,4 @@
     (define/public (get-title) title)
     (: get-url (-> URL))
     (define/public (get-url) self-url)))
+

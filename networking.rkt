@@ -49,7 +49,7 @@
                       (begin
                         (print-info "Adjusting to have host")
                         (doRedirect (url->string (makeUrlHaveHost theUrl)))
-                        (assert '(*TOP*) xexp?))
+                        '(*TOP*))
                       (let-values
                         ([(port headers)
                           (get-pure-port/headers 
@@ -77,7 +77,7 @@
                           [("text/html")
                            (getTreeFromPortAndCloseIt port)]
                           [("text/plain")
-                           (assert `(*TOP* (code ,(port->string port))) xexp?)]
+                           `(*TOP* (code ,(port->string port)))]
                           [else (makeErrorMessage
                                   (format "unsupported MIME type ~a"
                                           content-type))]))))]
@@ -106,3 +106,4 @@
           (loop (- redirectionMax 1) theUrl))
         (print-info "Hit max redirect!")))
     tree))
+

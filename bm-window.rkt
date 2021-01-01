@@ -3,51 +3,13 @@
 
 ; NOTE: I am specifically targeting the GNOME desktop enviroment, and plan to
 ; follow their official appearance guidelines in the future.
-(require typed/racket/gui/base
-         typed/racket/class
+(require typed/images/icons
          typed/net/url
          typed/pict
+         typed/racket/class
+         typed/racket/gui/base
          "consoleFeedback.rkt"
          "tab.rkt") 
-(define-type ColorStr (U (Instance Color%) String))
-(define-type Normal-Icon-Func (#:color ColorStr
-                               [#:height Positive-Exact-Rational]
-                               [#:material Any] ; TODO fix?
-                               [#:backing-scale Positive-Exact-Rational]
-                               . -> .
-                               (Instance Bitmap%)))
-(require/typed images/icons/control
-               [back-icon Normal-Icon-Func]
-               [play-icon Normal-Icon-Func])
-(require/typed images/icons/style
-               [default-icon-height (-> Positive-Exact-Rational)]
-               [metal-icon-color ColorStr])
-(require/typed images/icons/symbol
-               [text-icon (String
-                            (Instance Font%) ; This should be optional
-                            [#:trim? Boolean]
-                            [#:color ColorStr]
-                            [#:height Positive-Exact-Rational]
-                            [#:material Any] ; TODO fix?
-                            [#:outline Positive-Exact-Rational]
-                            [#:backing-scale Positive-Exact-Rational]
-                            . -> .
-                            (Instance Bitmap%))]
-               [x-icon ([#:color ColorStr]
-                        [#:height Positive-Exact-Rational]
-                        [#:material Any] ; TODO fix?
-                        [#:thickness Positive-Exact-Rational]
-                        [#:backing-scale Positive-Exact-Rational]
-                        . -> .
-                        (Instance Bitmap%))])
-#|(require/typed pict ; TODO push all of these type overrides upstream
-               [disk (Positive-Exact-Rational
-                       ;[#:draw-border Any]
-                       [#:color (U False ColorStr)]
-                       [#:border-color (U False ColorStr)]
-                       [#:border-width Real]
-                       . -> .
-                       pict)])|#
 (provide bm-window% Bm-window%)
 #| Use a unicode character as an icon |#
 (: char->icon (-> String (Instance Bitmap%)))
@@ -300,3 +262,4 @@
     (when (= 1 (length tabs))
       (hideTabRow #t))
     (do-focus)))
+
