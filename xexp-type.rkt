@@ -1,15 +1,5 @@
 #lang typed/racket/base
 (require "consoleFeedback.rkt")
-#|(module xexp-contracts racket/base
-  #| This module is only here because I coudln't figure out a better way to
-  allow for types that can be used as contracts in runtime and in
-  compile-time |#
-  (require racket/contract "consoleFeedback.rkt")
-  #|
-  (provide
-		   xexp-short->char)|#)
-(require/typed/provide 'xexp-contracts
-					   [xexp-short->char (-> Xexp-short Char)])|#
 (define-type Xexp-decl (Pair '*DECL* (Listof (U String Symbol))))
 (define-predicate xexp-decl? Xexp-decl)
 (provide xexp-decl? Xexp-decl)
