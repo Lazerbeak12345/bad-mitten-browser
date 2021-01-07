@@ -1,5 +1,5 @@
 #lang typed/racket/base
-(require mcfly typed/racket/class typed/racket/gui/base)
+(require typed/racket/class typed/racket/gui/base)
 (provide pasteboard-div-lock)
 (: pasteboard-div-lock (-> (Instance Pasteboard%)
                            (Instance Pasteboard%)))
