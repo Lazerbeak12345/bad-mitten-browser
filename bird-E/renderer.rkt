@@ -4,6 +4,7 @@
          typed/racket/gui/base
          "../consoleFeedback.rkt"
          "../networking.rkt"
+         "pasteboard-settings.rkt"
          "xexp-to-dom.rkt")
 (provide renderer% Renderer%)
 (define-type Renderer% (Class (init [initial-URL URL]
@@ -17,7 +18,7 @@
     (define init-setUrl! : (-> URL Void) setUrl!)
     (define init-parent : (Instance Area-Container<%>) parent)
     (define pasteboard-instance : (Instance Pasteboard%)
-      (new pasteboard%))
+      (pasteboard-div-lock (new pasteboard%)))
     (define editor-canvas-instance : (Instance Editor-Canvas%)
       (new editor-canvas%
            [parent init-parent]

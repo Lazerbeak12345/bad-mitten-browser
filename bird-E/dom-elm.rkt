@@ -2,7 +2,8 @@
 (require typed/racket/class
 		 typed/racket/gui/base
 		 "../consoleFeedback.rkt"
-		 "../xexp-type.rkt")
+		 "../xexp-type.rkt"
+     "pasteboard-settings.rkt")
 (provide dom-elm% Dom-Elm%)
 (define-type Dom-Elm% (Class
                         #:implements/inits Editor-Snip%
@@ -13,7 +14,7 @@
   (class editor-snip%
     (init name attrs children)
     (define pasteboard-instance : (Instance Pasteboard%)
-      (new pasteboard%))
+      (pasteboard-div-lock (new pasteboard%)))
     (super-new)
     (define init-name : Symbol name)
     (define init-attrs : (Listof Xexp-attr) attrs)
