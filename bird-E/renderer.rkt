@@ -23,7 +23,11 @@
       (new editor-canvas%
            [parent init-parent]
            [editor pasteboard-instance]
-           [style '(auto-vscroll auto-hscroll)]))
+           [style '(no-vscroll no-hscroll)]
+           [horizontal-inset 0]
+           [vertical-inset 0]
+           [vert-margin 0]
+           [horiz-margin 0]))
     (define domTree : (Listof (Instance Snip%)) null)
     (super-new)
     (define/public (navigate-to newUrl)
@@ -37,6 +41,6 @@
       ; TODO make this generic and use it in dom-elm as well
       (for ([element domTree])
         (print-info (format "element: ~a" element))
-        (send pasteboard-instance insert element)))
+        (send pasteboard-instance insert element 0 0)))
     (navigate-to theUrl)))
 

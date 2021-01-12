@@ -1,9 +1,10 @@
 #lang typed/racket/base
 (require typed/racket/class
-		 typed/racket/gui/base
-		 "../consoleFeedback.rkt"
-		 "../xexp-type.rkt"
-     "pasteboard-settings.rkt")
+         typed/racket/gui/base
+         "../consoleFeedback.rkt"
+         "../xexp-type.rkt"
+         "snip-utils.rkt"
+         "pasteboard-settings.rkt")
 (provide dom-elm% Dom-Elm%)
 (define-type Dom-Elm% (Class
                         #:implements/inits Editor-Snip%
@@ -13,17 +14,23 @@
 (define dom-elm% : Dom-Elm%
   (class editor-snip%
     (init name attrs children)
-    (define pasteboard-instance : (Instance Pasteboard%)
-      (pasteboard-div-lock (new pasteboard%)))
     (super-new)
     (define init-name : Symbol name)
     (define init-attrs : (Listof Xexp-attr) attrs)
     (define init-children : (Listof (Instance Snip%)) children)
-    (print-info (format "name: ~a" init-name))
-    (print-info (format "attrs: ~a" init-attrs))
-    (print-info (format "children: ~a" init-children))
-    (send this set-editor pasteboard-instance)
-    (for ([element init-children])
-      (print-info (format "element: ~a" element))
-      (send pasteboard-instance insert element))))
+    (send this set-align-top-line #t)
+    (send this set-inset 0 0 0 0)
+    (send this set-margin 0 0 0 0)
+    (send this show-border #f)
+    (let ([editor : (Instance Pasteboard%)
+                  (pasteboard-div-lock (new pasteboard%))])
+      (send this set-editor editor)
+      (for ([element init-children])
+        (print-info (format "element: ~a" element))
+        (send editor insert element)
+        (print-info
+          (format "extent: ~a"
+                  (call-with-values (lambda()
+                                      (get-snip-coordinates editor element))
+                                    list)))))))
 
