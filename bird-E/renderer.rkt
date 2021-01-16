@@ -4,6 +4,7 @@
          typed/racket/gui/base
          "../consoleFeedback.rkt"
          "../networking.rkt"
+         "dom-elm.rkt"
          "pasteboard-settings.rkt"
          "xexp-to-dom.rkt")
 (provide renderer% Renderer%)
@@ -28,7 +29,8 @@
            [vertical-inset 0]
            [vert-margin 0]
            [horiz-margin 0]))
-    (define domTree : (Listof (Instance Snip%)) null)
+    (define domTree : (Listof (U (Instance Dom-Elm%)
+                                 (Instance String-Snip%))) null)
     (super-new)
     (define/public (navigate-to newUrl)
       (print-info (format "navigate-to ~a" newUrl))
@@ -41,6 +43,8 @@
       ; TODO make this generic and use it in dom-elm as well
       (for ([element domTree])
         (print-info (format "element: ~a" element))
-        (send pasteboard-instance insert element 0 0)))
+        (send pasteboard-instance insert element 0 0)
+        (when (element . is-a? . dom-elm%)
+          (send (cast element (Instance Dom-Elm%)) reposition-children))))
     (navigate-to theUrl)))
 

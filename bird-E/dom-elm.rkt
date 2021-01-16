@@ -10,14 +10,32 @@
                         #:implements/inits Editor-Snip%
                         (init [name Symbol]
                               [attrs (Listof Xexp-attr)]
-                              [children (Listof (Instance Snip%))])))
+                              [children (Listof (U (Instance Dom-Elm%)
+                                                   (Instance String-Snip%)))])
+                        [reposition-children (-> Void)]))
 (define dom-elm% : Dom-Elm%
   (class editor-snip%
     (init name attrs children)
     (super-new)
     (define init-name : Symbol name)
     (define init-attrs : (Listof Xexp-attr) attrs)
-    (define init-children : (Listof (Instance Snip%)) children)
+    (define init-children : (Listof (U (Instance Dom-Elm%)
+                                       (Instance String-Snip%))) children)
+    (define/public (reposition-children)
+      (define editor : (U (Instance Pasteboard%)
+                          (Instance Text%)
+                          False)
+        (send this get-editor))
+      (when (and editor (editor . is-a? . pasteboard%))
+        (for ([element init-children])
+          (when (element . is-a? . dom-elm%)
+            (send (cast element (Instance Dom-Elm%)) reposition-children))
+          (print-info (format "is-owned? ~a" (send this is-owned?)))
+          (print-info
+            (format "extent: ~a"
+                    (call-with-values (lambda()
+                                        (get-snip-coordinates editor element))
+                                      list))))))
     (send this set-align-top-line #t)
     (send this set-inset 0 0 0 0)
     (send this set-margin 0 0 0 0)
@@ -25,12 +43,8 @@
     (let ([editor : (Instance Pasteboard%)
                   (pasteboard-div-lock (new pasteboard%))])
       (send this set-editor editor)
+      (send editor begin-edit-sequence)
       (for ([element init-children])
-        (print-info (format "element: ~a" element))
-        (send editor insert element)
-        (print-info
-          (format "extent: ~a"
-                  (call-with-values (lambda()
-                                      (get-snip-coordinates editor element))
-                                    list)))))))
+        (send editor insert element))
+      (send editor end-edit-sequence))))
 
