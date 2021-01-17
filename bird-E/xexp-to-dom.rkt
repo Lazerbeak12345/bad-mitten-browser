@@ -1,10 +1,11 @@
 #lang typed/racket/base
 (require typed/racket/class
-		 typed/racket/snip
-		 racket/string
+         typed/racket/snip
+         racket/string
          "../consoleFeedback.rkt"
          "../xexp-type.rkt"
-         "dom-elm.rkt")
+         "dom-elm.rkt"
+         "renderer-type.rkt")
 (provide xexp->dom)
 (: html-br? (-> Any Boolean))
 (define (html-br? theXexp)
@@ -20,11 +21,13 @@
   'quirks)
 ; NOTE: changes to #:doctype are not propigated upwards through the dom
 (: xexp->dom ((Listof Xexp)
+              #:parent (U (Instance Dom-Elm%)
+                          (Instance Renderer%))
               [#:doctype Doctype]
               . -> .
               (Listof (U (Instance Dom-Elm%)
                          (Instance String-Snip%)))))
-(define (xexp->dom xexp #:doctype [doctype 'quirks])
+(define (xexp->dom xexp #:parent parent #:doctype [doctype 'quirks])
   ;(print-info (format "before: ~v" xexp))
   (define last-string : String "")
   (define cleaned-elms : (Listof Xexp) null)
@@ -59,7 +62,10 @@
        (new dom-elm%
             [name (xexp-name elm)]
             [attrs (xexp-attrs elm)]
-            [children (xexp->dom (xexp-children elm)
-                                 #:doctype doctype)])]
+            [parent parent]
+            [children (lambda (child-parent)
+                        (xexp->dom (xexp-children elm)
+                                 #:parent child-parent
+                                 #:doctype doctype))])]
       [else (error "You've disloged a forign object in my parse expander!")])))
 

@@ -5,13 +5,11 @@
          "../consoleFeedback.rkt"
          "../networking.rkt"
          "dom-elm.rkt"
+         "renderer-type.rkt"
          "pasteboard-settings.rkt"
          "xexp-to-dom.rkt")
+; Renderer% comes from "renderer-type.rkt" as many files reference that type
 (provide renderer% Renderer%)
-(define-type Renderer% (Class (init [initial-URL URL]
-                                    [setUrl! (-> URL Void)]
-                                    [parent (Instance Area-Container<%>)])
-                              [navigate-to (-> URL Void)]))
 (define renderer% : Renderer%
   (class object%
     (init initial-URL setUrl! parent)
@@ -20,6 +18,8 @@
     (define init-parent : (Instance Area-Container<%>) parent)
     (define pasteboard-instance : (Instance Pasteboard%)
       (pasteboard-div-lock (new pasteboard%)))
+    ; This is to make getting coordinates easier
+    (define/public (get-editor) pasteboard-instance)
     (define editor-canvas-instance : (Instance Editor-Canvas%)
       (new editor-canvas%
            [parent init-parent]
@@ -39,7 +39,8 @@
       ; TODO kill old tree
       ; TODO not all URL changes require fetching from the server
       (set! theUrl newUrl)
-      (set! domTree (xexp->dom (list (makeInitTree theUrl init-setUrl!))))
+      (set! domTree (xexp->dom (list (makeInitTree theUrl init-setUrl!))
+                               #:parent this))
       ; TODO make this generic and use it in dom-elm as well
       (for ([element domTree])
         (print-info (format "element: ~a" element))
