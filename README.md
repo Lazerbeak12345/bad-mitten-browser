@@ -5,15 +5,15 @@ A browser using the racket framework to be as small as possible.
 ## Target platform(s)
 
 I plan on focusing all of my development on Linux. I don't see any reason why I
-woudn't support other \*nixes, such as Darwin (macos), BSDs, Minix, Redox, and
+wouldn't support other \*nixes, such as Darwin (macOS), BSDs, Minix, Redox, and
 the like, so patches to make it work there will be likely to be given some
 degree of priority over feature functionality.
 
 However, Windows compatibility is a low priority. It's nice if it works on
-Windows, but I don't want to spend very much effort on it, as I hold the beleif
+Windows, but I don't want to spend very much effort on it, as I hold the belief
 that the Windows NT architecture is obsolete, and I don't plan on giving
 obsolete platforms any sort of priority.
-**As of yet, I have seen nothing to inicate that it _wouldn't_ work on Windows,
+**As of yet, I have seen nothing to indicate that it _wouldn't_ work on Windows,
 but Windows users should not expect to be able to run development versions, for
 reasons mentioned above.**
 
@@ -21,14 +21,14 @@ reasons mentioned above.**
 
 To contribute, fork the project, make a branch, make your changes, then Pull
 request that branch into this project's master branch, or other branch on this
-project, if that would be better. (EX: what if we make a branch dedecated to
+project, if that would be better. (EX: what if we make a branch dedicated to
 finding ways to streamline the CSS engine, and you've got an idea? Well, that's
 where you would both pull from, and send a PR to.)
 
 ## Details about GUI
 
 Right now, the GUI (not the rendering engine) is basically done until they make
-changes to improove what tabs can do (and what the top bar can do).
+changes to improve what tabs can do (and what the top bar can do).
 
 ### GUI things I can't do yet, but want to, once racket/gui gets better
 
@@ -41,10 +41,10 @@ I would like the tabs to have these changes:
 I would like the titlebar to have these changes:
 
 - It should have these widgets, in order:
-  -  Add Tab
-  -  Back and Forward joined (A "split-button" sort of thing)
-  -  Reload
-  -  The URL bar
+  - Add Tab
+  - Back and Forward joined (A "split-button" sort of thing)
+  - Reload
+  - The URL bar
 - I might want to make the additive actions on the right if the window action
   buttons are on the left (default macOS behavior).
 
@@ -58,8 +58,8 @@ For a time I was abiding by this simple variant from the racket style guide:
 > When adding a close paren (as in `)` `]` or `}`), unless its corresponding
 > opener is on the same line, give this paren its own line.
 
-However, I have since reversed that decision. The benifits were very little
-when using an editor with parenthasis highlighting support.
+However, I have since reversed that decision. The benefits were very little
+when using an editor with parenthesis highlighting support.
 
 ## Tools used
 
