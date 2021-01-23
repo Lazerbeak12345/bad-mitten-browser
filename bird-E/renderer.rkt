@@ -12,9 +12,10 @@
 (provide renderer% Renderer%)
 (define renderer% : Renderer%
   (class object%
-    (init initial-URL setUrl! parent)
+    (init initial-URL setUrl! parent setTitle!)
     (define theUrl : URL initial-URL)
     (define init-setUrl! : (-> URL Void) setUrl!)
+    (define init-setTitle! : (-> String Void) setTitle!)
     (define init-parent : (Instance Area-Container<%>) parent)
     (define pasteboard-instance : (Instance Pasteboard%)
       (pasteboard-div-lock (new pasteboard%)))
@@ -32,6 +33,8 @@
     (define domTree : (Listof (U (Instance Dom-Elm%)
                                  (Instance String-Snip%))) null)
     (super-new)
+    (define/public (set-document-title! title)
+                   (init-setTitle! title))
     (define/public (navigate-to newUrl)
       (print-info (format "navigate-to ~a" newUrl))
       (send pasteboard-instance select-all)

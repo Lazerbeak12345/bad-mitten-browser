@@ -1,5 +1,6 @@
 #lang typed/racket/base
-(require typed/racket/class
+(require racket/string
+         typed/racket/class
          typed/racket/gui/base
          "../consoleFeedback.rkt"
          "../xexp-type.rkt"
@@ -17,7 +18,8 @@
                                 (-> (Instance Dom-Elm%)
                                     (Listof (U (Instance Dom-Elm%)
                                                (Instance String-Snip%))))])
-                        [reposition-children (-> Void)]))
+                        [reposition-children (-> Void)]
+                        [set-document-title! (-> String Void)]))
 (define dom-elm% : Dom-Elm%
   (class editor-snip%
     (init name attrs parent children)
@@ -72,15 +74,32 @@
           (when (element . is-a? . dom-elm%)
             (send (cast element (Instance Dom-Elm%)) reposition-children))
         (print-info (format "snip-rows ~a" (get-snip-rows))))))
+    (define/public (set-document-title! title)
+                   (send init-parent set-document-title! title))
     (send this set-align-top-line #t)
     (send this set-inset 0 0 0 0)
     (send this set-margin 0 0 0 0)
     (send this show-border #f)
-    (let ([editor : (Instance Pasteboard%)
-                  (pasteboard-div-lock (new pasteboard%))])
-      (send this set-editor editor)
-      (send editor begin-edit-sequence)
-      (for ([element init-children])
-        (send editor insert element))
-      (send editor end-edit-sequence))))
+    (case init-name
+      [(head) (print-info "it's a head!")]
+      [(title)
+       (define title "")
+       (for ([element init-children])
+            ; TODO assert that it's a string snip
+            (set! title
+              (string-append
+                title
+                " "
+                (send element get-text
+                      0
+                      (cast (send element get-count) Nonnegative-Integer)
+                      #t))))
+       (set-document-title! (string-trim title))]
+      [else (let ([editor : (Instance Pasteboard%)
+                          (pasteboard-div-lock (new pasteboard%))])
+              (send this set-editor editor)
+              (send editor begin-edit-sequence)
+              (for ([element init-children])
+                   (send editor insert element))
+              (send editor end-edit-sequence))])))
 

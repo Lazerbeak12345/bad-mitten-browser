@@ -65,7 +65,7 @@
             [parent parent]
             [children (lambda (child-parent)
                         (xexp->dom (xexp-children elm)
-                                 #:parent child-parent
-                                 #:doctype doctype))])]
+                                   #:parent child-parent
+                                   #:doctype doctype))])]
       [else (error "You've disloged a forign object in my parse expander!")])))
 

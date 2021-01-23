@@ -51,7 +51,10 @@
                           [initial-URL self-url]
                           [setUrl! (lambda(newUrl)
                                      (set! self-url newUrl)
-                                     (clean))])))
+                                     (clean))]
+                          [setTitle! (lambda(newTitle)
+                                       (set! title newTitle)
+                                       (ext-update-title))])))
     (: navigate-to (-> URL Void))
     (define/private (navigate-to the-url)
       (print-info (format "Navigating to '~a'" title))
