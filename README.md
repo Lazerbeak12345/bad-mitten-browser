@@ -65,8 +65,8 @@ when using an editor with parenthesis highlighting support.
 
 1. `racket` and `typed/racket` Yes, I must give due credit there. They're
    pretty darn awesome.
-2. `html-parsing`. It's _really_ good at parsing html5 code. 
-   It provides `html->xexp`. (yes, it even handles script tags right. The 
+2. `html-parsing`. It's _really_ good at parsing html5 code.
+   It provides `html->xexp`. (yes, it even handles script tags right. The
    script is just a string!)
 3. `net/url`, `net/url-connect` and, `net/head`. Tools for managing connections
    to servers.

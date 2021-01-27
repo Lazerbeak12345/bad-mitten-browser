@@ -1,7 +1,7 @@
 #lang typed/racket/base
-(require typed/racket/class
+(require racket/string
+         typed/racket/class
          typed/racket/snip
-         racket/string
          "../consoleFeedback.rkt"
          "../xexp-type.rkt"
          "dom-elm.rkt"
@@ -32,10 +32,10 @@
   (define last-string : String "")
   (define cleaned-elms : (Listof Xexp) null)
   (define (append/last-string!)
-	(let ([norm/str (string-normalize-spaces last-string)])
-	  (unless (equal? norm/str "")
-		(set! cleaned-elms (append cleaned-elms (list (assert norm/str xexp?))))
-		(set! last-string ""))))
+    (let ([norm/str (string-normalize-spaces last-string)])
+      (unless (equal? norm/str "")
+        (set! cleaned-elms (append cleaned-elms (list (assert norm/str xexp?))))
+        (set! last-string ""))))
   ; First reduce the amount of strings we will need to keep in memory later
   (for ([elm xexp])
     (cond
@@ -50,11 +50,10 @@
   ;(print-info (format "after: ~v" cleaned-elms))
   ; Then go through and initialize the objects
   (for/list ([elm cleaned-elms]
-			 #:when (let ([d (xexp-decl? elm)])
-					  (when d (set! doctype (get-decl-doctype elm)))
-					  (not d)))
-    (cond
-	  ; TODO handle style and script tag content
+             #:when (let ([d (xexp-decl? elm)])
+                      (when d (set! doctype (get-decl-doctype elm)))
+                      (not d)))
+    (cond ; TODO handle style and script tag content
       [(string? elm)
        (make-object string-snip% elm)]
       [(or (xexp-with-attrs? elm)
@@ -67,5 +66,5 @@
                         (xexp->dom (xexp-children elm)
                                    #:parent child-parent
                                    #:doctype doctype))])]
-      [else (error "You've disloged a forign object in my parse expander!")])))
-
+      [else (error 'xexp->dom
+                   "You've disloged a forign object in my parse expander!")])))
