@@ -1,8 +1,8 @@
 #lang typed/racket/base
 ; The code for a single browser tab
-(require typed/racket/gui/base
+(require racket/list
+         typed/racket/gui/base
          typed/racket/class
-         racket/list ; Require typed later?
          typed/net/url
          "consoleFeedback.rkt"
          "bird-E/renderer.rkt")
