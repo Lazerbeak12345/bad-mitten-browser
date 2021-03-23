@@ -6,5 +6,4 @@
 (module+ main
   (require typed/racket/class "consoleFeedback.rkt" "bm-window.rkt")
   (print-info "Opening Bad-Mitten Browser…")
-  (new bm-window% [links (vector->list (current-command-line-arguments))])
-  (void))
+  (new bm-window% [links (vector->list (current-command-line-arguments))]))
