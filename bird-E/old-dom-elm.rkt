@@ -7,28 +7,28 @@
          "renderer-type.rkt"
          "snip-utils.rkt"
          "pasteboard-settings.rkt")
-(provide dom-elm% Dom-Elm%)
-(define-type Dom-Elm% (Class
+(provide old-dom-elm% Old-Dom-Elm%)
+(define-type Old-Dom-Elm% (Class
                         #:implements/inits Editor-Snip%
                         (init [name Symbol]
                               [attrs (Listof Xexp-attr)]
-                              [parent (U (Instance Dom-Elm%)
+                              [parent (U (Instance Old-Dom-Elm%)
                                          (Instance Renderer%))]
                               [children
-                                (-> (Instance Dom-Elm%)
-                                    (Listof (U (Instance Dom-Elm%)
+                                (-> (Instance Old-Dom-Elm%)
+                                    (Listof (U (Instance Old-Dom-Elm%)
                                                (Instance String-Snip%))))])
                         [reposition-children (-> Void)]
                         [set-document-title! (-> String Void)]))
-(define dom-elm% : Dom-Elm%
+(define old-dom-elm% : Old-Dom-Elm%
   (class editor-snip%
     (init name attrs parent children)
     (super-new)
     (define init-name : Symbol name)
     (define init-attrs : (Listof Xexp-attr) attrs)
-    (define init-parent : (U (Instance Dom-Elm%)
+    (define init-parent : (U (Instance Old-Dom-Elm%)
                              (Instance Renderer%)) parent)
-    (define init-children : (Listof (U (Instance Dom-Elm%)
+    (define init-children : (Listof (U (Instance Old-Dom-Elm%)
                                        (Instance String-Snip%)))
       (children this))
     (: get-snip-rows (-> (Listof (Listof (Instance Snip%)))))
@@ -71,8 +71,8 @@
         (send this get-editor))
       (when (and editor (editor . is-a? . pasteboard%))
         (for ([element init-children])
-          (when (element . is-a? . dom-elm%)
-            (send (cast element (Instance Dom-Elm%)) reposition-children))
+          (when (element . is-a? . old-dom-elm%)
+            (send (cast element (Instance Old-Dom-Elm%)) reposition-children))
         (print-info (format "snip-rows ~a" (get-snip-rows))))))
     (define/public (set-document-title! title)
                    (send init-parent set-document-title! title))

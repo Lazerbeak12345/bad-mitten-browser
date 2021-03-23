@@ -4,7 +4,7 @@
          typed/racket/snip
          "../consoleFeedback.rkt"
          "../xexp-type.rkt"
-         "dom-elm.rkt"
+         "old-dom-elm.rkt"
          "renderer-type.rkt")
 (provide xexp->dom)
 (: html-br? (-> Any Boolean))
@@ -21,11 +21,11 @@
   'quirks)
 ; NOTE: changes to #:doctype are not propigated upwards through the dom
 (: xexp->dom ((Listof Xexp)
-              #:parent (U (Instance Dom-Elm%)
+              #:parent (U (Instance Old-Dom-Elm%)
                           (Instance Renderer%))
               [#:doctype Doctype]
               . -> .
-              (Listof (U (Instance Dom-Elm%)
+              (Listof (U (Instance Old-Dom-Elm%)
                          (Instance String-Snip%)))))
 (define (xexp->dom xexp #:parent parent #:doctype [doctype 'quirks])
   ;(print-info (format "before: ~v" xexp))
@@ -58,7 +58,7 @@
        (make-object string-snip% elm)]
       [(or (xexp-with-attrs? elm)
            (xexp-no-attrs? elm))
-       (new dom-elm%
+       (new old-dom-elm%
             [name (xexp-name elm)]
             [attrs (xexp-attrs elm)]
             [parent parent]
