@@ -4,7 +4,7 @@
          typed/racket/gui/base
          "../consoleFeedback.rkt"
          "../networking.rkt"
-         "old-dom-elm.rkt"
+         "dom-elm.rkt"
          "renderer-type.rkt"
          "pasteboard-settings.rkt"
          "xexp-to-dom.rkt")
@@ -30,8 +30,7 @@
            [vertical-inset 0]
            [vert-margin 0]
            [horiz-margin 0]))
-    (define domTree : (Listof (U (Instance Old-Dom-Elm%)
-                                 (Instance String-Snip%))) null)
+    (define domTree : (Listof Dom-Elm-Child) null)
     (super-new)
     (define/public (set-document-title! title)
                    (init-setTitle! title))
@@ -50,8 +49,8 @@
             )
            ;(define element-snip : (Instance Snip%) (send element get-snip))
            (print-info (format "element: ~a" element))
-           (send pasteboard-instance insert element 0 0)
-           (when (element . is-a? . old-dom-elm%)
-             (send (cast element (Instance Old-Dom-Elm%))
-                   reposition-children))))
+           ;(send pasteboard-instance insert element 0 0)
+           (print-error "TODO insert elment into pasteboard")
+           (when (element . is-a? . dom-elm%)
+             (send (cast element (Instance Dom-Elm%)) reposition-children))))
     (navigate-to theUrl)))
