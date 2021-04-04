@@ -36,7 +36,7 @@
          #|This is a temporary snip. Get rid of it and replace it with a proper
           |snip of some sort at initialization
           |#
-         (define snip : (Instance Snip%) (new snip%))
+         (define snip : (Instance Snip%) (new string-snip%))
          (define/public (get-snip) snip)
          (define/public
            (reposition-children)
@@ -57,7 +57,15 @@
          (define/public (get-text a b [c #f])
                         (print-error "fix Dom-Elm% get-count")
                         (send snip get-text a b c))
+         ; This is where the editor is stored so we don't have to climb the
+         ; whole dom tree every time.
+         #|(private _editor)
+         (define _editor : (U (Instance Editor<%>) Void)
+           (void))|#
          (define/public (get-editor)
+                        #|(when (void? _editor)
+                          (set! _editor (send init-parent get-editor)))
+                        (cast _editor (Instance Editor<%>))|#
                         (send init-parent get-editor))
          (: get-snip-rows (-> (Listof (Listof Dom-Elm-Child))))
          (define (get-snip-rows)
@@ -107,4 +115,14 @@
                            (cast (send element get-count) Nonnegative-Integer)
                            #t))))
             (set-document-title! (string-trim title))]
-           [else (print-error "TODO: append children")])))
+           [else (for ([element init-children])
+                      (define editor (get-editor))
+                      (send editor begin-edit-sequence #f)
+                      (cond
+                        [(element . is-a? . snip%)
+                         (send editor insert (cast element (Instance Snip%)))]
+                        [else
+                          (send editor insert
+                                (send (cast element (Instance Dom-Elm%))
+                                      get-snip))])
+                      (send editor end-edit-sequence))])))
