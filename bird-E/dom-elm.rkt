@@ -115,14 +115,12 @@
                            (cast (send element get-count) Nonnegative-Integer)
                            #t))))
             (set-document-title! (string-trim title))]
-           [else (for ([element init-children])
-                      (define editor (get-editor))
-                      (send editor begin-edit-sequence #f)
-                      (cond
-                        [(element . is-a? . snip%)
-                         (send editor insert (cast element (Instance Snip%)))]
-                        [else
+           [else (define editor (get-editor))
+                 (send editor begin-edit-sequence #f)
+                 (for ([element init-children])
+                      (if (element . is-a? . snip%)
+                          (send editor insert (cast element (Instance Snip%)))
                           (send editor insert
                                 (send (cast element (Instance Dom-Elm%))
-                                      get-snip))])
-                      (send editor end-edit-sequence))])))
+                                      get-snip))))
+                 (send editor end-edit-sequence)])))
