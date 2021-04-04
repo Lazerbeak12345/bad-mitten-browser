@@ -16,7 +16,7 @@
                         [parent Dom-Elm-Parent]
                         [children (-> (Instance Dom-Elm%)
                                       (Listof Dom-Elm-Child))])
-                  [reposition-children (-> Void)]
+                  [reposition-children (-> Exact-Nonnegative-Integer Void)]
                   [set-document-title! (-> String Void)]
                   [get-count (-> Exact-Nonnegative-Integer)]
                   [get-editor (-> (Instance Editor<%>))]
@@ -39,23 +39,27 @@
          (define snip : (Instance Snip%) (new string-snip%))
          (define/public (get-snip) snip)
          (define/public
-           (reposition-children)
-           (print-error "TODO: reposition-children")
+           (reposition-children parent-width)
            (define editor : (Instance Editor<%>)
              (get-editor))
+           (print-info (format
+                         "reposition-children called on ~a parent-width: ~a"
+                         init-name parent-width))
            (when (and editor (editor . is-a? . pasteboard%))
              (for ([element init-children])
                   (when (element . is-a? . dom-elm%)
                     (send (cast element (Instance Dom-Elm%))
-                          reposition-children))
-                  (print-info (format "snip-rows ~a" (get-snip-rows))))))
+                          reposition-children 0))
+                  #|(print-error
+                    (format "TODO: handle snip-rows ~a" (get-snip-rows)))|#
+                  )))
          (define/public (set-document-title! title)
                         (send init-parent set-document-title! title))
          (define/public (get-count)
-                        (print-error "fix Dom-Elm% get-count")
+                        ; TODO does this need a fix?
                         (length init-children))
          (define/public (get-text a b [c #f])
-                        (print-error "fix Dom-Elm% get-count")
+                        (print-error "fix Dom-Elm% get-text")
                         (send snip get-text a b c))
          ; This is where the editor is stored so we don't have to climb the
          ; whole dom tree every time.
@@ -67,7 +71,7 @@
                           (set! _editor (send init-parent get-editor)))
                         (cast _editor (Instance Editor<%>))|#
                         (send init-parent get-editor))
-         (: get-snip-rows (-> (Listof (Listof Dom-Elm-Child))))
+         #|(: get-snip-rows (-> (Listof (Listof Dom-Elm-Child))))
          (define (get-snip-rows)
            ; Reverse list of passed rows
            (define out : (Listof (Listof Dom-Elm-Child)) null)
@@ -89,19 +93,16 @@
                                         elm)|#
                   (values 0 0 0 0))
                 (define width-post-addition (width-left . - . w))
-                ; TODO ask the elmement if it's inline
-                (define elm-inline #t)
-                (if (and (>= width-post-addition 0)
-                         elm-inline)
+                (if (>= width-post-addition 0)
                     (begin (set! current-row (cons elm current-row))
                            (set! width-left width-post-addition))
                     (begin (set! out (cons (reverse current-row) out))
                            (set! current-row (list elm))
                            (set! width-left width))))
-           (reverse (cons (reverse current-row) out)))
+           (reverse (cons (reverse current-row) out)))|#
          ; TODO define private vars for keeping track of box-sizing when needed
          (case init-name
-           [(head) (print-info "it's a head!")]
+           [(head script) (print-info (format "it's a ~a!" init-name))]
            [(title)
             (define title "")
             (for ([element init-children])

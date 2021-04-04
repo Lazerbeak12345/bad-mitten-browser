@@ -52,5 +52,26 @@
            ;(send pasteboard-instance insert element 0 0)
            (print-error "TODO insert elment into pasteboard")
            (when (element . is-a? . dom-elm%)
-             (send (cast element (Instance Dom-Elm%)) reposition-children))))
+             ; Both return none
+             #|(print-info (format "get-max-width ~a"
+                                 (send pasteboard-instance get-max-width)))
+             (print-info (format "get-min-width ~a"
+                                 (send pasteboard-instance get-min-width)))|#
+             ; Seems to always return really small numbers
+             #|(print-info (format "get-extent ~a"
+                                 (let ([w : (Boxof Real) (box 0)]
+                                       [h : (Boxof Real) (box 0)])
+                                   (send pasteboard-instance get-extent w h)
+                                   (list w h))))|#
+             ; These both always seem to return 14
+             #|(print-info (format "editor-canvas.get-width ~a"
+                                 (send editor-canvas-instance get-width)))
+             (print-info
+               (format "editor-canvas.get-size ~a"
+                       (let-values ([(w h)
+                                     (send editor-canvas-instance get-size)])
+                         (list w h))))|#
+             (send (cast element (Instance Dom-Elm%)) reposition-children
+                   (send (send editor-canvas-instance get-top-level-window)
+                         get-width)))))
     (navigate-to theUrl)))
