@@ -1,6 +1,7 @@
 #lang typed/racket/base
 (provide dom-elm% Dom-Elm% Dom-Elm-Parent Dom-Elm-Child)
-(require racket/string
+(require racket/function
+         racket/string
          typed/racket/class
          typed/racket/gui/base
          "../consoleFeedback.rkt"
@@ -33,26 +34,35 @@
          (define init-attrs : (Listof Xexp-attr) attrs)
          (define init-parent : Dom-Elm-Parent parent)
          (define init-children : (Listof Dom-Elm-Child) (children this))
-         #|This is a temporary snip. Get rid of it and replace it with a proper
-          |snip of some sort at initialization
-          |#
+         ;This is a temporary snip. Get rid of it and replace it with a proper
+         ;snip of some sort at initialization
          (define snip : (Instance Snip%) (new string-snip%))
          (define/public (get-snip) snip)
+         ; This is where the editor is stored so we don't have to climb the
+         ; whole dom tree every time.
+         #|(define _editor : (-> (Instance Editor<%>))
+           (thunk
+             (define e (send init-parent get-editor))
+             (set! _editor (thunk e))
+             e))|#
+         (define/public (get-editor)
+                        ; I really don't like this approach. If I could cash
+                        ; it I would.
+                        (send init-parent get-editor))
+         ; This is the width that this element is occupying, regardless of
+         ; box-sizing
+         (define occupied-width : Exact-Nonnegative-Integer 0)
          (define/public
            (reposition-children parent-width)
-           (define editor : (Instance Editor<%>)
-             (get-editor))
-           (print-info (format
-                         "reposition-children called on ~a parent-width: ~a"
-                         init-name parent-width))
-           (when (and editor (editor . is-a? . pasteboard%))
-             (for ([element init-children])
-                  (when (element . is-a? . dom-elm%)
-                    (send (cast element (Instance Dom-Elm%))
-                          reposition-children 0))
-                  #|(print-error
-                    (format "TODO: handle snip-rows ~a" (get-snip-rows)))|#
-                  )))
+           (print-info
+             (format "reposition-children called on ~a parent-width: ~a"
+               init-name parent-width))
+           (for ([element init-children])
+                (when (element . is-a? . dom-elm%)
+                  ; Pass in the content width, not the occupied width to
+                  ; account for padding.
+                  (send (cast element (Instance Dom-Elm%)) reposition-children
+                        occupied-width))))
          (define/public (set-document-title! title)
                         (send init-parent set-document-title! title))
          (define/public (get-count)
@@ -61,45 +71,6 @@
          (define/public (get-text a b [c #f])
                         (print-error "fix Dom-Elm% get-text")
                         (send snip get-text a b c))
-         ; This is where the editor is stored so we don't have to climb the
-         ; whole dom tree every time.
-         #|(private _editor)
-         (define _editor : (U (Instance Editor<%>) Void)
-           (void))|#
-         (define/public (get-editor)
-                        #|(when (void? _editor)
-                          (set! _editor (send init-parent get-editor)))
-                        (cast _editor (Instance Editor<%>))|#
-                        (send init-parent get-editor))
-         #|(: get-snip-rows (-> (Listof (Listof Dom-Elm-Child))))
-         (define (get-snip-rows)
-           ; Reverse list of passed rows
-           (define out : (Listof (Listof Dom-Elm-Child)) null)
-           ; Reverse list of current row
-           (define current-row : (Listof Dom-Elm-Child) null)
-           ; Width of this dom-elm
-           (print-error "TODO: get the width of the dom-elm")
-           (define width 0)
-           #|This might be wrong. `display:block` is as wide as possible and
-            |`display:inline` is as small as possible
-            |#
-           ; The remaining width
-           (define width-left width)
-           (for ([elm init-children])
-                (print-error "TODO: get the size of the dom-elm child")
-                (define-values (x y w h)
-                  #|(get-snip-coordinates (cast (send this get-editor)
-                                              (Instance Editor<%>))
-                                        elm)|#
-                  (values 0 0 0 0))
-                (define width-post-addition (width-left . - . w))
-                (if (>= width-post-addition 0)
-                    (begin (set! current-row (cons elm current-row))
-                           (set! width-left width-post-addition))
-                    (begin (set! out (cons (reverse current-row) out))
-                           (set! current-row (list elm))
-                           (set! width-left width))))
-           (reverse (cons (reverse current-row) out)))|#
          ; TODO define private vars for keeping track of box-sizing when needed
          (case init-name
            [(head script) (print-info (format "it's a ~a!" init-name))]
