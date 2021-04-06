@@ -76,7 +76,6 @@
                              (get-snip-coordinates
                                (cast editor (Instance Editor<%>))
                                (cast element (Instance Snip%)))])
-                 (print-error "TODO move string snip to where it goes")
                  (define old-cursor (unbox parent-cursor))
                  (define new-cursor-y ((cdr old-cursor) . + . eh))
                  (set-box! parent-cursor (cons (car old-cursor) new-cursor-y))
@@ -108,11 +107,10 @@
                       (cast (send element get-count) Nonnegative-Integer)
                       #t))))
        (set-document-title! (string-trim title))]
-      [else (define editor (get-editor))
-            (send editor begin-edit-sequence #f)
-            (for ([element init-children])
-                 (if (element . is-a? . snip%)
-                     (send editor insert (cast element (Instance Snip%)))
-                     (send editor insert
-                           (send (cast element (Instance Dom-Elm%)) get-snip))))
-            (send editor end-edit-sequence)])))
+      [else
+        (define editor (get-editor))
+        (for ([element init-children])
+             (send editor insert
+                   (if (element . is-a? . snip%)
+                       (cast element (Instance Snip%))
+                       (send (cast element (Instance Dom-Elm%)) get-snip))))])))

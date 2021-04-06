@@ -36,6 +36,7 @@
                    (init-setTitle! title))
     (define/public (navigate-to newUrl)
       (print-info (format "navigate-to ~a" newUrl))
+      (send pasteboard-instance begin-edit-sequence #f)
       (send pasteboard-instance select-all)
       (send pasteboard-instance delete)
       ; TODO kill old tree
@@ -69,5 +70,6 @@
                  (send (send editor-canvas-instance get-top-level-window)
                        get-width)
                  (box (cons (cast 0 Real)
-                            (cast 0 Real))))))
+                            (cast 0 Real)))))
+      (send pasteboard-instance end-edit-sequence))
     (navigate-to theUrl)))
