@@ -55,34 +55,39 @@
     (define occupied-width : Real 0)
     ; This is the height that this element is occupying, regardless of box-sizing
     (define occupied-height : Real 0)
+    ; Should this element even render?
+    (define dontRender : Boolean #f)
     (define/public
       (reposition-children parent-max-width parent-cursor)
       (print-info
         (format "reposition-children called on ~a parent-width: ~a cursor: ~a"
                 init-name parent-max-width parent-cursor))
-      ; TODO for now this assumes everything is standard box-sizing and
-      ; display:block
-      (define y (cdr (unbox parent-cursor)))
-      (set! occupied-width parent-max-width); TODO margin
-      (define editor (get-editor))
-      (for ([element init-children])
-           (if (element . is-a? . dom-elm%)
-               ; TODO Pass in the content width, not the occupied width to
-               ; account for padding.
-               ; Passes in a box for the cursor so the child can modify it
-               (send (cast element (Instance Dom-Elm%)) reposition-children
-                     occupied-width parent-cursor)
-               (let-values ([(ex ey ew eh)
-                             (get-snip-coordinates
-                               (cast editor (Instance Editor<%>))
-                               (cast element (Instance Snip%)))])
-                 (define old-cursor (unbox parent-cursor))
-                 (define new-cursor-y ((cdr old-cursor) . + . eh))
-                 (set-box! parent-cursor (cons (car old-cursor) new-cursor-y))
-                 ; Move the snip where it goes
-                 (send (cast editor (Instance Pasteboard%)) move-to
-                       (cast element (Instance Snip%)) 0 new-cursor-y))))
-      (set! occupied-height ((cdr (unbox parent-cursor)) . - . y)))
+      (if dontRender
+          (print-info (format "not rendering ~a element" init-name))
+          (let ([y (cdr (unbox parent-cursor))]
+                [editor (get-editor)])
+            ; TODO for now this assumes everything is standard box-sizing and
+            ; display:block
+            (set! occupied-width parent-max-width); TODO margin
+            (for ([element init-children])
+                 (if (element . is-a? . dom-elm%)
+                     ; TODO Pass in the content width, not the occupied width to
+                     ; account for padding.
+                     ; Passes in a box for the cursor so the child can modify it
+                     (send (cast element (Instance Dom-Elm%))
+                           reposition-children occupied-width parent-cursor)
+                     (let-values ([(ex ey ew eh)
+                                   (get-snip-coordinates
+                                     (cast editor (Instance Editor<%>))
+                                     (cast element (Instance Snip%)))])
+                       (define old-cursor (unbox parent-cursor))
+                       (define old-cursor-y (cdr old-cursor))
+                       (set-box! parent-cursor (cons (car old-cursor)
+                                                     (old-cursor-y . + . eh)))
+                       ; Move the snip where it goes
+                       (send (cast editor (Instance Pasteboard%)) move-to
+                             (cast element (Instance Snip%)) 0 old-cursor-y))))
+            (set! occupied-height ((cdr (unbox parent-cursor)) . - . y)))))
     (define/public (set-document-title! title)
                    (send init-parent set-document-title! title))
     (define/public (get-count)
@@ -93,7 +98,9 @@
                    (send snip get-text a b c))
     ; TODO define private vars for keeping track of box-sizing when needed
     (case init-name
-      [(head script) (print-info (format "it's a ~a!" init-name))]
+      [(head script)
+       (set! dontRender #t)
+       (print-info (format "it's a ~a!" init-name))]
       [(title)
        (define title "")
        (for ([element init-children])
