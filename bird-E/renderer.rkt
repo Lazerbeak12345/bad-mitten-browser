@@ -67,5 +67,7 @@
                        (list w h))))|#
            (send (cast element (Instance Dom-Elm%)) reposition-children
                  (send (send editor-canvas-instance get-top-level-window)
-                       get-width))))
+                       get-width)
+                 (box (cons (cast 0 Real)
+                            (cast 0 Real))))))
     (navigate-to theUrl)))
