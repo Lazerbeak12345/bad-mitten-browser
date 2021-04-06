@@ -72,15 +72,17 @@
                ; Passes in a box for the cursor so the child can modify it
                (send (cast element (Instance Dom-Elm%)) reposition-children
                      occupied-width parent-cursor)
-               (let-values ([(x y w h)
+               (let-values ([(ex ey ew eh)
                              (get-snip-coordinates
                                (cast editor (Instance Editor<%>))
                                (cast element (Instance Snip%)))])
                  (print-error "TODO move string snip to where it goes")
                  (define old-cursor (unbox parent-cursor))
-                 (set-box! parent-cursor
-                           (cons (car old-cursor)
-                                 ((cdr old-cursor) . + . h))))))
+                 (define new-cursor-y ((cdr old-cursor) . + . eh))
+                 (set-box! parent-cursor (cons (car old-cursor) new-cursor-y))
+                 ; Move the snip where it goes
+                 (send (cast editor (Instance Pasteboard%)) move-to
+                       (cast element (Instance Snip%)) 0 new-cursor-y))))
       (set! occupied-height ((cdr (unbox parent-cursor)) . - . y)))
     (define/public (set-document-title! title)
                    (send init-parent set-document-title! title))
