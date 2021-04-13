@@ -69,6 +69,7 @@
            (send (cast element (Instance Dom-Elm%)) reposition-children
                  (send (send editor-canvas-instance get-top-level-window)
                        get-width)
+                 0
                  (box (cons (cast 0 Real)
                             (cast 0 Real)))))
       (send pasteboard-instance end-edit-sequence))
