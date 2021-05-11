@@ -14,8 +14,8 @@
   (class object%
     (init initial-URL setUrl! parent setTitle!)
     (define theUrl : URL initial-URL)
-    (define init-setUrl! : (-> URL Void) setUrl!)
-    (define init-setTitle! : (-> String Void) setTitle!)
+    (define init-setUrl! : (URL -> Void) setUrl!)
+    (define init-setTitle! : (String -> Void) setTitle!)
     (define init-parent : (Instance Area-Container<%>) parent)
     (define pasteboard-instance : (Instance Pasteboard%)
       (pasteboard-div-lock (new pasteboard%)))

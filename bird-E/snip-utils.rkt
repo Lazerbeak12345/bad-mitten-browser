@@ -1,10 +1,10 @@
 #lang typed/racket/base
-(require typed/racket/class typed/racket/gui/base "../consoleFeedback.rkt")
+(require typed/racket/class typed/racket/gui/base)
 (provide get-snip-coordinates)
 #|Returns false if snip not found, values x y width height if found|#
 (: get-snip-coordinates ((Instance Editor<%>)
                          (Instance Snip%)
-                         . -> . (Values Real Real Real Real)))
+                         -> (Values Real Real Real Real)))
 (define (get-snip-coordinates editor snip)
   (let ([x : (Boxof Real) (box 0)]
         [y : (Boxof Real) (box 0)]

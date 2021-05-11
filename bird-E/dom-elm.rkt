@@ -15,11 +15,11 @@
   Dom-Elm% (Class (init [name Symbol]
                         [attrs (Listof Xexp-attr)]
                         [parent Dom-Elm-Parent]
-                        [children (-> (Instance Dom-Elm%)
-                                      (Listof Dom-Elm-Child))])
+                        [children ((Instance Dom-Elm%)
+                                   -> (Listof Dom-Elm-Child))])
                   [reposition-children (Real Real (Boxof (Pair Real Real))
-                                             . -> . Void)]
-                  [set-document-title! (-> String Void)]
+                                             -> Void)]
+                  [set-document-title! (String -> Void)]
                   [get-count (-> Exact-Nonnegative-Integer)]
                   [get-editor (-> (Instance Editor<%>))]
                   [get-snip (-> (Instance Snip%))]
@@ -79,8 +79,7 @@
                   #|TODO Pass in the content width, not the occupied width to
                   account for padding.|#
                   ; Passes in a box for the cursor so the child can modify it
-                  (send (cast element (Instance Dom-Elm%))
-                        reposition-children
+                  (send (cast element (Instance Dom-Elm%)) reposition-children
                         occupied-width
                         parent-init-x
                         parent-cursor)

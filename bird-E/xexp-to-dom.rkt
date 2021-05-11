@@ -7,7 +7,7 @@
          "dom-elm.rkt"
          "renderer-type.rkt")
 (provide xexp->dom)
-(: html-br? (-> Any Boolean))
+(: html-br? (Any -> Boolean))
 (define (html-br? theXexp)
   (and (xexp? theXexp)
        (not (string? theXexp))
@@ -15,7 +15,7 @@
 ;(define-type Doctype (U 'html5 'quirks))
 (define-type Doctype Symbol)
 (print-warning "TODO: fix Doctype type in xexp-to-dom.rkt")
-(: get-decl-doctype (-> Xexp-decl Doctype))
+(: get-decl-doctype (Xexp-decl -> Doctype))
 (define (get-decl-doctype theDecl)
   (print-error "get-decl-doctype not written yet")
   'quirks)
@@ -23,8 +23,7 @@
 (: xexp->dom ((Listof Xexp)
               #:parent Dom-Elm-Parent
               [#:doctype Doctype]
-              . -> .
-              (Listof Dom-Elm-Child)))
+              -> (Listof Dom-Elm-Child)))
 (define (xexp->dom xexp #:parent parent #:doctype [doctype 'quirks])
   ;(print-info (format "before: ~v" xexp))
   (define last-string : String "")

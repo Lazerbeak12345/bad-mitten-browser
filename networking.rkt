@@ -15,7 +15,7 @@
 ; Attempt to use the path to infer what a host might be. If it's up or same,
 ; it'll have to give up, though (removing the aforementioned up or same from
 ; the path)
-(: makeUrlHaveHost (-> URL URL))
+(: makeUrlHaveHost (URL -> URL))
 (define (makeUrlHaveHost theUrl)
   (if (url-host theUrl)
     theUrl
@@ -25,7 +25,7 @@
                            path
                            #f))]
                  [path (cdr (url-path theUrl))])))
-(: htmlTreeFromUrl (-> URL (-> String Void) Xexp))
+(: htmlTreeFromUrl (URL (String -> Void) -> Xexp))
 (define (htmlTreeFromUrl theUrl doRedirect)
   (case (url-scheme theUrl)
     [("file")
@@ -87,7 +87,7 @@
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
     [else (makeErrorMessage (format "Can't handle the scheme '~a'"
                                     (url-scheme theUrl)))]))
-(: makeInitTree (-> URL (-> URL Void) Xexp))
+(: makeInitTree (URL (URL -> Void) -> Xexp))
 (define (makeInitTree initialUrl setTheUrl!)
   (let loop ([redirectionMax 10] [theUrl initialUrl])
     (define changedUrl : Boolean #f)
@@ -98,12 +98,11 @@
           (print-info (format "Redirect to ~a" newUrlStr))
           (set! theUrl (combine-url/relative theUrl newUrlStr)))))
     (when changedUrl
-      (if (< 0 redirectionMax)
+      (if (0 . < . redirectionMax)
         (begin
           #|(place-channel-put this-place
                                  `(redirect ,(url->string theUrl)))|#
           (setTheUrl! theUrl)
-          (loop (- redirectionMax 1) theUrl))
+          (loop (redirectionMax . - . 1) theUrl))
         (print-info "Hit max redirect!")))
     tree))
-

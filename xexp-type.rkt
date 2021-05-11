@@ -44,13 +44,13 @@
 (define (xexp-name theXexp)
   (car theXexp))
 
-(: xexp-attrs (-> Xexp (Listof Xexp-attr)))
+(: xexp-attrs (Xexp -> (Listof Xexp-attr)))
 (define (xexp-attrs theXexp)
   (if (xexp-with-attrs? theXexp)
     (cdadr theXexp)
     null))
 
-(: xexp-children (-> Xexp (Listof Xexp)))
+(: xexp-children (Xexp -> (Listof Xexp)))
 (define (xexp-children theXexp)
   (cond [(xexp-with-attrs? theXexp)
          (cddr theXexp)]
@@ -70,7 +70,7 @@
 ; &euro;	&#8364;	€
 ; &copy;	&#169;	©
 ; &reg;	&#174;	®
-(: xexp-short->char (-> Xexp-short Char))
+(: xexp-short->char (Xexp-short -> Char))
 (define (xexp-short->char theXexp)
   (case (cadr theXexp)
     [(nbsp) #\ ] ; yes, there is a unicode nbsp right there
@@ -82,14 +82,13 @@
     ;[(quot) #\"]
     ;[(apos) #\']
 
-    [(cent) #\¢]
+    [(cent)  #\¢]
     [(pound) #\£]
-    [(yen) #\¥]
-    [(euro) #\€]
-    [(copy) #\©]
-    [(reg) #\®]
+    [(yen)   #\¥]
+    [(euro)  #\€]
+    [(copy)  #\©]
+    [(reg)   #\®]
     ; The &#160; form is already handled by html-parsing, but here's where it
     ; would go
     [else (print-error (format "Unknown html escape: ~a" (cadr theXexp)))
           #\uFFFD]))
-

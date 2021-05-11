@@ -3,16 +3,17 @@
 
 ; NOTE: I am specifically targeting the GNOME desktop enviroment, and plan to
 ; follow their official appearance guidelines in the future.
-(require typed/images/icons
+(require racket/math
+         typed/images/icons
          typed/net/url
-         typed/pict
+         ;typed/pict
          typed/racket/class
          typed/racket/gui/base
          "consoleFeedback.rkt"
-         "tab.rkt") 
+         "tab.rkt")
 (provide bm-window% Bm-window%)
 #| Use a unicode character as an icon |#
-(: char->icon (-> String (Instance Bitmap%)))
+(: char->icon (String -> (Instance Bitmap%)))
 (define (char->icon char)
   (text-icon char
              ; TODO fix upstream to allow 'heavy and numbers
@@ -33,14 +34,11 @@
         (cond [(null? _links)
                (list (netscape/string->url "bm:newtab"))]
               ; TODO use listof contract instead of these ugly things
-              [(and (list? _links)
-                    (string? (car _links)))
+              [((list? _links) . and . (string? (car _links)))
                (for/list [(link _links)]
                  (netscape/string->url link))]
               ; see above TODO
-              [(and (list? _links)
-                    (url? (car _links)))
-               _links]
+              [((list? _links) . and . (url? (car _links))) _links]
               [(url? _links)
                (list _links)]
               [(string? _links)
@@ -49,19 +47,26 @@
     (define frame : (Instance Frame%)
       (let-values ([(width height)
                     (get-display-size)])
+        (print-info (format "w&h ~a ~a" width height))
+        (define scaleWindow (; those squareish ones
+                             (height width . and . (height . < . width))
+                             . or .
+                             ; 4k should be scaled too
+                             (height . and . (height . > . 1500))))
+        (unless scaleWindow (print-info "Scaling initial window size!"))
         (new frame%
              [label label]
              ; I just guessed these numbers. Works for gnome, works for me
-             [width 800]
-             [height 600]
+             ;[width 800]
+             ;[height 600]
              ; lol I guess I'll have to figure out this dyamic stuff later:
              ; it won't compile for typing reasons
-             #|[width (if (number? width)
-                      (ceiling (width . * . .7))
+             [width (if (width . and . scaleWindow)
+                      (exact-ceiling (width . * . .585651537))
                       800)]
-             [height (if (number? height)
-                       (ceiling (height . / . 1.5))
-                       600)]|#
+             [height (if (height . and . scaleWindow)
+                       (exact-ceiling (height . * . .78125))
+                       600)]
              [alignment '(center top)])))
     ; TODO set-icon (doesn't work on KDE Plasma 5.18.5 (wayland) or on GNOME
     ; 3.16.5 (wayland), but does work on KDE (same version) (X11))
@@ -96,13 +101,11 @@
            [parent frame]
            [alignment '(left center)]))
     (send locationPane stretchable-height #f)
+    ; A callback for when the user changes the location
     (: locationChanged ((Instance Text-Field%)
-                        (Instance Control-Event%)
-                        . -> .
-                        Void))
+                        (Instance Control-Event%) -> Void))
     (define (locationChanged pane event)
-      (when (eq? (send event get-event-type)
-                 'text-field-enter)
+      (when ((send event get-event-type) . eq? . 'text-field-enter)
         (print-info "Location changed!")
         ; They already have access to the url box
         (send (getCurrentTab) locationChanged)))
@@ -143,7 +146,9 @@
            [callback locationChanged]))
     (send locationBox stretchable-height #t)
     (define tabManagerPanel : (Instance Horizontal-Panel%)
-      (new horizontal-panel% [parent frame] [alignment '(right center)]))
+      (new horizontal-panel%
+           [parent frame]
+           [alignment '(right center)]))
     (send tabManagerPanel stretchable-height #f)
     (define tab-elm : (Instance Tab-Panel%)
       (new tab-panel%
@@ -158,7 +163,7 @@
     (send tab-elm stretchable-height #f)
     (define tab-holder : (Instance Panel%)
       (new panel% [parent frame]))
-    (: makeTab (-> URL (Instance Tab%)))
+    (: makeTab (URL -> (Instance Tab%)))
     (define/private (makeTab tab-link)
       (new tab%
            [url tab-link]
@@ -172,7 +177,7 @@
       (for/list ([tab tabs])
         (send tab get-title)))
     ; Called to either hide or show the tab row
-    (: hideTabRow (-> Boolean Void))
+    (: hideTabRow (Boolean -> Void))
     (define/private (hideTabRow bool)
       (print-info (format "hideTabRow ~a" bool))
       (if bool
@@ -185,12 +190,12 @@
     (define/private (addTabBtnCallback)
       (print-info "Making new tab")
       (send (getCurrentTab) unfocus)
-      (when (= 1 (length tabs))
+      (when ((length tabs) . = . 1)
         (hideTabRow #f))
       (set! tabs
         (append tabs (list (makeTab (netscape/string->url "bm:newtab"))))) 
       (send tab-elm set (get-tab-choices))
-      (send tab-elm set-selection (- (length tabs) 1))
+      (send tab-elm set-selection ((length tabs) . - . 1))
       (do-focus))
     (: closeCurrentTab (-> Void))
     (define/private (closeCurrentTab)
@@ -201,20 +206,18 @@
       (define index ((send tab-elm get-selection) . or . 0))
       (send (list-ref tabs index) close)
       (set! tabs (filter (lambda (item)
-                           (set! counter (+ counter 1))
-                           (not (= counter index)))
+                           (set! counter (counter . + . 1))
+                           (not (counter . = . index)))
                          tabs))
       (send tab-elm set (get-tab-choices))
-      (if (= 0 (length tabs))
-        (begin
-          (print-info "Closing browser!")
-          (exit 0))
-        (begin
-          (send tab-elm set-selection (if (= 0 index)
-                                        0
-                                        (- index 1)))
-          (when (= 1 (length tabs))
-            (hideTabRow #t))))
+      (if ((length tabs) . = . 0)
+        (begin (print-info "Closing browser!")
+               (exit 0))
+        (begin (send tab-elm set-selection (if (0 . = . index)
+                                               0
+                                               (index . - . 1)))
+               (when ((length tabs) . = . 1)
+                 (hideTabRow #t))))
       (do-focus))
     (define closeTabBtn : (Instance Button%)
       (new button%
@@ -227,11 +230,11 @@
                        (closeCurrentTab))]))
     (let-values ([(width height) (send closeTabBtn get-graphical-min-size)])
       ; (print-info (~a width))
-      (send locationBack min-width width)
+      (send locationBack    min-width width)
       (send locationForward min-width width)
-      (send locationReload min-width width)
-      (send addTabBtn min-width width)
-      (send closeTabBtn min-width width))
+      (send locationReload  min-width width)
+      (send addTabBtn       min-width width)
+      (send closeTabBtn     min-width width))
     (define last-tab-focused 0)
     (define tabs : (Listof (Instance Tab%)) null)
     (: getCurrentTab (-> (Instance Tab%)))
@@ -258,8 +261,7 @@
     ; Show frame before adding the tabs. It makes it a bit faster.
     (send frame show #t) 
     (set! tabs (for/list : (Listof (Instance Tab%)) ([tab-link self-links])
-                 (makeTab tab-link)))
-    (when (= 1 (length tabs))
+                         (makeTab tab-link)))
+    (when ((length tabs) . = . 1)
       (hideTabRow #t))
     (do-focus)))
-

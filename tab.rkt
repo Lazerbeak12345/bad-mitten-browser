@@ -39,7 +39,9 @@
     (define renderer : (U Null (Instance Renderer%)) null)
     ;place for tab to be rendered upon
     (define thisPanel : (Instance Panel%)
-      (new panel% [parent ext-tab-holder] [style '(deleted)]))
+      (new panel%
+           [parent ext-tab-holder]
+           [style '(deleted)]))
     (: initRenderer (-> Void))
     (define/private (initRenderer)
       (print-info (format "Starting renderer on ~a" (url->string self-url)))
@@ -133,4 +135,3 @@
     (define/public (get-title) title)
     (: get-url (-> URL))
     (define/public (get-url) self-url)))
-
