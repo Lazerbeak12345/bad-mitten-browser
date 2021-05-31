@@ -66,11 +66,14 @@
                      (let-values ([(w h)
                                    (send editor-canvas-instance get-size)])
                        (list w h))))|#
-           (send (cast element (Instance Dom-Elm%)) reposition-children
-                 (send (send editor-canvas-instance get-top-level-window)
-                       get-width)
-                 0
-                 (box (cons (cast 0 Real)
-                            (cast 0 Real)))))
+           (define top-level-window
+             (send editor-canvas-instance get-top-level-window))
+           (define tw (send top-level-window get-width))
+           (define th (send top-level-window get-height))
+           (send (cast element (Instance Dom-Elm%)) reposition
+                 (box-bounding 0 0 0 0)
+                 (box-bounding tw th tw th)
+                 (location 0 0)
+                 'block))
       (send pasteboard-instance end-edit-sequence))
     (navigate-to theUrl)))

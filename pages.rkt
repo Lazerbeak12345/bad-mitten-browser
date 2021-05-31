@@ -1,5 +1,5 @@
 #lang typed/racket/base
-(require racket/list typed/net/url "consoleFeedback.rkt" "xexp-type.rkt")
+(require racket/list typed/net/url "xexp-type.rkt")
 (define-type String/Up/Same (Listof (U 'same 'up String)))
 (require/typed html-parsing [html->xexp (Input-Port -> Xexp)])
 (provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt String/Up/Same)
