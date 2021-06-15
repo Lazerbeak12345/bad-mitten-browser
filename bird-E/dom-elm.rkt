@@ -58,114 +58,87 @@
     (define occupied : box-bounding (box-bounding 0 0 0 0))
     ; Should this element even render?
     (define display : Display 'block)
+    (: place-dom-elm%-child ((Instance Dom-Elm%)
+                             box-bounding
+                             box-bounding
+                             location
+                             -> box-bounding))
+    (define/private (place-dom-elm%-child element
+                                          parent-min-size
+                                          parent-max-size
+                                          cursor)
+                    (when (display . eq? . 'block)
+                      (location-return-left! cursor parent-min-size)
+                      (location-new-line! cursor occupied 0))
+                    (define-values (child-bounding child-display)
+                      (send element reposition
+                            (box-bounding (location-x cursor)
+                                          (location-y cursor)
+                                          0
+                                          0)
+                            (box-bounding (location-x cursor)
+                                          (location-y cursor)
+                                          (box-bounding-w parent-max-size)
+                                          (box-bounding-h parent-max-size))
+                            cursor
+                            display))
+                    (when (display . eq? . 'block)
+                      (location-return-left! cursor parent-min-size)
+                      (location-new-line! cursor
+                                          occupied
+                                          (box-bounding-h child-bounding)))
+                    child-bounding)
+    (: place-string-snip%-child ((Instance String-Snip%)
+                                 (Instance Pasteboard%)
+                                 box-bounding
+                                 box-bounding
+                                 location
+                                 -> box-bounding))
+    (define/private (place-string-snip%-child element
+                                              editor
+                                              parent-min-size
+                                              parent-max-size
+                                              parent-cursor)
+        (define-values (ex ey snip-width snip-height)
+          (get-snip-coordinates editor element))
+        (when (box-bounding-too-right?
+                parent-max-size
+                (box-bounding (location-x parent-cursor)
+                              (location-y parent-cursor)
+                              snip-width
+                              snip-height))
+          (location-return-left! parent-cursor parent-min-size)
+          (location-new-line! parent-cursor occupied 0))
+        (send editor move-to element
+              (location-x parent-cursor)
+              (location-y parent-cursor))
+        (define old-x (location-x parent-cursor))
+        (set-location-x! parent-cursor (old-x . + . snip-width))
+        (box-bounding old-x
+                      (location-y parent-cursor)
+                      snip-width
+                      snip-height))
     #|Reposition this element and its children|#
     (define/public
       (reposition parent-min-size parent-max-size parent-cursor parent-display)
-      (print-info (format "reposition called on ~v" init-name))
-      (define editor : (Instance Pasteboard%)
-        (cast (get-editor) (Instance Pasteboard%)))
-      (define tl-corner-x (box-bounding-x parent-min-size))
-      (case display
-        [(none)
-         (print-info (format "not rendering ~v element" init-name))]
-        [else
-          (set-box-bounding-x! occupied (box-bounding-x parent-min-size))
-          (set-box-bounding-y! occupied (box-bounding-y parent-min-size))
-          (when (display . eq? . 'block)
-            (set-box-bounding-w! occupied (box-bounding-w parent-max-size)))
-          (for ([element init-children])
-               (if
-                 (element . is-a? . dom-elm%)
-                 (let {[old-cursor-x (location-x parent-cursor)]
-                       [old-cursor-y (location-y parent-cursor)]}
-                          (define-values (child-occupied child-display)
-                       (case display
-                         [(block)
-                          (send (cast element (Instance Dom-Elm%)) reposition
-                                (box-bounding (location-x parent-cursor)
-                                              (location-y parent-cursor)
-                                              0
-                                              0)
-                                (box-bounding
-                                  (box-bounding-x parent-max-size)
-                                  (box-bounding-y parent-max-size)
-                                  (box-bounding-w parent-max-size)
-                                  ((box-bounding-h parent-max-size)
-                                   . - .
-                                   (box-bounding-h occupied)))
-                                parent-cursor
-                                display)]
-                         [else
-                           (send (cast element (Instance Dom-Elm%)) reposition
-                                 (box-bounding (location-x parent-cursor)
-                                               (location-y parent-cursor)
-                                               0
-                                               0)
-                                 (box-bounding
-                                   (box-bounding-x parent-max-size)
-                                   (box-bounding-y parent-max-size)
-                                   ((box-bounding-w parent-max-size)
-                                    . - .
-                                    (box-bounding-w occupied))
-                                   ((box-bounding-h parent-max-size)
-                                    . - .
-                                    (box-bounding-h occupied)))
-                                 parent-cursor
-                                 display)]))
-                          (when (not (old-cursor-x . = . (location-x parent-cursor)))
-                            (set-box-bounding-w! occupied
-                                                 ((box-bounding-w occupied)
-                                                  . + .
-                                                  (box-bounding-w child-occupied)))
-                            (print-info "cursor-x changed!"))
-                          (when (not (old-cursor-y . = . (location-y parent-cursor)))
-                            (set-box-bounding-h! occupied
-                                                 ((box-bounding-h occupied)
-                                                  . + .
-                                                  (box-bounding-h child-occupied)))
-                            (print-info "cursor-y changed!")))
-                 ; This is if the child is a string-snip
-                (let-values ([(ex ey ew eh) ; Get the width and height
-                              (get-snip-coordinates
-                                editor
-                                (cast element (Instance Snip%)))])
-                  (define old-cursor-y (location-y parent-cursor))
-                  (define old-cursor-x (location-x parent-cursor))
-                  ; The absolute right side of the snip
-                  (define snip-right-side (old-cursor-x . + . ew))
-                  (if (snip-right-side . > .
-                          (tl-corner-x . + . (box-bounding-w parent-max-size)))
-                      (let ([new-y (old-cursor-y . + . eh)])
-                        ; They need to be on a new line
-                        ; Bottom left corner of element
-                        (set! old-cursor-y new-y)
-                        (set-location-y! parent-cursor new-y)
-                        (set! old-cursor-x tl-corner-x)
-                        (set-location-x! parent-cursor
-                                         (tl-corner-x . + . ew))
-                        (set-box-bounding-h! occupied
-                                             ((box-bounding-h occupied)
-                                              . + .
-                                              eh)))
-                      (begin
-                        ; Same line
-                        (set-location-x! parent-cursor snip-right-side)
-                        (set-box-bounding-w!
-                          occupied
-                          (ew . + . (box-bounding-w occupied)))
-                        (set-box-bounding-h!
-                          occupied
-                          (max eh (box-bounding-h occupied)))))
-                  ; Move the snip where it goes
-                  (send editor move-to
-                        (cast element (Instance Snip%))
-                        old-cursor-x
-                        old-cursor-y))))])
-      (when (display . eq? . 'block)
-        (set-location-y! parent-cursor ((box-bounding-y occupied)
-                                        . + .
-                                        (box-bounding-h occupied)))
-        (set-location-x! parent-cursor (box-bounding-x occupied)))
+      (define editor (cast (get-editor) (Instance Pasteboard%)))
+      (set-box-bounding-x! occupied (location-x parent-cursor))
+      (set-box-bounding-y! occupied (location-y parent-cursor))
+      (unless (display . eq? . 'none)
+        (for ([element init-children])
+             (define child-occupied
+               (if (element . is-a? . dom-elm%)
+                 (place-dom-elm%-child (cast element (Instance Dom-Elm%))
+                                       parent-min-size
+                                       parent-max-size
+                                       parent-cursor)
+                 (place-string-snip%-child
+                   (cast element (Instance String-Snip%))
+                   editor
+                   parent-min-size
+                   parent-max-size
+                   parent-cursor)))
+             (add-box-boundings! occupied child-occupied)))
       (values occupied display))
     (define/public (set-document-title! title)
                    (send init-parent set-document-title! title))
