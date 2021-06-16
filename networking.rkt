@@ -15,7 +15,7 @@
 ; Attempt to use the path to infer what a host might be. If it's up or same,
 ; it'll have to give up, though (removing the aforementioned up or same from
 ; the path)
-(: makeUrlHaveHost (URL -> URL))
+(: makeUrlHaveHost : URL -> URL)
 (define (makeUrlHaveHost theUrl)
   (if (url-host theUrl)
     theUrl
@@ -25,22 +25,26 @@
                            path
                            #f))]
                  [path (cdr (url-path theUrl))])))
-(: htmlTreeFromUrl (URL (String -> Void) -> Xexp))
+(: htmlTreeFromUrl : URL (String -> Void) -> Xexp)
 (define (htmlTreeFromUrl theUrl doRedirect)
   (case (url-scheme theUrl)
     [("file")
-     ;TODO handle directories
      (with-handlers ([exn:fail:filesystem?;exn:fail:filesystem:errno?
                        (lambda ({e : exn})
                          (makeErrorMessage (exn-message e)))])
-                    (print-warning "Check MIME type here")
-                    (getTreeFromPortAndCloseIt
-                      (open-input-file
-                        (bytes->string/locale
-                          ; Apparently no way to get out of the
-                          ; Path-For-Some-System type aside from this...
-                          (path->bytes 
-                            (url->path theUrl))))))]
+                    (print-error "Check MIME type here")
+                    (define theUrl/path (url->path theUrl))
+                    (define path-string
+                      (bytes->string/locale (path->bytes theUrl/path)))
+                    (define show-hidden : Boolean #f)
+                    (for ([item (url-query theUrl)]
+                          #:when ((car item) . eq? . 'show-hidden))
+                         (set! show-hidden #t))
+                    (if (directory-exists? path-string)
+                      ; It's a dir
+                      (directory-page path-string theUrl/path show-hidden)
+                      ; It's a file
+                      (getTreeFromPortAndCloseIt (open-input-file path-string))))]
     [("http" "https")
      (with-handlers ([exn:fail:network:errno?
                        (lambda ({e : exn})
@@ -87,7 +91,7 @@
     [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
     [else (makeErrorMessage (format "Can't handle the scheme '~a'"
                                     (url-scheme theUrl)))]))
-(: makeInitTree (URL (URL -> Void) -> Xexp))
+(: makeInitTree : URL (URL -> Void) -> Xexp)
 (define (makeInitTree initialUrl setTheUrl!)
   (let loop ([redirectionMax 10] [theUrl initialUrl])
     (define changedUrl : Boolean #f)

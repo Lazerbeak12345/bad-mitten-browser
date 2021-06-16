@@ -1,12 +1,16 @@
 #lang typed/racket/base
-(require racket/list typed/net/url "xexp-type.rkt")
+(require racket/list typed/net/url "consoleFeedback.rkt" "xexp-type.rkt")
 (define-type String/Up/Same (Listof (U 'same 'up String)))
 (require/typed html-parsing [html->xexp (Input-Port -> Xexp)])
-(provide bmUrl makeErrorMessage getTreeFromPortAndCloseIt String/Up/Same)
+(provide bmUrl
+         directory-page
+         makeErrorMessage
+         getTreeFromPortAndCloseIt
+         String/Up/Same)
 
 (define-type Path/Param/List (Listof Path/Param))
 
-(: getTreeFromPortAndCloseIt (Input-Port -> Xexp))
+(: getTreeFromPortAndCloseIt : Input-Port -> Xexp)
 (define (getTreeFromPortAndCloseIt port)
   (let ([tree (html->xexp port)])
     (close-input-port port)
@@ -17,7 +21,25 @@
           (html (body (@ (style "height:100%"))
                       (strong (@ (style "margin:auto;"))
                               ,e)))))
-(: bmUrl (URL -> Xexp))
+(: directory-page : Path-String Path-For-Some-System Boolean -> Xexp)
+(define (directory-page path-string theUrl/path show-hidden)
+  (print-warning "TODO add control links")
+  (define dir-list (directory-list path-string))
+  `(ul . ,(for/list
+            : (Listof Xexp)
+            ([name dir-list])
+            (let* ([name/str (bytes->string/locale (path->bytes name))]
+                   [ns/first-char (string-ref name/str 0)])
+              (print-warning "TODO link to each file or folder")
+              (if ((ns/first-char . eq? . #\.)
+                   . and . (not show-hidden))
+                ""
+                `(li ,(if (directory-exists?
+                            (bytes->string/locale
+                              (path->bytes (build-path theUrl/path name))))
+                        (string-append name/str "/")
+                        name/str)))))))
+(: bmUrl : URL -> Xexp)
 (define (bmUrl theUrl)
   (: paths String/Up/Same)
   (define paths
