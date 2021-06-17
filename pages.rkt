@@ -25,20 +25,27 @@
 (define (directory-page path-string theUrl/path show-hidden)
   (print-warning "TODO add control links")
   (define dir-list (directory-list path-string))
-  `(ul . ,(for/list
-            : (Listof Xexp)
-            ([name dir-list])
-            (let* ([name/str (bytes->string/locale (path->bytes name))]
-                   [ns/first-char (string-ref name/str 0)])
-              (print-warning "TODO link to each file or folder")
-              (if ((ns/first-char . eq? . #\.)
-                   . and . (not show-hidden))
-                ""
-                `(li ,(if (directory-exists?
-                            (bytes->string/locale
-                              (path->bytes (build-path theUrl/path name))))
-                        (string-append name/str "/")
-                        name/str)))))))
+  `(*TOP*
+     (*DECL* DOCTYPE html)
+     (html
+       (body
+         (h1 ,(format "File Listing of ~a" path-string))
+         (ul
+           .
+           ,(for/list
+              : (Listof Xexp)
+              ([name dir-list])
+              (let ([name/str (bytes->string/locale (path->bytes name))])
+                (if (((string-ref name/str 0) . eq? . #\.)
+                     . and . (not show-hidden))
+                  ""
+                  (let ([full/location
+                          (bytes->string/locale
+                            (path->bytes (build-path theUrl/path name)))])
+                    `(li (a (@ (href ,(string-append "file://" full/location)))
+                            ,(if (directory-exists? full/location)
+                               (string-append name/str "/")
+                               name/str))))))))))))
 (: bmUrl : URL -> Xexp)
 (define (bmUrl theUrl)
   (: paths String/Up/Same)
