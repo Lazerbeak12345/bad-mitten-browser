@@ -85,8 +85,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                           parent-max-size
                                           cursor)
                     (when (display . eq? . 'block)
-                      (location-return-left! cursor parent-min-size)
-                      (location-new-line! cursor occupied 0))
+                      (set! cursor
+                        (location-return-left cursor parent-min-size))
+                      (set! cursor
+                        (location-new-line cursor occupied 0)))
                     (define-values (child-bounding child-display)
                       (send element reposition
                             (box-bounding (location-x cursor)
@@ -100,10 +102,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                             cursor
                             display))
                     (when (display . eq? . 'block)
-                      (location-return-left! cursor parent-min-size)
-                      (location-new-line! cursor
-                                          occupied
-                                          (box-bounding-h child-bounding)))
+                      (set! cursor
+                        (location-return-left cursor parent-min-size))
+                      (set! cursor
+                        (location-new-line cursor
+                                           occupied
+                                           (box-bounding-h child-bounding))))
                     child-bounding)
     (: place-string-snip%-child ((Instance String-Snip%)
                                  (Instance Pasteboard%)
@@ -124,13 +128,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                               (location-y parent-cursor)
                               snip-width
                               snip-height))
-          (location-return-left! parent-cursor parent-min-size)
-          (location-new-line! parent-cursor occupied 0))
+          (set! parent-cursor
+            (location-return-left parent-cursor parent-min-size))
+          (set! parent-cursor
+            (location-new-line parent-cursor occupied 0)))
         (send editor move-to element
               (location-x parent-cursor)
               (location-y parent-cursor))
         (define old-x (location-x parent-cursor))
-        (set-location-x! parent-cursor (old-x . + . snip-width))
+        (set! parent-cursor
+          (location (old-x . + . snip-width)
+                    (location-y parent-cursor)))
         (box-bounding old-x
                       (location-y parent-cursor)
                       snip-width
@@ -139,8 +147,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define/public
       (reposition parent-min-size parent-max-size parent-cursor parent-display)
       (define editor (cast (get-editor) (Instance Pasteboard%)))
-      (set-box-bounding-x! occupied (location-x parent-cursor))
-      (set-box-bounding-y! occupied (location-y parent-cursor))
+      (set! occupied (box-bounding (location-x parent-cursor)
+                                   (location-y parent-cursor)
+                                   (box-bounding-w occupied)
+                                   (box-bounding-h occupied)))
       (unless (display . eq? . 'none)
         (for ([element init-children])
              (define child-occupied
@@ -155,7 +165,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                    parent-min-size
                    parent-max-size
                    parent-cursor)))
-             (add-box-boundings! occupied child-occupied)))
+             (set! occupied (add-box-boundings occupied child-occupied))))
       (values occupied display))
     (define/public (set-document-title! title)
                    (send init-parent set-document-title! title))
