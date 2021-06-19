@@ -85,10 +85,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                           parent-max-size
                                           cursor)
                     (when (display . eq? . 'block)
-                      (set! cursor
-                        (location-return-left cursor parent-min-size))
-                      (set! cursor
-                        (location-new-line cursor occupied 0)))
+                      (set! cursor (location-nl/cr cursor
+                                                   occupied
+                                                   0
+                                                   parent-min-size)))
                     (define-values (child-bounding child-display)
                       (send element reposition
                             (box-bounding (location-x cursor)
@@ -102,12 +102,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                             cursor
                             display))
                     (when (display . eq? . 'block)
-                      (set! cursor
-                        (location-return-left cursor parent-min-size))
-                      (set! cursor
-                        (location-new-line cursor
-                                           occupied
-                                           (box-bounding-h child-bounding))))
+                      (set! cursor (location-nl/cr
+                                     cursor
+                                     occupied
+                                     (box-bounding-h child-bounding)
+                                     parent-min-size)))
                     child-bounding)
     (: place-string-snip%-child ((Instance String-Snip%)
                                  (Instance Pasteboard%)

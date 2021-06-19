@@ -64,3 +64,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ((box-bounding-y occupied)
              . + . (max (box-bounding-h occupied) h))))
 (provide location-new-line)
+(: location-nl/cr : location box-bounding Real box-bounding -> location)
+(define (location-nl/cr cursor occupied h min-size)
+  (location-return-left (location-new-line cursor occupied h)
+                        min-size))
+(provide location-nl/cr)
