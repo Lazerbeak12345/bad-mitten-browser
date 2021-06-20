@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
 (require racket/string
          typed/racket/class
+         typed/racket/gui/base
          typed/racket/snip
          "../consoleFeedback.rkt"
          "../xexp-type.rkt"
@@ -39,9 +40,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ; NOTE: changes to #:doctype are not propigated upwards through the dom
 (: xexp->dom ((Listof Xexp)
               #:parent Dom-Elm-Parent
+              ; TODO consider making this a box-type?
+              #:editor (Instance Editor<%>)
               [#:doctype Doctype]
               -> (Listof Dom-Elm-Child)))
-(define (xexp->dom xexp #:parent parent #:doctype [doctype 'quirks])
+(define (xexp->dom xexp
+                   #:parent parent
+                   #:editor editor
+                   #:doctype [doctype 'quirks])
   ;(print-info (format "before: ~v" xexp))
   (define last-string : String "")
   (define cleaned-elms : (Listof Xexp) null)
@@ -76,9 +82,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             [name (xexp-name elm)]
             [attrs (xexp-attrs elm)]
             [parent parent]
+            [editor editor]
             [children (lambda (child-parent)
                         (xexp->dom (xexp-children elm)
                                    #:parent child-parent
+                                   #:editor editor
                                    #:doctype doctype))])]
       [else (error 'xexp->dom
                    "You've disloged a forign object in my parse expander!")])))

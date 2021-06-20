@@ -37,8 +37,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (let ([pasteboard (new pasteboard%)])
         (send pasteboard set-dragable #f)
         pasteboard))
-    ; This is to make getting coordinates easier
-    (define/public (get-editor) pasteboard-instance)
     (define editor-canvas-instance : (Instance Editor-Canvas%)
       (new editor-canvas%
            [parent init-parent]
@@ -61,7 +59,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       ; TODO not all URL changes require fetching from the server
       (set! theUrl newUrl)
       (set! domTree (xexp->dom (list (makeInitTree theUrl init-setUrl!))
-                               #:parent this))
+                               #:parent this
+                               #:editor pasteboard-instance))
       (for ([element domTree]
             ; It should always be a dom-elm
             #:when (element . is-a? . dom-elm%))

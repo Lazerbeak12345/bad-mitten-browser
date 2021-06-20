@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                     [parent (Instance Area-Container<%>)]
                                     [setTitle! (String -> Void)])
                               [navigate-to (URL -> Void)]
-                              [get-editor (-> (Instance Editor<%>))]
                               [set-document-title! (String -> Void)]))
 (define-type Display (U 'block 'inline 'none))
 (provide Display)

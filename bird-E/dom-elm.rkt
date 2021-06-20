@@ -34,13 +34,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         [parent Dom-Elm-Parent]
                         [children ((Instance Dom-Elm%)
                                    -> (Listof Dom-Elm-Child))])
+                  (init-field [editor (Instance Editor<%>)])
                   [reposition
                     (box-bounding box-bounding location Display
                                   -> (Values box-bounding Display))]
                   [set-document-title! (String -> Void)]
                   [get-count (-> Exact-Nonnegative-Integer)]
                   [get-name (-> Symbol)]
-                  [get-editor (-> (Instance Editor<%>))]
                   [get-snip (-> (Instance Snip%))]
                   [get-text
                     (->* (Exact-Nonnegative-Integer Exact-Nonnegative-Integer)
@@ -60,17 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define snip : (Instance Snip%) (new string-snip%))
     (define/public (get-snip) snip)
     (define/public (get-name) init-name)
-    ; This is where the editor is stored so we don't have to climb the whole
-    ; dom tree every time.
-    #|(define _editor : (-> (Instance Editor<%>))
-        (thunk
-          (define e (send init-parent get-editor))
-          (set! _editor (thunk e))
-          e))|#
-    (define/public (get-editor)
-                   ; I really don't like this approach. If I could cash it I
-                   ; would.
-                   (send init-parent get-editor))
+    (init-field editor)
     ; This is the xy position and the size that this element is occupying
     (define occupied : box-bounding (box-bounding 0 0 0 0))
     ; Should this element even render?
@@ -145,7 +135,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     #|Reposition this element and its children|#
     (define/public
       (reposition parent-min-size parent-max-size parent-cursor parent-display)
-      (define editor (cast (get-editor) (Instance Pasteboard%)))
+      (define ed (cast editor (Instance Pasteboard%)))
       (set! occupied (box-bounding (location-x parent-cursor)
                                    (location-y parent-cursor)
                                    (box-bounding-w occupied)
@@ -160,7 +150,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                        parent-cursor)
                  (place-string-snip%-child
                    (cast element (Instance String-Snip%))
-                   editor
+                   ed
                    parent-min-size
                    parent-max-size
                    parent-cursor)))
@@ -195,7 +185,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       [else
         (when (memq init-name '(a i b bold em strong span))
           (set! display 'inline))
-        (define editor (get-editor))
         (for ([element init-children])
              (send editor insert
                    (if (element . is-a? . snip%)
