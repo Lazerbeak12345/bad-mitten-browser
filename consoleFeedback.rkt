@@ -30,9 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
              (U 'all 'errors 'warnings 'errors-and-warnings 'none))
 (: verbosity VerbosityLevel)
 (define verbosity 'all)
-(: get-verbosity (-> VerbosityLevel))
+(: get-verbosity : -> VerbosityLevel)
 (define (get-verbosity) verbosity)
-(: set-verbosity! (-> VerbosityLevel Void))
+(: set-verbosity! : VerbosityLevel -> Void)
 (define (set-verbosity! new-verbosity)
   (unless (eq? verbosity new-verbosity)
     (let ([info-before (format "Verbosity changing from ~a to ~a"
@@ -72,5 +72,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             (eq? verbosity 'errors-and-warnings))
     (displayln (format "[~a] ERROR:   ~a" (getDisplayTime) information)
                (current-error-port))))
+(print-error "TODO make verbosity level a parameter")
 (print-info (format "Verbosity level is currently ~a" verbosity))
 

@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          "tab.rkt")
 (provide bm-window% Bm-window%)
 #| Use a unicode character as an icon |#
-(: char->icon (String -> (Instance Bitmap%)))
+(: char->icon : String -> (Instance Bitmap%))
 (define (char->icon char)
   (text-icon char
              ; TODO fix upstream to allow 'heavy and numbers
@@ -118,8 +118,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
            [alignment '(left center)]))
     (send locationPane stretchable-height #f)
     ; A callback for when the user changes the location
-    (: locationChanged ((Instance Text-Field%)
-                        (Instance Control-Event%) -> Void))
+    (: locationChanged :
+       (Instance Text-Field%)
+       (Instance Control-Event%) -> Void)
     (define (locationChanged pane event)
       (when ((send event get-event-type) . eq? . 'text-field-enter)
         (print-info "Location changed!")
@@ -179,7 +180,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (send tab-elm stretchable-height #f)
     (define tab-holder : (Instance Panel%)
       (new panel% [parent frame]))
-    (: makeTab (URL -> (Instance Tab%)))
+    (: makeTab : URL -> (Instance Tab%))
     (define/private (makeTab tab-link)
       (new tab%
            [url tab-link]
@@ -188,12 +189,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
            [locationForward locationForward]
            [tab-holder tab-holder]
            [update-title update-title]))
-    (: get-tab-choices (-> (Listof String)))
+    (: get-tab-choices : -> (Listof String))
     (define/private (get-tab-choices)
       (for/list ([tab tabs])
         (send tab get-title)))
     ; Called to either hide or show the tab row
-    (: hideTabRow (Boolean -> Void))
+    (: hideTabRow : Boolean -> Void)
     (define/private (hideTabRow bool)
       (print-info (format "hideTabRow ~a" bool))
       (if bool
@@ -202,7 +203,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           (send frame delete-child tab-holder)
           (send frame add-child tabManagerPanel)
           (send frame add-child tab-holder))))
-    (: addTabBtnCallback (-> Void))
+    (: addTabBtnCallback : -> Void)
     (define/private (addTabBtnCallback)
       (print-info "Making new tab")
       (send (getCurrentTab) unfocus)
@@ -213,7 +214,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (send tab-elm set (get-tab-choices))
       (send tab-elm set-selection ((length tabs) . - . 1))
       (do-focus))
-    (: closeCurrentTab (-> Void))
+    (: closeCurrentTab : -> Void)
     (define/private (closeCurrentTab)
       (let ([current (getCurrentTab)]) 
         (print-info (format "Closing ~a" (send current get-title)))
@@ -253,20 +254,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (send closeTabBtn     min-width width))
     (define last-tab-focused 0)
     (define tabs : (Listof (Instance Tab%)) null)
-    (: getCurrentTab (-> (Instance Tab%)))
+    (: getCurrentTab : -> (Instance Tab%))
     (define/private (getCurrentTab)
       (print-info "Getting current tab")
       (list-ref tabs ((send tab-elm get-selection) . or . 0)))
-    (: do-focus (-> Void))
+    (: do-focus : -> Void)
     (define/private (do-focus)
       (let ([index : Integer ((send tab-elm get-selection) . or . 0)])
         (send (list-ref tabs index) focus)
         (set! last-tab-focused index))
       (update-title))
-    (: set-title (-> String Void))
+    (: set-title : String -> Void)
     (define/private (set-title title)
       (send frame set-label (format "~a - ~a" title label)))
-    (: update-title (-> Void))
+    (: update-title : -> Void)
     (define (update-title)
       (print-info "Updating title")
       (let ([title (send (getCurrentTab) get-title)]

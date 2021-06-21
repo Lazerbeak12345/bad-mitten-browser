@@ -53,21 +53,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 (provide xexp-name xexp-attrs xexp-children xexp-short->char)
 
 ; First arg is any Xexp that is not a string
-(: xexp-name (-> (U Xexp-decl
-                    Xexp-short
-                    Xexp-with-attrs
-                    Xexp-no-attrs)
-                 Symbol))
+(: xexp-name : (U Xexp-decl
+                  Xexp-short
+                  Xexp-with-attrs
+                  Xexp-no-attrs) -> Symbol)
 (define (xexp-name theXexp)
   (car theXexp))
 
-(: xexp-attrs (Xexp -> (Listof Xexp-attr)))
+(: xexp-attrs : Xexp -> (Listof Xexp-attr))
 (define (xexp-attrs theXexp)
   (if (xexp-with-attrs? theXexp)
     (cdadr theXexp)
     null))
 
-(: xexp-children (Xexp -> (Listof Xexp)))
+(: xexp-children : Xexp -> (Listof Xexp))
 (define (xexp-children theXexp)
   (cond [(xexp-with-attrs? theXexp)
          (cddr theXexp)]
@@ -87,7 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ; &euro;	&#8364;	€
 ; &copy;	&#169;	©
 ; &reg;	&#174;	®
-(: xexp-short->char (Xexp-short -> Char))
+(: xexp-short->char : Xexp-short -> Char)
 (define (xexp-short->char theXexp)
   (case (cadr theXexp)
     [(nbsp) #\ ] ; yes, there is a unicode nbsp right there

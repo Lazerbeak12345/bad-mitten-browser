@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   (let ([tree (html->xexp port)])
     (close-input-port port)
     tree))
-(: makeErrorMessage (String -> Xexp))
+(: makeErrorMessage : String -> Xexp)
 (define (makeErrorMessage e)
   `(*TOP* (*DECL* DOCTYPE html)
           (html (body (@ (style "height:100%"))

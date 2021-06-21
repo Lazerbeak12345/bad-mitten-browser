@@ -22,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       [h : Real]))
 (provide box-bounding box-bounding? box-bounding-x box-bounding-y box-bounding-w
          box-bounding-h)
-(: box-bounding-right (box-bounding -> Real))
+(: box-bounding-right : box-bounding -> Real)
 (define (box-bounding-right bb)
   ((box-bounding-x bb) . + . (box-bounding-w bb)))
-(: box-bounding-bottom (box-bounding -> Real))
+(: box-bounding-bottom : box-bounding -> Real)
 (define (box-bounding-bottom bb)
   ((box-bounding-y bb) . + . (box-bounding-h bb)))
 (provide add-box-boundings)
@@ -43,9 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 (box-bounding-y left)
                 left-w
                 left-h))
-(: box-bounding-too-right? (box-bounding
-                            box-bounding
-                            -> Boolean))
+(: box-bounding-too-right? : box-bounding box-bounding -> Boolean)
 (define (box-bounding-too-right? parent child)
   ((box-bounding-right child) . >= . (box-bounding-right parent)))
 (provide box-bounding-right box-bounding-bottom box-bounding-too-right?)

@@ -65,11 +65,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define occupied : box-bounding (box-bounding 0 0 0 0))
     ; Should this element even render?
     (define display : Display 'block)
-    (: place-dom-elm%-child ((Instance Dom-Elm%)
-                             box-bounding
-                             box-bounding
-                             location
-                             -> box-bounding))
+    (print-warning "TODO dom-elm.rkt more keyword args")
+    (: place-dom-elm%-child :
+       (Instance Dom-Elm%)
+       box-bounding
+       box-bounding
+       location
+       -> box-bounding)
     (define/private (place-dom-elm%-child element
                                           parent-min-size
                                           parent-max-size
@@ -98,12 +100,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                      (box-bounding-h child-bounding)
                                      parent-min-size)))
                     child-bounding)
-    (: place-string-snip%-child ((Instance String-Snip%)
-                                 (Instance Pasteboard%)
-                                 box-bounding
-                                 box-bounding
-                                 location
-                                 -> box-bounding))
+    (: place-string-snip%-child :
+       (Instance String-Snip%)
+       (Instance Pasteboard%)
+       box-bounding
+       box-bounding
+       location
+       -> box-bounding)
     (define/private (place-string-snip%-child element
                                               editor
                                               parent-min-size

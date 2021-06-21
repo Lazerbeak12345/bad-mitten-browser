@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          "dom-elm.rkt"
          "renderer-type.rkt")
 (provide xexp->dom)
-(: html-br? (Any -> Boolean))
+(: html-br? : Any -> Boolean)
 (define (html-br? theXexp)
   (and (xexp? theXexp)
        (not (string? theXexp))
@@ -33,17 +33,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;(define-type Doctype (U 'html5 'quirks))
 (define-type Doctype Symbol)
 (print-warning "TODO: fix Doctype type in xexp-to-dom.rkt")
-(: get-decl-doctype (Xexp-decl -> Doctype))
+(: get-decl-doctype : Xexp-decl -> Doctype)
 (define (get-decl-doctype theDecl)
   (print-error "get-decl-doctype not written yet")
   'quirks)
 ; NOTE: changes to #:doctype are not propigated upwards through the dom
-(: xexp->dom ((Listof Xexp)
-              #:parent Dom-Elm-Parent
-              ; TODO consider making this a box-type?
-              #:editor (Instance Editor<%>)
-              [#:doctype Doctype]
-              -> (Listof Dom-Elm-Child)))
+(: xexp->dom :
+   (Listof Xexp)
+   #:parent Dom-Elm-Parent
+   ; TODO consider making this a box-type?
+   #:editor (Instance Editor<%>)
+   [#:doctype Doctype]
+   -> (Listof Dom-Elm-Child))
 (define (xexp->dom xexp
                    #:parent parent
                    #:editor editor
