@@ -19,14 +19,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ; NOTE: I am specifically targeting the GNOME desktop enviroment, and plan to
 ; follow their official appearance guidelines in the future.
-(require racket/math
-         typed/images/icons
-         typed/net/url
+(require (only-in racket/math exact-ceiling)
+         (only-in typed/images/icons
+                  back-icon
+                  metal-icon-color
+                  play-icon
+                  text-icon
+                  x-icon)
+         (only-in typed/net/url netscape/string->url url? url->string URL)
          ;typed/pict
-         typed/racket/class
-         typed/racket/gui/base
-         "consoleFeedback.rkt"
-         "tab.rkt")
+         (only-in typed/racket/class
+                  class
+                  define/private
+                  init
+                  new
+                  object%
+                  send
+                  super-new)
+         (only-in typed/racket/gui/base
+                  button%
+                  frame%
+                  get-display-size
+                  horizontal-pane%
+                  horizontal-panel%
+                  make-font
+                  panel%
+                  tab-panel%
+                  text-field%
+                  Bitmap%
+                  Button%
+                  Frame%
+                  Horizontal-Pane%
+                  Horizontal-Panel%
+                  Panel%
+                  Tab-Panel%
+                  Text-Field%
+                  Control-Event%)
+         (only-in "consoleFeedback.rkt" print-info)
+         (only-in "tab.rkt" tab% Tab%))
 (provide bm-window% Bm-window%)
 #| Use a unicode character as an icon |#
 (: char->icon : String -> (Instance Bitmap%))

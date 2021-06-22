@@ -16,7 +16,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require typed/racket/date)
+(require (only-in typed/racket/date
+                  date-display-format
+                  date->string
+                  current-date))
 (provide print-info print-warning print-error VerbosityLevel)
 ; Print information, warnings, and the like to the console that this was run
 ; from
