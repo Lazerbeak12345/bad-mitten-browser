@@ -16,15 +16,31 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require racket/port
-         racket/list
-         racket/string
-         typed/net/url
-         typed/net/url-connect
-         typed/net/head
-         "consoleFeedback.rkt"
-         "pages.rkt"
-         "xexp-type.rkt")
+(require (only-in racket/port port->string)
+         (only-in racket/list first)
+         (only-in racket/string string-split)
+         (only-in typed/net/url
+                  combine-url/relative
+                  current-url-encode-mode
+                  get-pure-port/headers
+                  make-http-connection
+                  url
+                  url->path
+                  url->string
+                  url-host
+                  url-path
+                  url-scheme
+                  url-query
+                  URL)
+         (only-in typed/net/url-connect current-https-protocol)
+         (only-in typed/net/head extract-field)
+         (only-in "consoleFeedback.rkt" print-error print-info print-warning)
+         (only-in "pages.rkt"
+                  bmUrl
+                  directory-page
+                  getTreeFromPortAndCloseIt
+                  makeErrorMessage)
+         (only-in "xexp-type.rkt" Xexp))
 (provide htmlTreeFromUrl makeInitTree)
 ;(current-https-protocol 'secure)
 (current-https-protocol 'auto)
