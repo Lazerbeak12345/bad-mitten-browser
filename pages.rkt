@@ -16,7 +16,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require racket/list typed/net/url "consoleFeedback.rkt" "xexp-type.rkt")
+(require (only-in racket/list first)
+         (only-in typed/net/url
+                  path/param-path
+                  url->string
+                  url-host url-path
+                  Path/Param
+                  URL)
+         (only-in "consoleFeedback.rkt" print-warning)
+         (only-in "xexp-type.rkt" Xexp))
 (define-type String/Up/Same (Listof (U 'same 'up String)))
 (require/typed html-parsing [html->xexp (Input-Port -> Xexp)])
 (provide bmUrl
