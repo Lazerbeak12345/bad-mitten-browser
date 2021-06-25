@@ -16,15 +16,29 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require typed/net/url
-         typed/racket/class
-         typed/racket/gui/base
-         "../consoleFeedback.rkt"
-         "../networking.rkt"
-         "box-bounding.rkt"
-         "dom-elm.rkt"
-         "renderer-type.rkt"
-         "xexp-to-dom.rkt")
+(require (only-in typed/net/url URL)
+         (only-in typed/racket/class
+                  class
+                  define/public
+                  init
+                  is-a?
+                  new
+                  object%
+                  send
+                  super-new
+                  this)
+         (only-in typed/racket/gui/base
+                  editor-canvas%
+                  pasteboard%
+                  Area-Container<%>
+                  Editor-Canvas%
+                  Pasteboard%)
+         (only-in "../consoleFeedback.rkt" print-info)
+         (only-in "../networking.rkt" makeInitTree)
+         (only-in "box-bounding.rkt" box-bounding location)
+         (only-in "dom-elm.rkt" dom-elm% Dom-Elm% Dom-Elm-Child)
+         (only-in "renderer-type.rkt" Renderer%)
+         (only-in "xexp-to-dom.rkt" xexp->dom))
 ; Renderer% comes from "renderer-type.rkt" as many files reference that type
 (provide renderer% Renderer%)
 (define renderer% : Renderer%
