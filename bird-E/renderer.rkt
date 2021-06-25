@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          typed/racket/gui/base
          "../consoleFeedback.rkt"
          "../networking.rkt"
+         "box-bounding.rkt"
          "dom-elm.rkt"
          "renderer-type.rkt"
          "xexp-to-dom.rkt")

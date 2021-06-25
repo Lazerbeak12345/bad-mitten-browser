@@ -16,11 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require typed/net/url
-         typed/racket/class
-         typed/racket/gui/base
-         "box-bounding.rkt")
-(provide (all-from-out "box-bounding.rkt"))
+(require typed/net/url typed/racket/class typed/racket/gui/base)
 (provide Renderer%) ; See ./renderer.rkt
 (define-type Renderer% (Class (init [initial-URL URL]
                                     [setUrl! (URL -> Void)]

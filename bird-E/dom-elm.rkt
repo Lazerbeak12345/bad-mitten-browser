@@ -17,13 +17,42 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
 (provide dom-elm% Dom-Elm% Dom-Elm-Parent Dom-Elm-Child)
-(require racket/string
-         typed/racket/class
-         typed/racket/gui/base
-         "../consoleFeedback.rkt"
-         "../xexp-type.rkt"
-         "renderer-type.rkt"
-         "snip-utils.rkt")
+(require (only-in racket/string string-trim)
+         (only-in typed/racket/class
+                  class
+                  define/public
+                  define/private
+                  init
+                  init-field
+                  is-a?
+                  new
+                  object%
+                  send
+                  super-new
+                  this)
+         (only-in typed/racket/gui/base
+                  snip%
+                  string-snip%
+                  Editor<%>
+                  Pasteboard%
+                  Snip%
+                  String-Snip%)
+         (only-in "../consoleFeedback.rkt" print-error print-info print-warning)
+         (only-in "../xexp-type.rkt" Xexp-attr)
+         (only-in "box-bounding.rkt"
+                  add-box-boundings 
+                  box-bounding
+                  box-bounding-h
+                  box-bounding-too-right?
+                  box-bounding-w
+                  location
+                  location-new-line 
+                  location-nl/cr
+                  location-return-left
+                  location-x
+                  location-y)
+         (only-in "renderer-type.rkt" Display Renderer%)
+         (only-in "snip-utils.rkt" get-snip-coordinates))
 (define-type Dom-Elm-Parent (U (Instance Dom-Elm%)
                                (Instance Renderer%)))
 (define-type Dom-Elm-Child (U (Instance Dom-Elm%)
