@@ -16,12 +16,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require racket/list
-         typed/racket/gui/base
-         typed/racket/class
-         typed/net/url
-         "consoleFeedback.rkt"
-         "bird-E/renderer.rkt")
+(require (only-in racket/list first)
+         (only-in typed/racket/gui/base panel% Button% Panel% Text-Field%)
+         (only-in typed/racket/class
+                  class
+                  define/private
+                  define/public
+                  init
+                  new
+                  object?
+                  object%
+                  send
+                  super-new)
+         (only-in typed/net/url netscape/string->url url->string URL)
+         (only-in "consoleFeedback.rkt" print-error print-info print-warning)
+         (only-in "bird-E/renderer.rkt" renderer% Renderer%))
 (provide tab% Tab%)
 (define-type Tab% 
   (Class (init [url URL]
