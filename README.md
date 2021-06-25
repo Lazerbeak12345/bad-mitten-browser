@@ -1,6 +1,29 @@
 # Bad-Mitten browser
 
-A browser using the racket framework to be as small as possible.
+A www browser using the racket framework to be as small as possible.
+
+Now a year old! :tada:
+
+> This software is free software under the GPLv3 or later, and respects not
+> only the four freedoms, but also your privacy, unlike other browsers I
+> shouldn't name.
+> 
+> 0. The freedom to run the program as you wish, for any purpose (freedom 0).
+> 1. The freedom to study how the program works, and change it so it does your
+>    computing as you wish (freedom 1). Access to the source code is a
+>    precondition for this.
+> 2. The freedom to redistribute copies so you can help your neighbor (freedom
+>    2).
+> 3. The freedom to distribute copies of your modified versions to others
+>    (freedom 3). By doing this you can give the whole community a chance to
+>    benefit from your changes. Access to the source code is a precondition for
+>    this.
+
+[![GPLv3 or higher logo][gpl-logo]][gpl-link]
+
+[gpl-logo]: https://www.gnu.org/graphics/gplv3-with-text-136x68.png
+[gpl-link]: https://www.gnu.org/licenses/gpl-3.0.txt
+
 
 ## Target platform(s)
 
@@ -10,12 +33,10 @@ the like, so patches to make it work there will be likely to be given some
 degree of priority over feature functionality.
 
 However, Windows compatibility is a low priority. It's nice if it works on
-Windows, but I don't want to spend very much effort on it, as I hold the belief
-that the Windows NT architecture is obsolete, and I don't plan on giving
-obsolete platforms any sort of priority.
-**As of yet, I have seen nothing to indicate that it _wouldn't_ work on Windows,
-but Windows users should not expect to be able to run development versions, for
-reasons mentioned above.**
+Windows, but I don't want to spend very much effort on it, I don't plan on
+giving that platform any sort of priority. **As of yet, I have seen nothing to
+indicate that it _wouldn't_ work on Windows, but Windows users should not expect
+to be able to run development versions, for reasons mentioned above.**
 
 ## Contributing
 
@@ -60,6 +81,8 @@ For a time I was abiding by this simple variant from the racket style guide:
 
 However, I have since reversed that decision. The benefits were very little
 when using an editor with parenthesis highlighting support.
+
+All imports must use `only-in` to improove code readability.
 
 ## Tools used
 
