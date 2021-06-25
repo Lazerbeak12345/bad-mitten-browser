@@ -7,7 +7,7 @@ Now a year old! :tada:
 > This software is free software under the GPLv3 or later, and respects not
 > only the four freedoms, but also your privacy, unlike other browsers I
 > shouldn't name.
-> 
+>
 > 0. The freedom to run the program as you wish, for any purpose (freedom 0).
 > 1. The freedom to study how the program works, and change it so it does your
 >    computing as you wish (freedom 1). Access to the source code is a
@@ -23,7 +23,6 @@ Now a year old! :tada:
 
 [gpl-logo]: https://www.gnu.org/graphics/gplv3-with-text-136x68.png
 [gpl-link]: https://www.gnu.org/licenses/gpl-3.0.txt
-
 
 ## Target platform(s)
 
