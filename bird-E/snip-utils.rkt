@@ -16,7 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require typed/racket/class typed/racket/gui/base)
+(require (only-in typed/racket/class send)
+         (only-in typed/racket/gui/base Editor<%> Snip%))
 (provide get-snip-coordinates)
 #|Returns false if snip not found, values x y width height if found|#
 (: get-snip-coordinates :
