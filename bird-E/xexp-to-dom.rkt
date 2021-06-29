@@ -16,14 +16,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require racket/string
-         typed/racket/class
-         typed/racket/gui/base
-         typed/racket/snip
-         "../consoleFeedback.rkt"
-         "../xexp-type.rkt"
-         "dom-elm.rkt"
-         "renderer-type.rkt")
+(require (only-in racket/string string-normalize-spaces)
+         (only-in typed/racket/class make-object new)
+         (only-in typed/racket/gui/base Editor<%>)
+         (only-in typed/racket/snip string-snip%)
+         (only-in "../consoleFeedback.rkt" print-error print-warning)
+         (only-in "../xexp-type.rkt"
+                  xexp?
+                  xexp-attrs
+                  xexp-children
+                  xexp-decl?
+                  xexp-short?
+                  xexp-short->char
+                  xexp-name
+                  xexp-no-attrs?
+                  xexp-with-attrs?
+                  Xexp
+                  Xexp-decl)
+         (only-in "dom-elm.rkt" dom-elm% Dom-Elm-Child Dom-Elm-Parent))
 (provide xexp->dom)
 (: html-br? : Any -> Boolean)
 (define (html-br? theXexp)
