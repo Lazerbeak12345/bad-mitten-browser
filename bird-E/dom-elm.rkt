@@ -94,17 +94,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define occupied : box-bounding (box-bounding 0 0 0 0))
     ; Should this element even render?
     (define display : Display 'block)
-    (print-warning "TODO dom-elm.rkt more keyword args")
-    (: place-dom-elm%-child :
-       (Instance Dom-Elm%)
-       box-bounding
-       box-bounding
-       location
+    (: place-dom-elm%-child! :
+       #:element (Instance Dom-Elm%)
+       #:min-bounding box-bounding
+       #:max-bounding box-bounding
+       #:cursor location
        -> box-bounding)
-    (define/private (place-dom-elm%-child element
-                                          parent-min-size
-                                          parent-max-size
-                                          cursor)
+    (define/private (place-dom-elm%-child! #:element element
+                                           #:min-bounding parent-min-size
+                                           #:max-bounding parent-max-size
+                                           #:cursor cursor)
                     (when (display . eq? . 'block)
                       (set! cursor (location-nl/cr cursor
                                                    occupied
@@ -129,6 +128,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                      (box-bounding-h child-bounding)
                                      parent-min-size)))
                     child-bounding)
+    (print-warning "TODO dom-elm.rkt more keyword args")
     (: place-string-snip%-child :
        (Instance String-Snip%)
        (Instance Pasteboard%)
@@ -176,10 +176,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         (for ([element init-children])
              (define child-occupied
                (if (element . is-a? . dom-elm%)
-                 (place-dom-elm%-child (cast element (Instance Dom-Elm%))
-                                       parent-min-size
-                                       parent-max-size
-                                       parent-cursor)
+                 (place-dom-elm%-child!
+                   #:element (cast element (Instance Dom-Elm%))
+                   #:min-bounding parent-min-size
+                   #:max-bounding parent-max-size
+                   #:cursor parent-cursor)
                  (place-string-snip%-child
                    (cast element (Instance String-Snip%))
                    ed
