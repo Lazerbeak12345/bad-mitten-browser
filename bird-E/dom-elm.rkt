@@ -128,19 +128,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                      (box-bounding-h child-bounding)
                                      parent-min-size)))
                     child-bounding)
-    (print-warning "TODO dom-elm.rkt more keyword args")
     (: place-string-snip%-child :
-       (Instance String-Snip%)
-       (Instance Pasteboard%)
-       box-bounding
-       box-bounding
-       location
+       #:element (Instance String-Snip%)
+       #:editor (Instance Pasteboard%)
+       #:min-bounding box-bounding
+       #:max-bounding box-bounding
+       #:cursor location
        -> box-bounding)
-    (define/private (place-string-snip%-child element
-                                              editor
-                                              parent-min-size
-                                              parent-max-size
-                                              parent-cursor)
+    (define/private (place-string-snip%-child #:element element
+                                              #:editor editor
+                                              #:min-bounding parent-min-size
+                                              #:max-bounding parent-max-size
+                                              #:cursor parent-cursor)
         (define-values (ex ey snip-width snip-height)
           (get-snip-coordinates editor element))
         (when (box-bounding-too-right?
@@ -164,6 +163,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       (location-y parent-cursor)
                       snip-width
                       snip-height))
+    (print-warning "TODO dom-elm.rkt more keyword args")
     #|Reposition this element and its children|#
     (define/public
       (reposition parent-min-size parent-max-size parent-cursor parent-display)
@@ -182,11 +182,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                    #:max-bounding parent-max-size
                    #:cursor parent-cursor)
                  (place-string-snip%-child
-                   (cast element (Instance String-Snip%))
-                   ed
-                   parent-min-size
-                   parent-max-size
-                   parent-cursor)))
+                   #:element (cast element (Instance String-Snip%))
+                   #:editor ed
+                   #:min-bounding parent-min-size
+                   #:max-bounding parent-max-size
+                   #:cursor parent-cursor)))
              (set! occupied (add-box-boundings occupied child-occupied))))
       (values occupied display))
     (define/public (set-document-title! title)
