@@ -2,7 +2,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and serves as the entry point
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022 Lazerbreak12345 jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
 (module+ test
-  ;(print-error "No tests written!?")
+  (require (only-in "consoleFeedback.rkt" print-error))
+  (print-error "No tests written!?")
   #f)
 (module+ main
   (require (only-in typed/racket/class new)

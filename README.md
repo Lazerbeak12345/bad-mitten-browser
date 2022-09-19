@@ -2,27 +2,7 @@
 
 A www browser using the racket framework to be as small as possible.
 
-Now a year old! :tada:
-
-> This software is free software under the GPLv3 or later, and respects not
-> only the four freedoms, but also your privacy, unlike other browsers I
-> shouldn't name.
->
-> 0. The freedom to run the program as you wish, for any purpose (freedom 0).
-> 1. The freedom to study how the program works, and change it so it does your
->    computing as you wish (freedom 1). Access to the source code is a
->    precondition for this.
-> 2. The freedom to redistribute copies so you can help your neighbor (freedom
->    2).
-> 3. The freedom to distribute copies of your modified versions to others
->    (freedom 3). By doing this you can give the whole community a chance to
->    benefit from your changes. Access to the source code is a precondition for
->    this.
-
-[![GPLv3 or higher logo][gpl-logo]][gpl-link]
-
-[gpl-logo]: https://www.gnu.org/graphics/gplv3-with-text-136x68.png
-[gpl-link]: https://www.gnu.org/licenses/gpl-3.0.txt
+Now two years old! :tada: :tada:
 
 ## Target platform(s)
 
@@ -92,3 +72,33 @@ All imports must use `only-in` to improove code readability.
    script is just a string!)
 3. `net/url`, `net/url-connect` and, `net/head`. Tools for managing connections
    to servers.
+
+## Licence
+
+> This software is free software under the GPLv3 or later, and respects not
+> only the four freedoms, but also your privacy, unlike other browsers I
+> shouldn't name.
+>
+> 0. The freedom to run the program as you wish, for any purpose (freedom 0).
+> 1. The freedom to study how the program works, and change it so it does your
+>    computing as you wish (freedom 1). Access to the source code is a
+>    precondition for this.
+> 2. The freedom to redistribute copies so you can help your neighbor (freedom
+>    2).
+> 3. The freedom to distribute copies of your modified versions to others
+>    (freedom 3). By doing this you can give the whole community a chance to
+>    benefit from your changes. Access to the source code is a precondition for
+>    this.
+
+[![GPLv3 or higher logo][gpl-logo]][gpl-link]
+
+[gpl-logo]: https://www.gnu.org/graphics/gplv3-with-text-136x68.png
+[gpl-link]: https://www.gnu.org/licenses/gpl-3.0.txt
+
+In addition, these files have unique licencing:
+
+- `./custom-tab-panel.rkt` Used (and slightly modified) under the MIT licence.
+  (also, I was the original author for that code, but I've re-backported it here.).
+
+Furthermore, I've been very careful to include a licence text in the beginning
+of _every_ file. It's ugly, but it has a purpose.

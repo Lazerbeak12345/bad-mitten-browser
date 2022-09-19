@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and binds metadata to log info
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022 Lazerbeak12345 jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,3 +44,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   (when (memq (verbosity) '(all errors errors-and-warnings))
     (displayln (format "[~a] ERROR:   ~a" (getDisplayTime) information)
                (current-error-port))))
+(print-error "TODO: make verbosity a cli argument")

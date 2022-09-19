@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and is the main window
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022 Lazerbeak12345 jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   horizontal-panel%
                   make-font
                   panel%
-                  tab-panel%
                   text-field%
                   Bitmap%
                   Button%
@@ -52,12 +51,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   Horizontal-Pane%
                   Horizontal-Panel%
                   Panel%
-                  Tab-Panel%
                   Text-Field%
                   Control-Event%)
          (only-in "consoleFeedback.rkt" print-info)
+         (only-in "custom-tab-panel.rkt"
+                  tab-panel-closable%
+                  Tab-Panel-Closable%)
          (only-in "tab.rkt" tab% Tab%))
 (provide bm-window% Bm-window%)
+(: clamp : Real Real Real -> Real)
+(define (clamp start end value)
+  (max (min value end) start))
 #| Use a unicode character as an icon |#
 (: char->icon : String -> (Instance Bitmap%))
 (define (char->icon char)
@@ -197,12 +201,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
            [parent frame]
            [alignment '(right center)]))
     (send tabManagerPanel stretchable-height #f)
-    (define tab-elm : (Instance Tab-Panel%)
-      (new tab-panel%
+    (define tab-elm : (Instance Tab-Panel-Closable%)
+      (new tab-panel-closable%
            [choices (for/list ([link self-links])
                       (url->string link))]
            [parent tabManagerPanel]
-           [style '(no-border)]
+           [style '(no-border can-close)]
+           [on-close-request-callback (lambda (index)
+                                        ; Can't indirectly apply class methods
+                                        ; so a lambda is needed here
+                                        (closeGivenTab index))]
            [callback (lambda (panel event)
                        (send (list-ref tabs last-tab-focused) unfocus)
                        (do-focus)
@@ -246,42 +254,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (do-focus))
     (: closeCurrentTab : -> Void)
     (define/private (closeCurrentTab)
-      (let ([current (getCurrentTab)]) 
-        (print-info (format "Closing ~a" (send current get-title)))
-        (send current unfocus))
-      (define counter -1)
       (define index ((send tab-elm get-selection) . or . 0))
-      (send (list-ref tabs index) close)
-      (set! tabs (filter (lambda (item)
-                           (set! counter (counter . + . 1))
-                           (not (counter . = . index)))
-                         tabs))
-      (send tab-elm set (get-tab-choices))
-      (if ((length tabs) . = . 0)
-        (begin (print-info "Closing browser!")
-               (exit 0))
-        (begin (send tab-elm set-selection (if (0 . = . index)
-                                               0
-                                               (index . - . 1)))
-               (when ((length tabs) . = . 1)
-                 (hideTabRow #t))))
+      (closeGivenTab index)
       (do-focus))
-    (define closeTabBtn : (Instance Button%)
-      (new button%
-           [parent tabManagerPanel]
-           ;[label "Close Tab"]
-           [label (x-icon #:color metal-icon-color
-                          ; TODO increase later
-                          #:thickness 6)]
-           [callback (lambda (button event)
-                       (closeCurrentTab))]))
-    (let-values ([(width height) (send closeTabBtn get-graphical-min-size)])
+    (: closeGivenTab : Natural -> Void)
+    (define/private (closeGivenTab index)
+      (define current-focused ((send tab-elm get-selection) . or . 0))
+      (define focused-left-of-close (current-focused . > . index))
+      (send (list-ref tabs last-tab-focused) unfocus)
+      (let ([index-tab (list-ref tabs index)])
+        (print-info (format "Closing ~a at index ~a"
+                            (send index-tab get-title)
+                            index))
+        (send index-tab close))
+      (let ([counter -1])
+        (set! tabs (filter (lambda (item)
+                             (set! counter (counter . + . 1))
+                             (not (counter . = . index)))
+                           tabs)))
+      (send tab-elm set (get-tab-choices))
+      (send tab-elm set-selection (cast (clamp 0
+                                               ((length tabs) . - . 1)
+                                               (if focused-left-of-close
+                                                 (current-focused . - . 1)
+                                                 current-focused))
+                                        Integer))
+      (when ((length tabs) . = . 1)
+             (hideTabRow #t))
+      (do-focus))
+    (let-values ([(width height) (send addTabBtn get-graphical-min-size)])
       ; (print-info (~a width))
       (send locationBack    min-width width)
       (send locationForward min-width width)
       (send locationReload  min-width width)
-      (send addTabBtn       min-width width)
-      (send closeTabBtn     min-width width))
+      (send addTabBtn       min-width width))
     (define last-tab-focused 0)
     (define tabs : (Listof (Instance Tab%)) null)
     (: getCurrentTab : -> (Instance Tab%))
