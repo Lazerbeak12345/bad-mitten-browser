@@ -45,8 +45,7 @@ Copyright Lazerbeak12345 2022
                   define/augment
                   define/override
                   super)
-         (only-in typed/racket/gui/base tab-panel% Tab-Panel%)
-         (only-in "consoleFeedback.rkt" print-error print-info))
+         (only-in typed/racket/gui/base tab-panel% Tab-Panel%))
 (define-type Tab-Panel-Closable%
              (Class #:implements/inits Tab-Panel%
                     (init-field [on-reorder-callback ((Listof

@@ -53,7 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   Panel%
                   Text-Field%
                   Control-Event%)
-         (only-in "consoleFeedback.rkt" print-info)
+         (only-in "../consoleFeedback.rkt" print-info)
          (only-in "custom-tab-panel.rkt"
                   tab-panel-closable%
                   Tab-Panel-Closable%)

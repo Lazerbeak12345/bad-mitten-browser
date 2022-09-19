@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser. It's the code for a single tab
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022 Lazerbeak12345 jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   send
                   super-new)
          (only-in typed/net/url netscape/string->url url->string URL)
-         (only-in "consoleFeedback.rkt" print-error print-info print-warning)
-         (only-in "bird-E/renderer.rkt" renderer% Renderer%))
+         (only-in "../consoleFeedback.rkt" print-error print-info print-warning)
+         (only-in "../bird-E/renderer.rkt" renderer% Renderer%))
 (provide tab% Tab%)
 (define-type Tab% 
   (Class (init [url URL]

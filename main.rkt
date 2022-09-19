@@ -24,6 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 (module+ main
   (require (only-in typed/racket/class new)
            (only-in "consoleFeedback.rkt" print-info)
-           (only-in "bm-window.rkt" bm-window% Bm-window%))
+           (only-in "shell/bm-window.rkt" bm-window% Bm-window%))
   (print-info "Opening Bad-Mitten Browser…")
   (new bm-window% [links (vector->list (current-command-line-arguments))]))
