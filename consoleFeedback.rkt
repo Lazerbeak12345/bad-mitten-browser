@@ -16,32 +16,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require (only-in typed/racket/date
-                  date-display-format
-                  date->string
-                  current-date))
-(provide print-info print-warning print-error VerbosityLevel)
-; Print information, warnings, and the like to the console that this was run
-; from
-(define-type VerbosityLevel
-             (U 'all 'errors 'warnings 'errors-and-warnings 'none))
-(: verbosity (Parameterof VerbosityLevel))
-(define verbosity (make-parameter 'all))
-(define (getDisplayTime)
-  (date-display-format 'iso-8601) 
-  (date->string (current-date) #t))
+(provide print-info print-warning print-error)
 (define-type PrintThingy (-> String Void))
 (: print-info PrintThingy)
 (define (print-info information)
-  (when (eq? verbosity 'all)
-    (displayln (format "[~a] INFO:    ~a" (getDisplayTime) information))))
+  (log-info information))
 (: print-warning PrintThingy)
 (define (print-warning information)
-  (when (memq (verbosity) '(all warnings errors-and-warnings))
-    (displayln (format "[~a] WARNING: ~a" (getDisplayTime) information))))
+  (log-warning information))
 (: print-error PrintThingy)
 (define (print-error information)
-  (when (memq (verbosity) '(all errors errors-and-warnings))
-    (displayln (format "[~a] ERROR:   ~a" (getDisplayTime) information)
-               (current-error-port))))
-(print-error "TODO: make verbosity a cli argument")
+  (log-error information))

@@ -23,7 +23,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #f)
 (module+ main
   (require (only-in typed/racket/class new)
-           (only-in "consoleFeedback.rkt" print-info)
+           (only-in "consoleFeedback.rkt" print-info print-error)
            (only-in "shell/bm-window.rkt" bm-window% Bm-window%))
-  (print-info "Opening Bad-Mitten Browser…")
-  (new bm-window% [links (vector->list (current-command-line-arguments))]))
+  (require/typed racket/logging
+                 [with-logging-to-port (All (A) (-> Port
+                                                    (-> A)
+                                                    ;[#:logger Logger]
+                                                    (U 'none 'fatal 'error
+                                                       'warning 'info 'debug)
+                                                    #|[(U #f Symbol) ...]
+                                                    ...|#
+                                                    A))])
+  (with-logging-to-port (current-output-port)
+                        (lambda ()
+                          (print-error "TODO: make verbosity a cli argument")
+                          (print-info "Opening Bad-Mitten Browser…")
+                          (new bm-window% [links (vector->list (current-command-line-arguments))]))
+                        'warning))
