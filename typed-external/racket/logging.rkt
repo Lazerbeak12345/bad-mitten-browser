@@ -1,7 +1,6 @@
-#!/usr/bin/env racket
 #lang typed/racket/base
 #|
-This file is a part of the Bad-Mitten Browser and serves as the entry point
+This file is a part of the Bad-Mitten Browser and types racket/logging
 Copyright (C) 2022 Lazerbreak12345 jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
@@ -17,16 +16,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(module+ test
-  (log-error "No tests written!?")
-  #f)
-(module+ main
-  (require (only-in typed/racket/class new)
-           (only-in "shell/bm-window.rkt" bm-window% Bm-window%)
-           (only-in "typed-external/racket/logging.rkt" with-logging-to-port))
-  (with-logging-to-port (current-output-port)
-                        (lambda ()
-                          (log-error "TODO: make verbosity a cli argument")
-                          (log-info "Opening Bad-Mitten Browser…")
-                          (new bm-window% [links (vector->list (current-command-line-arguments))]))
-                        'warning))
+(require/typed/provide
+  racket/logging
+  [with-logging-to-port (All (A) (-> Port
+                                     (-> A)
+                                     ;[#:logger Logger]
+                                     (U 'none 'fatal 'error
+                                     'warning 'info 'debug)
+                                     #|[(U #f Symbol) ...]
+                                     ...|#
+                                     A))])
