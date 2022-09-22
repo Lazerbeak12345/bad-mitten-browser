@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and holds the build-in pages
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022  Nathan Fritzler jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
