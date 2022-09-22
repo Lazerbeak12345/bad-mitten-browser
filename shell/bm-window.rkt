@@ -53,7 +53,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   Panel%
                   Text-Field%
                   Control-Event%)
-         (only-in "../consoleFeedback.rkt" print-info)
          (only-in "custom-tab-panel.rkt"
                   tab-panel-closable%
                   Tab-Panel-Closable%)
@@ -97,13 +96,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define frame : (Instance Frame%)
       (let-values ([(width height)
                     (get-display-size)])
-        (print-info (format "w&h ~a ~a" width height))
+        (log-info (format "w&h ~a ~a" width height))
         (define scaleWindow (; those squareish ones
                              (height width . and . (height . < . width))
                              . or .
                              ; 4k should be scaled too
                              (height . and . (height . > . 1500))))
-        (unless scaleWindow (print-info "Scaling initial window size!"))
+        (unless scaleWindow (log-info "Scaling initial window size!"))
         (new frame%
              [label label]
              ; I just guessed these numbers. Works for gnome, works for me
@@ -157,7 +156,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
        (Instance Control-Event%) -> Void)
     (define (locationChanged pane event)
       (when ((send event get-event-type) . eq? . 'text-field-enter)
-        (print-info "Location changed!")
+        (log-info "Location changed!")
         ; They already have access to the url box
         (send (getCurrentTab) locationChanged)))
     (define addTabBtn : (Instance Button%)
@@ -234,7 +233,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ; Called to either hide or show the tab row
     (: hideTabRow : Boolean -> Void)
     (define/private (hideTabRow bool)
-      (print-info (format "hideTabRow ~a" bool))
+      (log-info (format "hideTabRow ~a" bool))
       (if bool
         (send frame delete-child tabManagerPanel)
         (begin 
@@ -243,7 +242,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           (send frame add-child tab-holder))))
     (: addTabBtnCallback : -> Void)
     (define/private (addTabBtnCallback)
-      (print-info "Making new tab")
+      (log-info "Making new tab")
       (send (getCurrentTab) unfocus)
       (when ((length tabs) . = . 1)
         (hideTabRow #f))
@@ -263,7 +262,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (define focused-left-of-close (current-focused . > . index))
       (send (list-ref tabs last-tab-focused) unfocus)
       (let ([index-tab (list-ref tabs index)])
-        (print-info (format "Closing ~a at index ~a"
+        (log-info (format "Closing ~a at index ~a"
                             (send index-tab get-title)
                             index))
         (send index-tab close))
@@ -283,7 +282,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
              (hideTabRow #t))
       (do-focus))
     (let-values ([(width height) (send addTabBtn get-graphical-min-size)])
-      ; (print-info (~a width))
+      ; (log-info (~a width))
       (send locationBack    min-width width)
       (send locationForward min-width width)
       (send locationReload  min-width width)
@@ -292,7 +291,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define tabs : (Listof (Instance Tab%)) null)
     (: getCurrentTab : -> (Instance Tab%))
     (define/private (getCurrentTab)
-      (print-info "Getting current tab")
+      (log-info "Getting current tab")
       (list-ref tabs ((send tab-elm get-selection) . or . 0)))
     (: do-focus : -> Void)
     (define/private (do-focus)
@@ -305,7 +304,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (send frame set-label (format "~a - ~a" title label)))
     (: update-title : -> Void)
     (define (update-title)
-      (print-info "Updating title")
+      (log-info "Updating title")
       (let ([title (send (getCurrentTab) get-title)]
             [currentNum : Integer ((send tab-elm get-selection) . or . 0)])
         (set-title title)

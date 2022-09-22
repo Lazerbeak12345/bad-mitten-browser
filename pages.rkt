@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   url-host url-path
                   Path/Param
                   URL)
-         (only-in "consoleFeedback.rkt" print-warning)
          (only-in "xexp-type.rkt" Xexp))
 (define-type String/Up/Same (Listof (U 'same 'up String)))
 (require/typed html-parsing [html->xexp (Input-Port -> Xexp)])
@@ -48,7 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                               ,e)))))
 (: directory-page : Path-String Path-For-Some-System Boolean -> Xexp)
 (define (directory-page path-string theUrl/path show-hidden)
-  (print-warning "TODO add control links")
+  (log-warning "TODO add control links")
   (define dir-list (directory-list path-string))
   `(*TOP*
      (*DECL* DOCTYPE html)

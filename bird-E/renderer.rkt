@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and is the root of a dom tree
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022  Nathan Fritzler jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   Area-Container<%>
                   Editor-Canvas%
                   Pasteboard%)
-         (only-in "../consoleFeedback.rkt" print-info)
          (only-in "../networking.rkt" makeInitTree)
          (only-in "box-bounding.rkt" box-bounding location)
          (only-in "dom-elm.rkt" dom-elm% Dom-Elm% Dom-Elm-Child)
@@ -66,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define/public (set-document-title! title)
                    (init-setTitle! title))
     (define/public (navigate-to newUrl)
-      (print-info (format "navigate-to ~a" newUrl))
+      (log-info (format "navigate-to ~a" newUrl))
       (send pasteboard-instance begin-edit-sequence #f)
       (send pasteboard-instance select-all)
       (send pasteboard-instance delete)
@@ -80,20 +79,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ; It should always be a dom-elm
             #:when (element . is-a? . dom-elm%))
            ; Both return none
-           #|(print-info (format "get-max-width ~a"
+           #|(log-info (format "get-max-width ~a"
                                (send pasteboard-instance get-max-width)))
-           (print-info (format "get-min-width ~a"
+           (log-info (format "get-min-width ~a"
                                (send pasteboard-instance get-min-width)))|#
            ; Seems to always return really small numbers
-           #|(print-info (format "get-extent ~a"
+           #|(log-info (format "get-extent ~a"
                                (let ([w : (Boxof Real) (box 0)]
                                      [h : (Boxof Real) (box 0)])
                                  (send pasteboard-instance get-extent w h)
                                  (list w h))))|#
            ; These both always seem to return 14
-           #|(print-info (format "editor-canvas.get-width ~a"
+           #|(log-info (format "editor-canvas.get-width ~a"
                                (send editor-canvas-instance get-width)))
-           (print-info
+           (log-info
              (format "editor-canvas.get-size ~a"
                      (let-values ([(w h)
                                    (send editor-canvas-instance get-size)])

@@ -18,12 +18,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
 (module+ test
-  (require (only-in "consoleFeedback.rkt" print-error))
-  (print-error "No tests written!?")
+  (log-error "No tests written!?")
   #f)
 (module+ main
   (require (only-in typed/racket/class new)
-           (only-in "consoleFeedback.rkt" print-info print-error)
            (only-in "shell/bm-window.rkt" bm-window% Bm-window%))
   (require/typed racket/logging
                  [with-logging-to-port (All (A) (-> Port
@@ -36,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                                     A))])
   (with-logging-to-port (current-output-port)
                         (lambda ()
-                          (print-error "TODO: make verbosity a cli argument")
-                          (print-info "Opening Bad-Mitten Browser…")
+                          (log-error "TODO: make verbosity a cli argument")
+                          (log-info "Opening Bad-Mitten Browser…")
                           (new bm-window% [links (vector->list (current-command-line-arguments))]))
                         'warning))

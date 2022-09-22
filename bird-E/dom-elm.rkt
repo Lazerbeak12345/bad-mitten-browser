@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and is a nontext domtree element
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022  Nathan Fritzler jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   Pasteboard%
                   Snip%
                   String-Snip%)
-         (only-in "../consoleFeedback.rkt" print-error print-info print-warning)
          (only-in "../xexp-type.rkt" Xexp-attr)
          (only-in "box-bounding.rkt"
                   add-box-boundings 
@@ -163,7 +162,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                       (location-y parent-cursor)
                       snip-width
                       snip-height))
-    (print-warning "TODO dom-elm.rkt more keyword args")
+    (log-warning "TODO dom-elm.rkt more keyword args")
     #|Reposition this element and its children|#
     (define/public
       (reposition parent-min-size parent-max-size parent-cursor parent-display)
@@ -195,13 +194,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                    ; TODO does this need a fix?
                    (length init-children))
     (define/public (get-text a b [c #f])
-                   (print-error "fix Dom-Elm% get-text")
+                   (log-error "fix Dom-Elm% get-text")
                    (send snip get-text a b c))
     ; TODO define private vars for keeping track of box-sizing when needed
     (case init-name
       [(head script)
        (set! display 'none)
-       (print-info (format "it's a ~a!" init-name))]
+       (log-info (format "it's a ~a!" init-name))]
       [(title)
        (define title "")
        (for ([element init-children])

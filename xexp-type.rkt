@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and is in charge of the xexp type
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022  Nathan Fritzler jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require (only-in "consoleFeedback.rkt" print-error))
 (define-type Xexp-decl (Pair '*DECL* (Listof (U String Symbol))))
 (define-predicate xexp-decl? Xexp-decl)
 (provide xexp-decl? Xexp-decl)
@@ -106,5 +105,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [(reg)   #\®]
     ; The &#160; form is already handled by html-parsing, but here's where it
     ; would go
-    [else (print-error (format "Unknown html escape: ~a" (cadr theXexp)))
+    [else (log-error (format "Unknown html escape: ~a" (cadr theXexp)))
           #\uFFFD]))

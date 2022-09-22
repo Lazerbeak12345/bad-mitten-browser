@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and makes dom trees from xexps
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022  Nathan Fritzler jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          (only-in typed/racket/class make-object new)
          (only-in typed/racket/gui/base Editor<%>)
          (only-in typed/racket/snip string-snip%)
-         (only-in "../consoleFeedback.rkt" print-error print-warning)
          (only-in "../xexp-type.rkt"
                   xexp?
                   xexp-attrs
@@ -42,10 +41,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
        (eq? 'br (xexp-name theXexp))))
 ;(define-type Doctype (U 'html5 'quirks))
 (define-type Doctype Symbol)
-(print-warning "TODO: fix Doctype type in xexp-to-dom.rkt")
+(log-warning "TODO: fix Doctype type in xexp-to-dom.rkt")
 (: get-decl-doctype : Xexp-decl -> Doctype)
 (define (get-decl-doctype theDecl)
-  (print-error "get-decl-doctype not written yet")
+  (log-error "get-decl-doctype not written yet")
   'quirks)
 ; NOTE: changes to #:doctype are not propigated upwards through the dom
 (: xexp->dom :

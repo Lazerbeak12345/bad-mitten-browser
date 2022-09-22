@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and handles network communication
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022  Nathan Fritzler jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   URL)
          (only-in typed/net/url-connect current-https-protocol)
          (only-in typed/net/head extract-field)
-         (only-in "consoleFeedback.rkt" print-error print-info print-warning)
          (only-in "pages.rkt"
                   bmUrl
                   directory-page
@@ -65,7 +64,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
      (with-handlers ([exn:fail:filesystem?;exn:fail:filesystem:errno?
                        (lambda ({e : exn})
                          (makeErrorMessage (exn-message e)))])
-                    (print-error "Check MIME type here")
+                    (log-error "Check MIME type here")
                     (define theUrl/path (url->path theUrl))
                     (define path-string
                       (bytes->string/locale (path->bytes theUrl/path)))
@@ -84,7 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                          (makeErrorMessage (exn-message e)))])
                     (if (not (url-host theUrl))
                       (begin
-                        (print-info "Adjusting to have host")
+                        (log-info "Adjusting to have host")
                         (doRedirect (url->string (makeUrlHaveHost theUrl)))
                         '(*TOP*))
                       (let-values
@@ -92,14 +91,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                           (get-pure-port/headers 
                             theUrl
                             #:connection (make-http-connection))])
-                        (print-warning "send better headers")
+                        (log-warning "send better headers")
                         (let ([location (extract-field #"location" headers)])
                           (when location
                             (doRedirect (bytes->string/locale location))))
                         ; We always want to see what their server says about
                         ; it, just in case. (keep in mind the new location may
                         ; not resolve)
-                        (print-info (format "headers\n~a" headers))
+                        (log-info (format "headers\n~a" headers))
                         (define content-type : String
                           (let ([raw-content-type 
                                   (extract-field #"content-type" headers)])
@@ -132,7 +131,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (htmlTreeFromUrl
         theUrl
         (lambda (newUrlStr)
-          (print-info (format "Redirect to ~a" newUrlStr))
+          (log-info (format "Redirect to ~a" newUrlStr))
           (set! theUrl (combine-url/relative theUrl newUrlStr)))))
     (when changedUrl
       (if (0 . < . redirectionMax)
@@ -141,5 +140,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                  `(redirect ,(url->string theUrl)))|#
           (setTheUrl! theUrl)
           (loop (redirectionMax . - . 1) theUrl))
-        (print-info "Hit max redirect!")))
+        (log-info "Hit max redirect!")))
     tree))
