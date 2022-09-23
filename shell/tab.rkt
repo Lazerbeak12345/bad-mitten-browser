@@ -30,57 +30,98 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   super-new)
          (only-in typed/net/url netscape/string->url url->string URL)
          (only-in "../bird-E/renderer.rkt" renderer% Renderer%))
-(provide tab% Tab%)
-(define-type Tab% 
-  (Class (init [url URL]
-               [locationBox (Instance Text-Field%)]
-               [locationBack (Instance Button%)]
-               [locationForward (Instance Button%)]
-               [tab-holder (Instance Panel%)]
-               [update-title (-> Void)])
-         [close (-> Void)]
-         [locationChanged (-> Void)]
-         [focus (-> Void)]
-         [unfocus (-> Void)]
-         [reload (-> Void)]
-         [back (-> Void)]
-         [forward (-> Void)]
-         [get-title (-> String)]
-         [get-url (-> URL)]))
-(define tab% : Tab%
+(provide tab%
+         Tab%)
+(define-type Tab%
+             (Class (init [url URL]
+                          [locationBox (Instance Text-Field%)]
+                          [locationBack (Instance Button%)]
+                          [locationForward (Instance Button%)]
+                          [tab-holder (Instance Panel%)]
+                          [update-title (-> Void)])
+                    [close (-> Void)]
+                    [locationChanged (-> Void)]
+                    [focus (-> Void)]
+                    [unfocus (-> Void)]
+                    [reload (-> Void)]
+                    [back (-> Void)]
+                    [forward (-> Void)]
+                    [get-title (-> String)]
+                    [get-url (-> URL)]))
+(define tab%
+  :
+  Tab%
   (class object%
-    (init url locationBox locationBack locationForward tab-holder update-title)
-    (define self-url : URL url)
-    (define ext-locationBox : (Instance Text-Field%) locationBox)
-    (define ext-locationBack : (Instance Button%) locationBack)
-    (define ext-locationForward : (Instance Button%) locationForward)
-    (define ext-tab-holder : (Instance Panel%) tab-holder)
-    (define ext-update-title : (-> Void) update-title)
+    (init url
+          locationBox
+          locationBack
+          locationForward
+          tab-holder
+          update-title)
+    (define self-url
+      :
+      URL
+      url)
+    (define ext-locationBox
+      :
+      (Instance Text-Field%)
+      locationBox)
+    (define ext-locationBack
+      :
+      (Instance Button%)
+      locationBack)
+    (define ext-locationForward
+      :
+      (Instance Button%)
+      locationForward)
+    (define ext-tab-holder
+      :
+      (Instance Panel%)
+      tab-holder)
+    (define ext-update-title
+      :
+      (-> Void)
+      update-title)
     ; Should always be either the url as a string, or the html title
-    (define title : String (url->string self-url))
-    (define history : (Listof URL) '())
-    (define history-future : (Listof URL) '())
-    (define renderer : (U Null (Instance Renderer%)) null)
+    (define title
+      :
+      String
+      (url->string self-url))
+    (define history
+      :
+      (Listof URL)
+      '())
+    (define history-future
+      :
+      (Listof URL)
+      '())
+    (define renderer
+      :
+      (U Null (Instance Renderer%))
+      null)
     ;place for tab to be rendered upon
-    (define thisPanel : (Instance Panel%)
-      (new panel%
-           [parent ext-tab-holder]
-           [style '(deleted)]))
+    (define thisPanel
+      :
+      (Instance Panel%)
+      (new panel% [parent ext-tab-holder] [style '(deleted)]))
     (: initRenderer : -> Void)
     (define/private (initRenderer)
       (log-info (format "Starting renderer on ~a" (url->string self-url)))
       (clean)
       (unless (null? renderer)
         (error 'initRenderer "Can only be called once."))
-      (set! renderer (new renderer%
-                          [parent thisPanel]
-                          [initial-URL self-url]
-                          [setUrl! (lambda(newUrl)
-                                     (set! self-url newUrl)
-                                     (clean))]
-                          [setTitle! (lambda(newTitle)
-                                       (set! title newTitle)
-                                       (ext-update-title))])))
+      (set! renderer
+            (new renderer%
+                 [parent thisPanel]
+                 [initial-URL self-url]
+                 [setUrl!
+                  (lambda (newUrl)
+                    (set! self-url newUrl)
+                    (clean))]
+                 [setTitle!
+                  (lambda (newTitle)
+                    (set! title newTitle)
+                    (ext-update-title))])))
     (: navigate-to : URL -> Void)
     (define/private (navigate-to the-url)
       (log-info (format "Navigating to '~a'" title))
@@ -109,16 +150,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define/public (locationChanged)
       (define new-url (netscape/string->url (send ext-locationBox get-value)))
       (if (equal? self-url new-url)
-        (log-warning "Url value didn't change")
-        (let ([self-url-string (url->string self-url)]
-              [new-url-string (url->string new-url)])
-          (log-info (format "Changing '~a' to '~a'"
-                              self-url-string
-                              new-url-string))
-          (send ext-locationBox set-value new-url-string)
-          (set! history (cons self-url history))
-          (set! history-future '())
-          (navigate-to new-url))))
+          (log-warning "Url value didn't change")
+          (let ([self-url-string (url->string self-url)] [new-url-string (url->string new-url)])
+            (log-info (format "Changing '~a' to '~a'" self-url-string new-url-string))
+            (send ext-locationBox set-value new-url-string)
+            (set! history (cons self-url history))
+            (set! history-future '())
+            (navigate-to new-url))))
     (define/public (focus)
       (log-info (format "Focusing '~a'" (url->string self-url)))
       (when (null? renderer)
@@ -134,16 +172,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (navigate-to self-url))
     (define/public (back)
       (log-info (format "Going back on '~a'" (url->string self-url)))
-      (let* ([new-url (first history)]
-             [new-url-string (url->string new-url)])
+      (let* ([new-url (first history)] [new-url-string (url->string new-url)])
         (send ext-locationBox set-value new-url-string)
         (set! history (cdr history))
         (set! history-future (cons self-url history-future))
         (navigate-to new-url)))
     (define/public (forward)
       (log-info (format "Going forward on '~a'" (url->string self-url)))
-      (let* ([new-url (first history-future)]
-             [new-url-string (url->string new-url)])
+      (let* ([new-url (first history-future)] [new-url-string (url->string new-url)])
         (send ext-locationBox set-value new-url-string)
         (set! history (cons self-url history))
         (set! history-future (cdr history-future))

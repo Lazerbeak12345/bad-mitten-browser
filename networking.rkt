@@ -34,13 +34,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   URL)
          (only-in typed/net/url-connect current-https-protocol)
          (only-in typed/net/head extract-field)
-         (only-in "pages.rkt"
-                  bmUrl
-                  directory-page
-                  getTreeFromPortAndCloseIt
-                  makeErrorMessage)
+         (only-in "pages.rkt" bmUrl directory-page getTreeFromPortAndCloseIt makeErrorMessage)
          (only-in "xexp-type.rkt" Xexp))
-(provide htmlTreeFromUrl makeInitTree)
+(provide htmlTreeFromUrl
+         makeInitTree)
 ;(current-https-protocol 'secure)
 (current-https-protocol 'auto)
 (current-url-encode-mode 'unreserved)
@@ -50,95 +47,84 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 (: makeUrlHaveHost : URL -> URL)
 (define (makeUrlHaveHost theUrl)
   (if (url-host theUrl)
-    theUrl
-    (struct-copy url theUrl
-                 [host (let ([path (car (url-path theUrl))])
-                         (if (string? path)
-                           path
-                           #f))]
-                 [path (cdr (url-path theUrl))])))
+      theUrl
+      (struct-copy url
+                   theUrl
+                   [host (let ([path (car (url-path theUrl))]) (if (string? path) path #f))]
+                   [path (cdr (url-path theUrl))])))
 (: htmlTreeFromUrl : URL (String -> Void) -> Xexp)
 (define (htmlTreeFromUrl theUrl doRedirect)
   (case (url-scheme theUrl)
     [("file")
-     (with-handlers ([exn:fail:filesystem?;exn:fail:filesystem:errno?
-                       (lambda ({e : exn})
-                         (makeErrorMessage (exn-message e)))])
-                    (log-error "Check MIME type here")
-                    (define theUrl/path (url->path theUrl))
-                    (define path-string
-                      (bytes->string/locale (path->bytes theUrl/path)))
-                    (define show-hidden : Boolean #f)
-                    (for ([item (url-query theUrl)]
-                          #:when ((car item) . eq? . 'show-hidden))
-                         (set! show-hidden #t))
-                    (if (directory-exists? path-string)
-                      ; It's a dir
-                      (directory-page path-string theUrl/path show-hidden)
-                      ; It's a file
-                      (getTreeFromPortAndCloseIt (open-input-file path-string))))]
+     (with-handlers ([exn:fail:filesystem? ;exn:fail:filesystem:errno?
+                      (lambda ({e : exn}) (makeErrorMessage (exn-message e)))])
+       (log-error "Check MIME type here")
+       (define theUrl/path (url->path theUrl))
+       (define path-string (bytes->string/locale (path->bytes theUrl/path)))
+       (define show-hidden
+         :
+         Boolean
+         #f)
+       (for ([item (url-query theUrl)] #:when ((car item) . eq? . 'show-hidden))
+         (set! show-hidden #t))
+       (if (directory-exists? path-string)
+           ; It's a dir
+           (directory-page path-string theUrl/path show-hidden)
+           ; It's a file
+           (getTreeFromPortAndCloseIt (open-input-file path-string))))]
     [("http" "https")
      (with-handlers ([exn:fail:network:errno?
-                       (lambda ({e : exn})
-                         (makeErrorMessage (exn-message e)))])
-                    (if (not (url-host theUrl))
-                      (begin
-                        (log-info "Adjusting to have host")
-                        (doRedirect (url->string (makeUrlHaveHost theUrl)))
-                        '(*TOP*))
-                      (let-values
-                        ([(port headers)
-                          (get-pure-port/headers 
-                            theUrl
-                            #:connection (make-http-connection))])
-                        (log-warning "send better headers")
-                        (let ([location (extract-field #"location" headers)])
-                          (when location
-                            (doRedirect (bytes->string/locale location))))
-                        ; We always want to see what their server says about
-                        ; it, just in case. (keep in mind the new location may
-                        ; not resolve)
-                        (log-info (format "headers\n~a" headers))
-                        (define content-type : String
-                          (let ([raw-content-type 
-                                  (extract-field #"content-type" headers)])
-                            (if raw-content-type
-                              (string-downcase
-                                (first (string-split
-                                         (bytes->string/locale
-                                           raw-content-type)
-                                         ";")))
-                              "")))
-                        (case content-type
-                          [("text/html")
-                           (getTreeFromPortAndCloseIt port)]
-                          [("text/plain")
-                           `(*TOP* (code ,(port->string port)))]
-                          [else (makeErrorMessage
-                                  (format "unsupported MIME type ~a"
-                                          content-type))]))))]
+                      (lambda ({e : exn}) (makeErrorMessage (exn-message e)))])
+       (if (not (url-host theUrl))
+           (begin
+             (log-info "Adjusting to have host")
+             (doRedirect (url->string (makeUrlHaveHost theUrl)))
+             '(*TOP*))
+           (let-values ([(port headers)
+                         (get-pure-port/headers theUrl #:connection (make-http-connection))])
+             (log-warning "send better headers")
+             (let ([location (extract-field #"location" headers)])
+               (when location
+                 (doRedirect (bytes->string/locale location))))
+             ; We always want to see what their server says about
+             ; it, just in case. (keep in mind the new location may
+             ; not resolve)
+             (log-info (format "headers\n~a" headers))
+             (define content-type
+               :
+               String
+               (let ([raw-content-type (extract-field #"content-type" headers)])
+                 (if raw-content-type
+                     (string-downcase
+                      (first (string-split (bytes->string/locale raw-content-type) ";")))
+                     "")))
+             (case content-type
+               [("text/html") (getTreeFromPortAndCloseIt port)]
+               [("text/plain") `(*TOP* (code ,(port->string port)))]
+               [else (makeErrorMessage (format "unsupported MIME type ~a" content-type))]))))]
     [("bm" "about") (bmUrl theUrl)]
-    ; Should never reach here, but if it _does_ happen, this will handle for 
+    ; Should never reach here, but if it _does_ happen, this will handle for
     ; that.
-    [(#f) (makeErrorMessage "Can't handle a lack of a scheme")] 
-    [else (makeErrorMessage (format "Can't handle the scheme '~a'"
-                                    (url-scheme theUrl)))]))
+    [(#f) (makeErrorMessage "Can't handle a lack of a scheme")]
+    [else (makeErrorMessage (format "Can't handle the scheme '~a'" (url-scheme theUrl)))]))
 (: makeInitTree : URL (URL -> Void) -> Xexp)
 (define (makeInitTree initialUrl setTheUrl!)
   (let loop ([redirectionMax 10] [theUrl initialUrl])
-    (define changedUrl : Boolean #f)
+    (define changedUrl
+      :
+      Boolean
+      #f)
     (define tree
-      (htmlTreeFromUrl
-        theUrl
-        (lambda (newUrlStr)
-          (log-info (format "Redirect to ~a" newUrlStr))
-          (set! theUrl (combine-url/relative theUrl newUrlStr)))))
+      (htmlTreeFromUrl theUrl
+                       (lambda (newUrlStr)
+                         (log-info (format "Redirect to ~a" newUrlStr))
+                         (set! theUrl (combine-url/relative theUrl newUrlStr)))))
     (when changedUrl
       (if (0 . < . redirectionMax)
-        (begin
-          #|(place-channel-put this-place
+          (begin
+            #|(place-channel-put this-place
                                  `(redirect ,(url->string theUrl)))|#
-          (setTheUrl! theUrl)
-          (loop (redirectionMax . - . 1) theUrl))
-        (log-info "Hit max redirect!")))
+            (setTheUrl! theUrl)
+            (loop (redirectionMax . - . 1) theUrl))
+          (log-info "Hit max redirect!")))
     tree))

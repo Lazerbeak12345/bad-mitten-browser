@@ -16,13 +16,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 |#
-(require/typed/provide
-  racket/logging
-  [with-logging-to-port (All (A) (-> Port
-                                     (-> A)
-                                     ;[#:logger Logger]
-                                     (U 'none 'fatal 'error
-                                     'warning 'info 'debug)
-                                     #|[(U #f Symbol) ...]
+(require/typed/provide racket/logging
+                       [with-logging-to-port
+                        (All (A)
+                             (-> Port
+                                 (-> A)
+                                 ;[#:logger Logger]
+                                 (U 'none 'fatal 'error 'warning 'info 'debug)
+                                 #|[(U #f Symbol) ...]
                                      ...|#
-                                     A))])
+                                 A))])

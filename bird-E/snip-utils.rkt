@@ -1,7 +1,7 @@
 #lang typed/racket/base
 #|
 This file is a part of the Bad-Mitten Browser and simplifies snip size math
-Copyright (C) 2021  Nathan Fritzler jointly with the Free Software Foundation
+Copyright (C) 2022  Nathan Fritzler jointly with the Free Software Foundation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,20 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
          (only-in typed/racket/gui/base Editor<%> Snip%))
 (provide get-snip-coordinates)
 #|Returns false if snip not found, values x y width height if found|#
-(: get-snip-coordinates :
-   (Instance Editor<%>)
-   (Instance Snip%)
-   -> (Values Real Real Real Real))
+(: get-snip-coordinates : (Instance Editor<%>) (Instance Snip%) -> (Values Real Real Real Real))
 (define (get-snip-coordinates editor snip)
-  (let ([x : (Boxof Real) (box 0)]
-        [y : (Boxof Real) (box 0)]
-        [x+w : (Boxof Real) (box 0)]
-        [y+h : (Boxof Real) (box 0)])
-    (and (send editor get-snip-location snip x y #f)
-         (send editor get-snip-location snip x+w y+h #t))
-    (let ([actualX (unbox x)]
-          [actualY (unbox y)])
-      (values actualX
-              actualY
-              ((unbox x+w) . - . actualX)
-              ((unbox y+h) . - . actualY)))))
+  (let ([x
+         :
+         (Boxof Real)
+         (box 0)]
+        [y
+         :
+         (Boxof Real)
+         (box 0)]
+        [x+w
+         :
+         (Boxof Real)
+         (box 0)]
+        [y+h
+         :
+         (Boxof Real)
+         (box 0)])
+    (and (send editor get-snip-location snip x y #f) (send editor get-snip-location snip x+w y+h #t))
+    (let ([actualX (unbox x)] [actualY (unbox y)])
+      (values actualX actualY ((unbox x+w) . - . actualX) ((unbox y+h) . - . actualY)))))

@@ -38,31 +38,23 @@ Copyright Lazerbeak12345 2022
 > IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 > DEALINGS IN THE SOFTWARE.
 |#
-(require (only-in typed/racket/class
-                  class
-                  super-new
-                  init-field
-                  define/augment
-                  define/override
-                  super)
+(require (only-in typed/racket/class class super-new init-field define/augment define/override super)
          (only-in typed/racket/gui/base tab-panel% Tab-Panel%))
-(define-type Tab-Panel-Closable%
-             (Class #:implements/inits Tab-Panel%
-                    (init-field [on-reorder-callback ((Listof
-                                                        Exact-Nonnegative-Integer)
-                                                      -> Void)
-                                                     #:optional]
-                                [on-close-request-callback
-                                  (Exact-Nonnegative-Integer -> Void)
-                                  #:optional])))
-(define tab-panel-closable% : Tab-Panel-Closable%
+(define-type
+ Tab-Panel-Closable%
+ (Class #:implements/inits Tab-Panel%
+        (init-field [on-reorder-callback ((Listof Exact-Nonnegative-Integer) -> Void) #:optional]
+                    [on-close-request-callback (Exact-Nonnegative-Integer -> Void) #:optional])))
+(define tab-panel-closable%
+  :
+  Tab-Panel-Closable%
   (class tab-panel%
     (super-new)
     (init-field [on-reorder-callback (lambda (_) (void))]
                 [on-close-request-callback (lambda (_) (void))])
-    (define/augment (on-reorder tab-list)
-                    (on-reorder-callback tab-list))
+    (define/augment (on-reorder tab-list) (on-reorder-callback tab-list))
     (define/override (on-close-request index)
-                     (super on-close-request index)
-                     (on-close-request-callback index))))
-(provide tab-panel-closable% Tab-Panel-Closable%)
+      (super on-close-request index)
+      (on-close-request-callback index))))
+(provide tab-panel-closable%
+         Tab-Panel-Closable%)
