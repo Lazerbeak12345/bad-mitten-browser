@@ -25,13 +25,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
            (only-in typed/racket/class new)
            (only-in "shell/bm-window.rkt" bm-window% Bm-window%)
            (only-in "typed-external/racket/logging.rkt" with-logging-to-port))
-  (define arg-links : (Listof String) '())
-  (command-line #:usage-help "A www browser using the racket framework to be as small as possible."
-                #:args links (set! arg-links (for/list : (Listof String) ([link links])
-                                               (assert link string?))))
-  (with-logging-to-port (current-output-port)
-                        (lambda ()
-                          (log-error "TODO: make verbosity a cli argument")
-                          (log-info "Opening Bad-Mitten Browser…")
-                          (new bm-window% [links arg-links]))
-                        'warning))
+  (: arg-links (Listof String))
+  (define arg-links '())
+  (: web-driver-api-enabled Boolean)
+  (define web-driver-api-enabled #f)
+  (command-line
+   #:usage-help "A www browser using the racket framework to be as small as possible."
+   #:once-each
+   ("--enable-web-driver-api"
+    =>
+    (lambda (arg) (set! web-driver-api-enabled #t))
+    ; TODO Multiple help strings don't work, nor does
+    ; string-join
+    '("Activate an API made to allow automated testing frameworks to control your browser.\n\tDisabled by default for security reasons."))
+   #:args links
+   (set! arg-links
+         (for/list :
+           (Listof String)
+           ((link links))
+           (assert link string?))))
+  (if web-driver-api-enabled
+      (begin
+        (log-fatal "Code for webdriver has not been written yet")
+        (exit 1))
+      (with-logging-to-port (current-output-port)
+                            (lambda ()
+                              (log-error "TODO: make verbosity a cli argument")
+                              (log-info "Opening Bad-Mitten Browser…")
+                              (new bm-window% [links arg-links]))
+                            'warning)))
