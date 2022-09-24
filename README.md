@@ -1,5 +1,7 @@
 # Bad-Mitten browser
 
+[![Racket](https://img.shields.io/badge/-Made%20with%20Racket-darkred?logo=racket)](https://racket-lang.org)
+
 A www browser using the racket framework to be as small as possible.
 
 Now two years old! :tada: :tada:
@@ -36,7 +38,6 @@ I would like the tabs to have these changes:
 
 - They need to try to be as wide as possible, but once they are too small, hide
   like it does already.
-- They need (x) buttons to close them.
 
 I would like the titlebar to have these changes:
 
@@ -53,14 +54,6 @@ hovering. (System icons would be best here)
 
 ### Style Guide
 
-For a time I was abiding by this simple variant from the racket style guide:
-
-> When adding a close paren (as in `)` `]` or `}`), unless its corresponding
-> opener is on the same line, give this paren its own line.
-
-However, I have since reversed that decision. The benefits were very little
-when using an editor with parenthesis highlighting support.
-
 All imports must use `only-in` to improove code readability.
 
 ## Tools used
@@ -75,10 +68,10 @@ All imports must use `only-in` to improove code readability.
 
 ## Licence
 
-> This software is free software under the GPLv3 or later, and respects not
-> only the four freedoms, but also your privacy, unlike other browsers I
-> shouldn't name.
->
+This software is free software under the GPLv3 or later, and respects not
+only the four freedoms, but also your privacy, unlike other browsers I
+shouldn't name.
+
 > 0. The freedom to run the program as you wish, for any purpose (freedom 0).
 > 1. The freedom to study how the program works, and change it so it does your
 >    computing as you wish (freedom 1). Access to the source code is a
