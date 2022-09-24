@@ -80,26 +80,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
              (log-info "Adjusting to have host")
              (doRedirect (url->string (makeUrlHaveHost theUrl)))
              '(*TOP*))
-           (let-values ([(port headers)
+           (let-values ([(port response-headers-string)
                          (get-pure-port/headers theUrl #:connection (make-http-connection))])
              (log-warning "send better headers")
-             (let ([location (extract-field #"location" headers)])
-               (when location
-                 (doRedirect (bytes->string/locale location))))
+             (define response-headers-bytes (string->bytes/latin-1
+                                                         response-headers-string))
              ; We always want to see what their server says about
              ; it, just in case. (keep in mind the new location may
              ; not resolve)
-             (log-info "headers\n~a" headers)
+             (log-info "headers\n~a" response-headers-bytes)
+             (let ([location (extract-field #"location" response-headers-bytes)])
+               (when location
+                 (doRedirect (bytes->string/locale location))))
              (define content-type
                :
                String
-               (let ([raw-content-type (extract-field #"content-type" headers)])
+               (let ([raw-content-type (extract-field #"content-type"
+                                                      response-headers-bytes)])
                  (if raw-content-type
                      (string-downcase
                       (first (string-split (bytes->string/locale raw-content-type) ";")))
                      "")))
+             (log-error "TODO: support encodings that are not UTF-8")
              (case content-type
-               [("text/html") (getTreeFromPortAndCloseIt port)]
+               [("text/html" "application/xhtml+xml") (getTreeFromPortAndCloseIt port)]
                [("text/plain") `(*TOP* (code ,(port->string port)))]
                [else (makeErrorMessage (format "unsupported MIME type ~a" content-type))]))))]
     [("bm" "about") (bmUrl theUrl)]
