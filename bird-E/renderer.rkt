@@ -80,7 +80,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (super-new)
     (define/public (set-document-title! title) (init-setTitle! title))
     (define/public (navigate-to newUrl)
-      (log-info (format "navigate-to ~a" newUrl))
+      (log-info "navigate-to ~a" newUrl)
       (send pasteboard-instance begin-edit-sequence #f)
       (send pasteboard-instance select-all)
       (send pasteboard-instance delete)
@@ -95,19 +95,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             ; It should always be a dom-elm
             #:when (element . is-a? . dom-elm%))
         ; Both return none
-        #|(log-info (format "get-max-width ~a"
-                               (send pasteboard-instance get-max-width)))
-           (log-info (format "get-min-width ~a"
-                               (send pasteboard-instance get-min-width)))|#
+        #|(log-info "get-max-width ~a"
+                               (send pasteboard-instance get-max-width))
+           (log-info "get-min-width ~a"
+                               (send pasteboard-instance get-min-width))|#
         ; Seems to always return really small numbers
-        #|(log-info (format "get-extent ~a"
+        #|(log-info "get-extent ~a"
                                (let ([w : (Boxof Real) (box 0)]
                                      [h : (Boxof Real) (box 0)])
                                  (send pasteboard-instance get-extent w h)
-                                 (list w h))))|#
+                                 (list w h)))|#
         ; These both always seem to return 14
-        #|(log-info (format "editor-canvas.get-width ~a"
-                               (send editor-canvas-instance get-width)))
+        #|(log-info "editor-canvas.get-width ~a"
+                               (send editor-canvas-instance get-width))
            (log-info
              (format "editor-canvas.get-size ~a"
                      (let-values ([(w h)

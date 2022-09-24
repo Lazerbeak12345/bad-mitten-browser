@@ -197,7 +197,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (case init-name
       [(head script)
        (set! display 'none)
-       (log-info (format "it's a ~a!" init-name))]
+       (log-info "it's a ~a!" init-name)]
       [(title)
        (define title "")
        (for ([element init-children])

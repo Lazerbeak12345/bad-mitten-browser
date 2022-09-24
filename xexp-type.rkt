@@ -105,5 +105,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ; The &#160; form is already handled by html-parsing, but here's where it
     ; would go
     [else
-     (log-error (format "Unknown html escape: ~a" (cadr theXexp)))
+     (log-error "Unknown html escape: ~a" (cadr theXexp))
      #\uFFFD]))

@@ -89,7 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
              ; We always want to see what their server says about
              ; it, just in case. (keep in mind the new location may
              ; not resolve)
-             (log-info (format "headers\n~a" headers))
+             (log-info "headers\n~a" headers)
              (define content-type
                :
                String
@@ -117,7 +117,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (define tree
       (htmlTreeFromUrl theUrl
                        (lambda (newUrlStr)
-                         (log-info (format "Redirect to ~a" newUrlStr))
+                         (log-info "Redirect to ~a" newUrlStr)
                          (set! theUrl (combine-url/relative theUrl newUrlStr)))))
     (when changedUrl
       (if (0 . < . redirectionMax)

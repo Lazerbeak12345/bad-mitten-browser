@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       :
       (Instance Frame%)
       (let-values ([(width height) (get-display-size)])
-        (log-info (format "w&h ~a ~a" width height))
+        (log-info "w&h ~a ~a" width height)
         (define scaleWindow
           ; those squareish ones
           ((height width . and . (height . < . width)) . or .
@@ -232,7 +232,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ; Called to either hide or show the tab row
     (: hideTabRow : Boolean -> Void)
     (define/private (hideTabRow bool)
-      (log-info (format "hideTabRow ~a" bool))
+      (log-info "hideTabRow ~a" bool)
       (if bool
           (send frame delete-child tabManagerPanel)
           (begin
@@ -260,7 +260,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       (define focused-left-of-close (current-focused . > . index))
       (send (list-ref tabs last-tab-focused) unfocus)
       (let ([index-tab (list-ref tabs index)])
-        (log-info (format "Closing ~a at index ~a" (send index-tab get-title) index))
+        (log-info "Closing ~a at index ~a" (send index-tab get-title) index)
         (send index-tab close))
       (let ([counter -1])
         (set! tabs
