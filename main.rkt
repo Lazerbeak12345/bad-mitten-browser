@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     (lambda (arg) (set! web-driver-api-enabled #t))
     ; TODO Multiple help strings don't work, nor does
     ; string-join
-    '("Activate an API made to allow automated testing frameworks to control your browser.\n\tDisabled by default for security reasons."))
+    '("Activate an API made to allow automated testing frameworks to control your browser.\n\tDisabled by default for security reasons. Not yet implemented."))
    #:args links
    (set! arg-links
          (for/list :

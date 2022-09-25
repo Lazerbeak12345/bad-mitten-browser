@@ -83,8 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
            (let-values ([(port response-headers-string)
                          (get-pure-port/headers theUrl #:connection (make-http-connection))])
              (log-warning "send better headers")
-             (define response-headers-bytes (string->bytes/latin-1
-                                                         response-headers-string))
+             (define response-headers-bytes (string->bytes/latin-1 response-headers-string))
              ; We always want to see what their server says about
              ; it, just in case. (keep in mind the new location may
              ; not resolve)
@@ -95,8 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
              (define content-type
                :
                String
-               (let ([raw-content-type (extract-field #"content-type"
-                                                      response-headers-bytes)])
+               (let ([raw-content-type (extract-field #"content-type" response-headers-bytes)])
                  (if raw-content-type
                      (string-downcase
                       (first (string-split (bytes->string/locale raw-content-type) ";")))
